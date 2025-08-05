@@ -1,27 +1,26 @@
 # backend/Dockerfile
 
-# 1. Imagem base leve do Python
 FROM python:3.11-slim
 
-# 2. Variáveis de ambiente para não gerar arquivos .pyc e evitar cache do pip
+# Evita geração de .pyc e cache do pip
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
-# 3. Define o diretório de trabalho dentro do container
+# Diretório de trabalho onde o seu código estará
 WORKDIR /app
 
-# 4. Copia apenas o requirements.txt para aproveitar o cache do Docker
+# Copia só o requirements para cache de dependências
 COPY requirements.txt .
 
-# 5. Atualiza o pip e instala as dependências
+# Atualiza o pip e instala as libs
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# 6. Copia todo o restante do código da API para dentro do container
+# Copia todo o código da API para /app
 COPY . .
 
-# 7. Expõe a porta que o Uvicorn irá usar
+# Expõe a porta que o Uvicorn vai usar
 EXPOSE 8080
 
-# 8. Comando padrão para iniciar a aplicação FastAPI via Uvicorn
+# Inicia o servidor FastAPI via Uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
