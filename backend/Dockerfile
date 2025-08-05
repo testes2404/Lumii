@@ -5,19 +5,22 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
-# <-- Certifique-se de que é exatamente "/app" aqui, não outro nome
 WORKDIR /app
 
-# Instala dependências de forma cacheável
+# 1) Copia apenas o requirements específico do backend
 COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o código da API
+# 2) Atualiza o pip e instala tudo o que você precisa,
+#    incluindo fastapi, uvicorn e google-cloud-aiplatform
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir fastapi uvicorn[standard] google-cloud-aiplatform python-dotenv \
+ && pip install --no-cache-dir -r requirements.txt
+
+# 3) Copia o resto da aplicação
 COPY . .
 
-# Informa que estaremos escutando na porta 8080
+# 4) Expõe a porta em que o Render irá encaminhar o tráfego
 EXPOSE 8080
 
-# Inicia o Uvicorn apontando para o módulo main:app
+# 5) Comando de inicialização (usando o uvicorn que acabamos de instalar)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
