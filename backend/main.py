@@ -1,37 +1,45 @@
+# backend/main.py
+
+import os
+from dotenv import load_dotenv
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from google.cloud import aiplatform
 from pydantic import BaseModel
-from dotenv import load_dotenv
-import os
 
-load_dotenv()  # carrega variáveis GCP_PROJECT, GCP_REGION, etc.
+from google.cloud import aiplatform
 
-# inicializa client do Vertex AI
+# 1) Carrega variáveis de ambiente de um arquivo .env (GCP_PROJECT, GCP_REGION, etc.)
+load_dotenv()
+
+# 2) Inicializa o Vertex AI (AI Platform) com seu projeto e região
 aiplatform.init(
     project=os.getenv("GCP_PROJECT"),
     location=os.getenv("GCP_REGION"),
 )
 
+# 3) Cria a instância do FastAPI
 app = FastAPI()
 
-# CORS (libera seu front chamando a API)
+# 4) Configura CORS para permitir chamadas ao /api a partir de seu front-end
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],    # ou especifique algo como ["https://seu-domínio.com"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 1) Route da API em /api/…
+# 5) Modelo de request para a rota /api/ask
 class AskRequest(BaseModel):
     prompt: str
 
+# 6) Rota de health check (para verificar se o serviço está vivo)
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
 
+# 7) Rota que chama o modelo Gemini (Text Generation) no Vertex AI
 @app.post("/api/ask")
 def ask(request: AskRequest):
     try:
@@ -45,9 +53,10 @@ def ask(request: AskRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# 2) Monta o static na raiz “/”
+# 8) Monta seus arquivos estáticos (HTML/CSS/JS) em backend/static na raiz "/"
+#    html=True faz com que GET "/" sirva o index.html automaticamente.
 app.mount(
-    "/", 
-    StaticFiles(directory="static", html=True), 
-    name="static"
+    path="/",
+    app=StaticFiles(directory="static", html=True),
+    name="static",
 )
