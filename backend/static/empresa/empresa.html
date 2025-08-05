@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumii • Área da Empresa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background: #0A0A0A;
+      font-family: 'Poppins', sans-serif;
+      color: #EAEAEA;
+      overflow-x: hidden;
+    }
+    a, button { color: inherit; text-decoration: none; background: none; border: none; }
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: #111;
+      border-bottom: 1px solid #222;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      z-index: 100;
+      overflow-x: auto;
+    }
+    .topnav .btn {
+      background-color: transparent;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F5F5F5;
+      transition: background 0.2s, border-color 0.2s;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .topnav .btn:hover {
+      background: #222;
+      border-color: #555;
+    }
+    .content {
+      margin-top: 5rem;
+      padding: 2rem;
+      min-height: calc(100vh - 5rem);
+      width: auto;
+    }
+    #userEmailBadge {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(30,30,30,0.6);
+      backdrop-filter: blur(10px);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #EAEAEA;
+      z-index: 200;
+    }
+    .valores-container,
+    .dinamica-container {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      max-width: 1400px;
+      padding: 2rem;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 420px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      flex: none;
+    }
+    .card h1 { margin-bottom: 1rem; font-size: 1.75rem; font-weight: 600; }
+    .indicator { margin-bottom: 1.5rem; font-size: 0.9rem; color: #CCCCCC; }
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1rem;
+    }
+    textarea { min-height: 180px; resize: vertical; }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .actions button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      color: #0A0A0A;
+    }
+    .btn-save { background: #4CAF50; }
+    .btn-next { background: #1976D2; }
+    .btn-prev { background: #757575; }
+    .btn-update { background: #FFD54F; }
+    .actions button:hover { opacity: 0.8; }
+    .saved-list, .viewer {
+      flex: 1;
+      max-width: 800px;
+    }
+    .saved-list h2, .viewer h1 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .value-item, .item {
+      background: rgba(255,255,255,0.1);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .value-item h3, .item h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .value-item p, .item p  { font-size: 0.95rem; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="meu-perfil-empresa.html" class="btn">Meu Perfil</a>
+    <a href="relatorios.html" class="btn" target="_blank">Relatórios</a>
+    <button id="btnMajoris" class="btn">Majoris</button>
+    <a href="semente.html" class="btn">Semente</a>
+    <a href="engajar.html" class="btn" id="btnEngajar" target="_blank">Engajar</a>
+    <button id="btnValores" class="btn">Valores</button>
+    <button id="btnDinamica" class="btn">Dinâmica Específica</button>
+    <a href="../central_lumii.html" class="btn">Sair</a>
+  </nav>
+
+  <div id="userEmailBadge"></div>
+  <main id="appContent" class="content"></main>
+  <!-- Modal flutuante -->
+  <div id="engajarModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+    <div id="engajarContent" style="width:90%; max-width:1000px; height:90%; background:#111; border-radius:16px; padding:1rem; overflow:auto; position:relative; box-shadow: 0 0 20px rgba(255,255,255,0.1);">
+      <button onclick="closeEngajarModal()" style="position:absolute; top:1rem; right:1rem; background:#444; color:#fff; border:none; padding:0.5rem 1rem; border-radius:8px; cursor:pointer;">Fechar</button>
+      <div id="engajarInner">Carregando conteúdo...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.firebasestorage.app",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const companyEmail = localStorage.getItem('companyEmail') || '';
+    const badge = document.getElementById('userEmailBadge');
+    badge.textContent = companyEmail ? `Logado como: ${companyEmail}` : 'Empresa não autenticada';
+
+    async function loadPage(page) {
+      const container = document.getElementById('appContent');
+      try {
+        const res = await fetch(`${page}?email=${encodeURIComponent(companyEmail)}`);
+        if (!res.ok) throw new Error('Falha ao carregar ' + page);
+        container.innerHTML = await res.text();
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">${err.message}</p>`;
+      }
+    }
+    document.querySelectorAll('.topnav .btn[data-page]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        loadPage(btn.dataset.page);
+        
+      });
+      
+    });
+    document.getElementById('btnMajoris').addEventListener('click', () => {
+  window.open('majoris.html', '_blank');
+
+});
+    const maxValores = 15;
+    let currentVal = 0;
+    function refVal() {
+      const id = companyEmail.replace(/[@.]/g, '_');
+      return doc(db, 'valores_unicos', id);
+    }
+    async function renderValores() {
+      const list = document.getElementById('listContainer');
+      list.textContent = 'Carregando...';
+      const snap = await getDoc(refVal());
+      list.innerHTML = '';
+      if (!snap.exists() || !snap.data().valores?.length) {
+        list.textContent = 'Sem valores cadastrados.';
+        return;
+      }
+      snap.data().valores.forEach((v, i) => {
+        const div = document.createElement('div');
+        div.className = 'value-item';
+        div.innerHTML = `<h3>${i+1}. ${v.nomeValor}</h3><p>${v.explicacao}</p>`;
+        list.append(div);
+      });
+    }
+    async function saveValor() {
+      const nome = document.getElementById('nomeValor').value.trim();
+      const expl = document.getElementById('explicacao').value.trim();
+      if (!nome || !expl) return alert('Preencha ambos os campos.');
+      const data = { nomeValor: nome, explicacao: expl };
+      const snap = await getDoc(refVal());
+      if (!snap.exists()) {
+        await setDoc(refVal(), { companyEmail, valores: [data] });
+      } else {
+        await updateDoc(refVal(), { valores: arrayUnion(data) });
+      }
+      await renderValores();
+      alert('Valor salvo!');
+    }
+    function loadValores() {
+      const container = document.getElementById('appContent');
+      container.innerHTML = `
+        <div class="valores-container">
+          <div class="card">
+            <h1>Valores da Empresa</h1>
+            <div class="indicator" id="indicatorV">1 / ${maxValores}</div>
+            <div class="form-group">
+              <label for="nomeValor">Nome do Valor</label>
+              <input type="text" id="nomeValor" placeholder="Ex: Integridade" />
+            </div>
+            <div class="form-group">
+              <label for="explicacao">Exemplo Prático</label>
+              <textarea id="explicacao" placeholder="Ex: Agir com honestidade em todas as situações"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn-save" id="btnSaveV">Salvar</button>
+              <button class="btn-next" id="btnNextV">Próximo</button>
+            </div>
+          </div>
+          <div class="saved-list">
+            <h2>Valores Salvos</h2>
+            <div id="listContainer">Carregando...</div>
+          </div>
+        </div>
+      `;
+      renderValores();
+      document.getElementById('btnSaveV').addEventListener('click', saveValor);
+      document.getElementById('btnNextV').addEventListener('click', () => {
+        currentVal = (currentVal + 1) % maxValores;
+        document.getElementById('indicatorV').textContent = `${currentVal + 1} / ${maxValores}`;
+        document.getElementById('nomeValor').value = '';
+        document.getElementById('explicacao').value = '';
+      });
+    }
+    document.getElementById('btnValores').addEventListener('click', loadValores);
+
+    const maxDin = 5;
+    let currentDin = 0;
+    let savedDin = [];
+    const samples = [
+      { nomeDinamica: 'Icebreaker', explicacao: 'Atividade de quebra-gelo para apresentação rápida' },
+      { nomeDinamica: 'Brainstorm', explicacao: 'Sessão de geração de ideias em grupo' },
+      { nomeDinamica: 'Role Play', explicacao: 'Simulação de situações reais para treinamento' },
+      { nomeDinamica: 'Quiz', explicacao: 'Perguntas rápidas para revisar conteúdo' },
+      { nomeDinamica: 'Case Study', explicacao: 'Análise de estudo de caso para resolução de problemas' }
+    ];
+    function refDin() {
+      const id = companyEmail.replace(/[@.]/g, '_');
+      return doc(db, 'dinamicas_unicas', id);
+    }
+    async function loadAllDin() {
+      const snap = await getDoc(refDin());
+      savedDin = snap.exists() ? snap.data().dinamicas : [];
+      drawListDin();
+      loadStepDin();
+    }
+    function loadStepDin() {
+      document.getElementById('indicatorD').textContent = `${currentDin + 1} / ${maxDin}`;
+      const item = savedDin[currentDin] || samples[currentDin];
+      document.getElementById('nomeDin').value = item.nomeDinamica;
+      document.getElementById('expDin').value = item.explicacao;
+      document.getElementById('btnSaveD').disabled = !!savedDin[currentDin];
+      document.getElementById('btnUpdateD').disabled = !savedDin[currentDin];
+    }
+    async function saveDin() {
+      savedDin[currentDin] = {
+        nomeDinamica: document.getElementById('nomeDin').value,
+        explicacao: document.getElementById('expDin').value
+      };
+      await setDoc(refDin(), { companyEmail, dinamicas: savedDin });
+      drawListDin();
+      loadStepDin();
+    }
+    async function updateDin() {
+      savedDin[currentDin] = {
+        nomeDinamica: document.getElementById('nomeDin').value,
+        explicacao: document.getElementById('expDin').value
+      };
+      await updateDoc(refDin(), { dinamicas: savedDin });
+      drawListDin();
+      loadStepDin();
+    }
+    function drawListDin() {
+      const container = document.getElementById('listContainerD');
+      container.innerHTML = '';
+      savedDin.forEach((v, i) => {
+        if (!v.nomeDinamica) return;
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<h3>${i+1}. ${v.nomeDinamica}</h3><p>${v.explicacao}</p>`;
+        container.append(div);
+      });
+    }
+    function loadDin() {
+      const c = document.getElementById('appContent');
+      c.innerHTML = `
+        <div class="dinamica-container">
+          <div class="card">
+            <h1>Dinâmica Específica</h1>
+            <div class="indicator" id="indicatorD">1 / ${maxDin}</div>
+            <div class="form-group">
+              <label for="nomeDin">Nome da Dinâmica</label>
+              <input type="text" id="nomeDin" />
+            </div>
+            <div class="form-group">
+              <label for="expDin">Explicação</label>
+              <textarea id="expDin"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn-prev" id="btnPrevD">Anterior</button>
+              <button class="btn-save" id="btnSaveD">Salvar</button>
+              <button class="btn-update" id="btnUpdateD" disabled>Editar</button>
+              <button class="btn-next" id="btnNextD">Próximo</button>
+            </div>
+          </div>
+          <div class="viewer">
+            <h1>Dinâmicas Criadas</h1>
+            <div id="listContainerD"></div>
+          </div>
+        </div>
+      `;
+      loadAllDin();
+      document.getElementById('btnPrevD').addEventListener('click', () => { currentDin = (currentDin - 1 + maxDin) % maxDin; loadStepDin(); });
+      document.getElementById('btnNextD').addEventListener('click', () => { currentDin = (currentDin + 1) % maxDin; loadStepDin(); });
+      document.getElementById('btnSaveD').addEventListener('click', saveDin);
+      document.getElementById('btnUpdateD').addEventListener('click', updateDin);
+    }
+    document.getElementById('btnDinamica').addEventListener('click', loadDin);
+
+    // Modal Engajar
+    const btnEngajar = document.getElementById('btnEngajar');
+    btnEngajar.addEventListener('click', async (e) => {
+      e.preventDefault();
+      window.open("engajar.html", "_blank");
+      document.getElementById('engajarModal').style.display = 'flex';
+
+      if (!document.getElementById('engajarCss')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'engajar.css';
+        link.id = 'engajarCss';
+        document.head.appendChild(link);
+      }
+
+      try {
+        const script = document.createElement('script');
+script.type = 'module';
+script.src = 'engajar.js';
+document.body.appendChild(script);
+
+      } catch (err) {
+        document.getElementById('engajarInner').innerHTML = '<p style="color:red;">Erro ao carregar engajar.js</p>';
+      }
+    });
+
+    function closeEngajarModal() {
+      document.getElementById('engajarModal').style.display = 'none';
+    }
+  </script>
+  <script>
+  function closeEngajarModal() {
+    document.getElementById('engajarModal').style.display = 'none';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumii • Meu Perfil Empresa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* RESET */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background: #0A0A0A;
+      font-family: 'Poppins', sans-serif;
+      color: #EAEAEA;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    /* PROFILE CARD */
+    .profile-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+    .profile-card h1 {
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      color: #FFF;
+    }
+    .profile-card p {
+      margin: 0.75rem 0;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    .button-group {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .button-group button {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      color: #FFF;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .button-group button:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* MODAL VAGAS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90%;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .modal-content::-webkit-scrollbar { width:0; height:0; }
+
+    /* Cabeçalho da Modal: agrupa email + Ver Vagas à esquerda, fechar à direita */
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      color: #FFF;
+    }
+    .modal-header .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .modal-header .header-left span {
+      font-weight: 600;
+    }
+    #viewVagasButton {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.9rem;
+      color: #FFF;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #viewVagasButton:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    #closeModal {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: #FFF;
+      cursor: pointer;
+    }
+
+    /* FORM & LIST */
+    .modal-content label {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #FFF;
+      font-size: 1rem;
+    }
+    .modal-content textarea { resize: vertical; min-height: 80px; }
+
+    .modal-footer {
+      text-align: right;
+      margin-top: 1.5rem;
+    }
+    .modal-footer button {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      color: #FFF;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal-footer button:hover { background: rgba(255,255,255,0.2); }
+
+    /* VAGAS LIST */
+    #vagasList { display: none; }
+    #vagasList h2 { margin-bottom: 1rem; color: #FFF; }
+    #vagasUl { list-style: none; text-align: left; padding-left: 0; }
+    #vagasUl li {
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+    #backToForm {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      color: #FFF;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.2s;
+    }
+    #backToForm:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+  <div class="profile-card" id="profileCard">
+    <h1>Carregando perfil...</h1>
+  </div>
+
+  <!-- Modal de Vagas -->
+  <div id="vagasModal" class="modal-overlay">
+    <div class="modal-content">
+      <!-- Cabeçalho ajustado -->
+      <div class="modal-header">
+        <div class="header-left">
+          <span>Email: <span id="modalCompanyEmail"></span></span>
+          <button id="viewVagasButton">Ver Vagas</button>
+        </div>
+        <button id="closeModal">&times;</button>
+      </div>
+
+      <!-- Lista de Vagas -->
+      <div id="vagasList">
+        <h2>Vagas Publicadas</h2>
+        <ul id="vagasUl"></ul>
+        <button id="backToForm">Voltar</button>
+      </div>
+
+      <!-- Formulário de Criação -->
+      <form id="vagasForm">
+        <label for="title">Título da vaga</label>
+        <input type="text" id="title" name="title" required />
+
+        <label for="description">Descrição</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="location">Localização</label>
+        <input type="text" id="location" name="location" required />
+
+        <label for="type">Tipo de trabalho</label>
+        <select id="type" name="type" required>
+          <option value="">Selecione...</option>
+          <option value="Presencial">Presencial</option>
+          <option value="Remoto">Remoto</option>
+          <option value="Híbrido">Híbrido</option>
+        </select>
+
+        <label for="level">Nível</label>
+        <select id="level" name="level" required>
+          <option value="">Selecione...</option>
+          <option value="Júnior">Júnior</option>
+          <option value="Pleno">Pleno</option>
+          <option value="Sênior">Sênior</option>
+        </select>
+
+        <label for="salary">Salário (R$)</label>
+        <input type="number" id="salary" name="salary" step="0.01" required />
+
+        <label for="requirements">Requisitos</label>
+        <textarea id="requirements" name="requirements" required></textarea>
+
+        <label for="responsibilities">Responsabilidades</label>
+        <textarea id="responsibilities" name="responsibilities" required></textarea>
+
+        <label for="benefits">Benefícios</label>
+        <textarea id="benefits" name="benefits" required></textarea>
+
+        <label for="deadline">Deadline para candidatura</label>
+        <input type="date" id="deadline" name="deadline" required />
+
+        <div class="modal-footer">
+          <button type="submit" id="saveVagaButton">Salvar Vaga</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    import {
+      getFirestore, collection, doc, setDoc,
+      getDoc, query, where, getDocs
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.firebasestorage.app",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
+      measurementId: "G-9WH6JZ7XKK"
+    };
+
+    // Inicialização Firebase
+    const app    = initializeApp(firebaseConfig);
+    const auth   = getAuth(app);
+    const db     = getFirestore(app);
+
+    const profileCard    = document.getElementById('profileCard');
+    const modalOverlay   = document.getElementById('vagasModal');
+    const modalEmailSpan = document.getElementById('modalCompanyEmail');
+    const closeModalBtn  = document.getElementById('closeModal');
+    const viewVagasBtn   = document.getElementById('viewVagasButton');
+    const vagasForm      = document.getElementById('vagasForm');
+    const vagasListDiv   = document.getElementById('vagasList');
+    const vagasUl        = document.getElementById('vagasUl');
+    const backToFormBtn  = document.getElementById('backToForm');
+
+    // Carrega perfil e insere botões
+    async function loadCompanyProfile() {
+      const email = localStorage.getItem('companyEmail');
+      if (!email) {
+        profileCard.innerHTML = '<h1>Empresa não autenticada.</h1>';
+        return;
+      }
+
+      // Busca dados da empresa
+      const profilesRef = collection(db, 'profiles');
+      const q = query(profilesRef, where('email', '==', email));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        profileCard.innerHTML = '<h1>Perfil não encontrado.</h1>';
+        return;
+      }
+
+      const data = snap.docs[0].data();
+      profileCard.innerHTML = `
+        <h1>${data.full_name}</h1>
+        <p><strong>Nome:</strong> ${data.full_name}</p>
+        <p><strong>E‑mail:</strong> ${data.email}</p>
+        <p><strong>Role:</strong> ${data.role}</p>
+        <div class="button-group">
+          <button id="vagasButton">Vagas</button>
+          <button id="financeiroButton">Financeiro</button>
+        </div>
+      `;
+
+      document.getElementById('vagasButton').addEventListener('click', () => {
+        modalEmailSpan.textContent = email;
+        vagasListDiv.style.display = 'none';
+        vagasForm.style.display = 'block';
+        modalOverlay.classList.add('active');
+      });
+      document.getElementById('financeiroButton').addEventListener('click', () => {
+        console.log('Financeiro ainda não implementado');
+      });
+    }
+
+    // Fecha modal
+    closeModalBtn.addEventListener('click', () => {
+      modalOverlay.classList.remove('active');
+      vagasForm.reset();
+    });
+
+    // Salva vaga
+    vagasForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = localStorage.getItem('companyEmail');
+      if (!email) return alert('Empresa não autenticada.');
+
+      const form = e.target;
+      const data = {
+        title:           form.title.value,
+        description:     form.description.value,
+        location:        form.location.value,
+        type:            form.type.value,
+        level:           form.level.value,
+        salary:          parseFloat(form.salary.value),
+        requirements:    form.requirements.value,
+        responsibilities:form.responsibilities.value,
+        benefits:        form.benefits.value,
+        deadline:        form.deadline.value,
+        id:               crypto.randomUUID()
+      };
+
+      // Grava/atualiza documento com ID = email
+      await setDoc(doc(db, 'vagas', email), data);
+      alert('Vaga salva com sucesso!');
+      modalOverlay.classList.remove('active');
+      vagasForm.reset();
+    });
+
+    // Exibe vagas
+    viewVagasBtn.addEventListener('click', async () => {
+      const email = localStorage.getItem('companyEmail');
+      const docSnap = await getDoc(doc(db, 'vagas', email));
+      vagasUl.innerHTML = '';
+      if (docSnap.exists()) {
+        const vaga = docSnap.data();
+        const li = document.createElement('li');
+        li.textContent = `${vaga.title} (ID: ${vaga.id})`;
+        vagasUl.appendChild(li);
+      } else {
+        const li = document.createElement('li');
+        li.textContent = 'Nenhuma vaga encontrada.';
+        vagasUl.appendChild(li);
+      }
+      vagasForm.style.display = 'none';
+      vagasListDiv.style.display = 'block';
+    });
+
+    // Volta ao formulário
+    backToFormBtn.addEventListener('click', () => {
+      vagasListDiv.style.display = 'none';
+      vagasForm.style.display = 'block';
+    });
+
+    loadCompanyProfile();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Master • Painel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* RESET */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background:#0A0A0A;
+      color:#EAEAEA;
+      font-family:'Poppins',sans-serif;
+    }
+    /* MENU SUPERIOR */
+    nav.menu {
+      display:flex;
+      justify-content:center;
+      gap:1.5rem;
+      background:rgba(255,255,255,0.05);
+      padding:1rem 0;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      z-index:100;
+    }
+    nav.menu .btn {
+      padding:0.75rem 1.5rem;
+      border:1px solid rgba(255,255,255,0.2);
+      border-radius:8px;
+      background:none;
+      color:#F5F5F5;
+      font-size:1rem;
+      font-weight:600;
+      text-decoration:none;
+      transition:background .3s,border-color .3s;
+    }
+    nav.menu .btn:hover {
+      background:rgba(255,255,255,0.1);
+      border-color:rgba(255,255,255,0.4);
+    }
+    /* ÁREA DE CONTEÚDO */
+    .content {
+      margin-top:5rem; /* espaço para o menu fixo */
+      padding:2rem;
+      max-width:1000px;
+      margin-left:auto;
+      margin-right:auto;
+      background:rgba(255,255,255,0.02);
+      border-radius:12px;
+      min-height:70vh;
+    }
+    @media (max-width:768px) {
+      nav.menu { gap:1rem; }
+      nav.menu .btn { padding:0.5rem 1rem; font-size:0.875rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- MENU -->
+  <nav class="menu">
+    <a href="relatorio.html" class="btn">Relatório</a>
+    <a href="financeiro.html" class="btn">Financeiro</a>
+    <a href="usuarios.html" class="btn">Usuários</a>
+    <a href="desenvolvimento.html" class="btn">Desenvolvimento</a>
+    <a href="majoris.html" class="btn">Majoris</a>
+    <!-- Botão Sair -->
+    <a href="../central_lumii.html" class="btn">Sair</a>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <div class="content" id="main-content">
+    <!-- Aqui o conteúdo de cada seção será exibido. -->
+  </div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #0A0A0A;
+  color: #EAEAEA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.container {
+  margin-top: 3rem;
+  width: 90%;
+  max-width: 800px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  padding: 2rem;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
+}
+
+.container h1 {
+  margin-bottom: 1.5rem;
+  color: #A5FFB8;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #A5FFB8;
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button {
+  margin-top: 1rem;
+  background: #00ff88;
+  color: #000;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #00cc70;
+}
+
+.arquivo-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.arquivo-item h3 {
+  margin: 0 0 0.5rem 0;
+  color: #b2ffb2;
+}
+
+.arquivo-item p {
+  margin: 0 0 0.5rem 0;
+  color: #ccc;
+}
+
+.arquivo-item a {
+  color: #00ffcc;
+  text-decoration: underline;
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.arquivo-item button {
+  background: #ff4d4d;
+  color: white;
+  margin-top: 0.5rem;
+}
+
+.arquivo-item button:hover {
+  background: #d63636;
+}

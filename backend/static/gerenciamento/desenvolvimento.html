@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desenvolvimento • Trilhas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background:#0A0A0A;
+      color:#EAEAEA;
+      font-family:'Poppins',sans-serif;
+      display:flex;
+      flex-direction:column;
+    }
+    .container {
+      flex:1;
+      display:flex;
+      gap:2rem;
+      padding:2rem;
+    }
+    .form-section, .saved-section {
+      flex:1;
+      background:rgba(255,255,255,0.02);
+      border-radius:12px;
+      padding:1.5rem;
+      overflow-y:auto;
+    }
+    .form-section h2, .saved-section h2 {
+      margin-bottom:1rem;
+      font-size:1.5rem;
+      color:#FFF;
+    }
+    fieldset {
+      margin-bottom:1.5rem;
+      border:1px solid rgba(255,255,255,0.2);
+      border-radius:8px;
+      padding:1rem;
+    }
+    fieldset legend { font-weight:600; margin-bottom:0.75rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; margin-bottom:0.5rem; }
+    .form-group textarea {
+      width:100%; padding:0.75rem; border:none; border-radius:8px;
+      background:rgba(255,255,255,0.1); color:#FFF; resize:vertical; min-height:60px;
+    }
+    .btn-submit {
+      display:block; width:100%; padding:0.75rem; border:none; border-radius:8px;
+      background:#4CAF50; color:#0A0A0A; font-weight:600; cursor:pointer;
+      transition:opacity .3s; margin-top:1rem;
+    }
+    .btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+    .saved-item { border-bottom:1px solid rgba(255,255,255,0.1); padding:0.75rem 0; }
+    .saved-item:last-child { border:none; }
+    .saved-item h4 { margin-bottom:0.5rem; font-size:1.125rem; color:#FFF; }
+    .saved-item p { margin:0.25rem 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-section">
+      <h2>Editar Trilhas</h2>
+      <form id="trailForm"></form>
+      <button id="saveBtn" class="btn-submit">Salvar Trilhas</button>
+    </div>
+    <div class="saved-section">
+      <h2>Trilhas Salvas</h2>
+      <div id="savedList"></div>
+    </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.firebasestorage.app",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
+      measurementId: "G-9WH6Z7XKK"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const trails = {
+      "Capacidade Cognitiva Geral": [
+        "Quando o Professor Frink tenta calcular a rotação do redemoinho do Saci, qual o próximo ângulo para completar 360°?",
+        "Durante um desafio em que Bart corre no Pico do Jaraguá com o Curupira, memorize e reproduza a sequência de passos: 3, 1, 4, 1, 5. Qual é o próximo número?",
+        "No bar do Moe, Iara compôs um padrão de cores nos copos de chope. Identifique o sexto elemento do padrão: azul, verde, amarelo, vermelho, roxo."
+      ],
+      "Resolução de Problemas Criativa": [
+        "Se Homer precisa resgatar o Lobisomem preso numa caverna de pés de mandioca, que três ferramentas improváveis ele usaria?",
+        "Quando Marge combina receitas de pamonha com donuts do Kwik-E-Mart, descreva duas novas guloseimas que surgiriam dessa fusão.",
+        "Imagine que a Cuca criou um enigma em troca de um mapa para o esconderijo do Bart: sugira três pistas criativas para encontrar o tesouro."
+      ],
+      "Ética e Julgamento Moral": [
+        "Se o Sr. Burns descobre ouro nas tocas do Saci e quer lucrar sozinho, qual ação moral Lisa adotaria para garantir justiça?",
+        "Bart testemunha o Curupira destruindo plantações de Homer: como ele agiria para equilibrar empatia em honestidade?",
+        "Quando Moe recebe um alerta da Iara sobre um risco ambiental, qual decisão moral ele tomaria para proteger a comunidade?"
+      ],
+      "Colaboração e Trabalho em Equipe": [
+        "Como o chefe Wiggum e o Capitão McCallister poderiam unir forças para capturar o Lobisomem, valorizando cada talento?",
+        "Imagine uma aliança entre Lisa e Iara para restaurar o Rio Springfield. Quais etapas colaborativas venceriam a resistência local?",
+        "Se o Saci e o Milagreiro precisassem consertar o telhado da Taverna de Moe, como coordenariam papéis para evitar atritos?"
+      ],
+      "Proatividade e Iniciativa": [
+        "Quando Homer percebe fumaça saindo da cozinha da Cuca, qual ação imediata ele tomaria para evitar desastre sem chamar o chefe?",
+        "Se Bart identifica falhas no motor voador de Itchy & Scratchy, qual solução rápida ele proporia antes do teste oficial?",
+        "Em um festival de folclore em Springfield, como Lisa anteciparia a logística para receber o Curupira sorrateiro?"
+      ],
+      "Resiliência e Gerenciamento de Estresse": [
+        "Após perder para o Lobisomem num duelo, qual técnica Bart usaria para manter a calma e tentar novamente?",
+        "Quando Iara é rejeitada por cantar no karaokê do Moe, como reagiria para recuperar a confiança?",
+        "Se Homer enfrenta insônia na lua de mel com Marge em Barreirinhas, qual estratégia folclórica o ajudaria a lidar com o estresse?"
+      ],
+      "Liderança Adaptativa": [
+        "O Prefeito Quimby contrata o Saci para revitalizar Springfield. Como ajustaria seu estilo de liderança diante dos obstáculos folclóricos?",
+        "Quando Lisa lidera um time de Simpsons e entidades folclóricas, como engajaria o grupo para enfrentar uma crise?",
+        "Se Homer assume comando durante uma enchente provocada pelo Curupira, qual estilo de liderança flexível adotaria para salvar a cidade?"
+      ],
+      "Potencial de Crescimento Exponencial": [
+        "Após descobrir um portal mágico na casa dos Simpsons, quais três metas ambiciosas planeja para expandir o reino do Saci?",
+        "Como Bart mediria seu progresso ao aprender artes místicas com a Iara: quais indicadores definiriam seu sucesso?",
+        "Quando Marge planeja um programa educativo com o Lobisomem e Curupira, quais estratégias garantem crescimento sustentável?"
+      ],
+      "Visão Sistêmica e Pensamento Estratégico": [
+        "Analise como a construção da fábrica de donuts do Burns impacta a rota do Saci e a economia de Springfield.",
+        "Se Lisa implementa um sistema que une sinais da Iara e radares do Professor Frink, como priorizaria variáveis em caso de conflito?",
+        "Imagine um tabuleiro de xadrez onde cada peça é um personagem folclórico: quais movimentos estratégicos garantem controle do centro?"
+      ],
+      "Afinidade com Ambientes Tecnológicos/Inovadores": [
+        "Descreva como Bart usaria a IA Majoris e feitiços da Cuca para otimizar um tour virtual na Amazônia.",
+        "Se Homer testa um app que mapeia rotas do Curupira via blockchain, quais benefícios destacaria?",
+        "Quando Lisa integra sensores da Iara em drones do Kwik-E-Mart, como isso revoluciona operações de resgate?"
+      ]
+    };
+
+    const form = document.getElementById('trailForm');
+    Object.entries(trails).forEach(([trail, qs]) => {
+      const fs = document.createElement('fieldset');
+      fs.innerHTML = `<legend>${trail}</legend>`;
+      qs.forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        const lbl = document.createElement('label');
+        lbl.textContent = q;
+        const ta = document.createElement('textarea');
+        ta.value = q;
+        div.append(lbl, ta);
+        fs.appendChild(div);
+      });
+      form.appendChild(fs);
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const data = {};
+      Object.keys(trails).forEach(trail => {
+        const fs = [...form.querySelectorAll('fieldset')]
+          .find(f => f.querySelector('legend').textContent === trail);
+        data[trail] = [...fs.querySelectorAll('textarea')].map(t => t.value);
+      });
+      try {
+        await addDoc(collection(db, 'trilhas'), data);
+        alert('Trilhas salvas com sucesso!');
+      } catch (err) {
+        alert('Erro ao salvar trilhas: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
