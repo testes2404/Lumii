@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Entrevistas • Candidato</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto+Mono&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root { --radius: 18px; --glass-bg: rgba(25,25,35,0.55); --border: rgba(255,255,255,0.08); }
+    *{box-sizing:border-box;}
+    body {
+      margin:0;
+      min-height:100%;
+      background: #0A0A0A;
+      font-family:'Poppins',sans-serif;
+      color:#EAEAEA;
+      padding:1rem;
+    }
+    h1 { font-size:1.75rem; margin:0 0 0.5rem; }
+    .container { max-width: 1100px; margin:0 auto; display:flex; gap:1.5rem; flex-wrap:wrap; }
+    .panel {
+      flex:1;
+      min-width:320px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:1rem 1.25rem;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:1rem;
+    }
+    .badge { background: rgba(255,255,255,0.08); padding:.5rem 1rem; border-radius:10px; display:inline-block; font-size:.8rem; margin-right:.5rem; }
+    .status { font-weight:600; }
+    .flex { display:flex; gap:1rem; flex-wrap:wrap; }
+    .calendar-wrapper, .actions-wrapper { width:100%; }
+    .calendario-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+    .calendario-title { font-weight:700; font-size:1.1rem; }
+    .nav-buttons button {
+      background: rgba(255,255,255,0.08);
+      border:none;
+      padding:5px 10px;
+      border-radius:6px;
+      cursor:pointer;
+      color:#fff;
+      font-weight:600;
+      margin-left:4px;
+      backdrop-filter: blur(10px);
+      transition: background .2s;
+    }
+    .nav-buttons button:hover { background: rgba(255,255,255,0.15); }
+    .dias-semana {
+      display:grid;
+      grid-template-columns: repeat(7,1fr);
+      gap:4px;
+      font-size:.65rem;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:4px;
+      color:#aaa;
+    }
+    .calendario-dias {
+      display:grid;
+      grid-template-columns: repeat(7,1fr);
+      gap:6px;
+      margin-bottom:8px;
+    }
+    .dia {
+      position:relative;
+      padding:8px;
+      border-radius:50%;
+      min-height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-size:.85rem;
+      font-weight:600;
+      transition: all .25s;
+      background: rgba(255,255,255,0.03);
+    }
+    .dia.hoje { border:2px solid #5ce1e6; }
+    .dia:hover { background: rgba(255,255,255,0.08); }
+    .dia.outro-mes { opacity:.3; cursor: default; }
+    .dia .dot { position:absolute; bottom:6px; right:6px; width:10px; height:10px; background:#ffd54f; border-radius:50%; box-shadow:0 0 8px rgba(255,213,79,0.6); }
+    .evento-card {
+      background: rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px;
+      padding:12px 14px;
+      margin-bottom:10px;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .evento-title { font-weight:600; margin:0; }
+    .evento-meta { font-size:.8rem; color:#ccc; }
+    .btn { padding:.65rem 1rem; border:none; border-radius:10px; cursor:pointer; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+    .btn-confirmar { background: #4CAF50; color:#fff; }
+    .btn-recusar { background: #f44336; color:#fff; }
+    .btn-primario { background: linear-gradient(135deg,#6d8cff,#9b63ff); color:#fff; }
+    .input-inline { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:.5rem .75rem; border-radius:8px; color:#eee; width:100%; }
+    .notificacoes { display:flex; flex-direction:column; gap:8px; }
+    .nota { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); padding:10px 14px; border-radius:10px; font-size:.8rem; display:flex; justify-content:space-between; align-items:center; }
+    .jitsi-container {
+      position:relative;
+      min-height:420px;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.1);
+      background: rgba(10,10,20,0.6);
+    }
+    .small { font-size:.75rem; color:#aaa; }
+    .flex-between { display:flex; justify-content:space-between; align-items:center; }
+    .pill { background: rgba(255,255,255,0.08); padding:4px 10px; border-radius:999px; font-size:.65rem; display:inline-block; }
+    .hidden { display:none; }
+
+    /* scroll invisível */
+    .jitsi-container,
+    .jitsi-container * {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .jitsi-container::-webkit-scrollbar,
+    .jitsi-container *::-webkit-scrollbar {
+      display: none;
+    }
+
+    .confirm-status { font-weight:600; }
+
+    .alert { background: rgba(255,165,0,0.1); border-left:4px solid #ffa500; padding:10px; border-radius:8px; margin-bottom:8px; }
+  </style>
+</head>
+<body>
+
+  <header style="margin-bottom:1rem;">
+    <h1>Entrevista</h1>
+    <div class="small">Aqui você vê a entrevista agendada, confirma e entra na sala. Apenas você e a empresa podem participar.</div>
+  </header>
+
+  <div id="mensagemErro" class="alert hidden"></div>
+
+  <div class="container">
+    <div class="panel" style="flex:1.2;">
+      <div class="flex-between">
+        <div>
+          <div class="badge" id="vagaBadge">Vaga: —</div>
+          <div class="badge" id="empresaBadge">Empresa: —</div>
+        </div>
+        <div id="statusGeral" class="badge">Carregando...</div>
+      </div>
+
+      <div class="calendar-wrapper">
+        <div class="calendario-header">
+          <div id="mesAno" class="calendario-title"></div>
+          <div class="nav-buttons">
+            <button id="prevMonth">&lt;</button>
+            <button id="nextMonth">&gt;</button>
+          </div>
+        </div>
+        <div class="dias-semana">
+          <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sab</span>
+        </div>
+        <div id="calendarioGrid" class="calendario-dias"></div>
+      </div>
+
+      <div class="actions-wrapper">
+        <h2 style="margin-top:0.5rem; font-size:1.1rem;">Seus agendamentos</h2>
+        <div id="listaEntrevistas"></div>
+        <div id="semConfirmacao" class="alert hidden">
+          Aguarde a confirmação da empresa ou confirme quando receber o convite.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="flex:1;">
+      <div class="section">
+        <div class="flex-between">
+          <div>
+            <div class="evento-title">Entrevista selecionada</div>
+            <div id="infoEvento" class="small">Nenhum selecionado</div>
+          </div>
+          <div id="acaoConfirmacao"></div>
+        </div>
+        <div id="statusConfirmacao" class="confirm-status" style="margin-top:4px;"></div>
+      </div>
+
+      <div class="section" style="margin-top:6px;">
+        <div class="section-header"><h2 style="margin:0;font-size:1rem;">Sala de vídeo</h2></div>
+        <div id="jitsiWrapper" class="jitsi-container">
+          <div id="jitsiLoading" style="padding:12px;">Carregando reunião...</div>
+        </div>
+        <div class="small" style="margin-top:4px;">Somente você e o entrevistador devem acessar esta sala. Verificação leve de identidade aplicada.</div>
+      </div>
+
+      <div class="section" style="margin-top:8px;">
+        <div class="section-header"><h2 style="margin:0;font-size:1rem;">Notificações</h2></div>
+        <div id="notificacoes" class="notificacoes"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getLocal(key, fallback=null) { return localStorage.getItem(key) || fallback; }
+    function setLocal(key,val){ localStorage.setItem(key,val); }
+
+    const companyEmail = getLocal('companyEmail') || 'empresa@desconhecido.com';
+    const userEmail = getLocal('userEmail') || getLocal('candidateEmail') || 'candidato@desconhecido.com';
+    const vagaId = getLocal('vagaId') || 'vaga-desconhecida';
+    let relatorioId = getLocal('relatorioId');
+    if (!relatorioId) {
+      relatorioId = 'rel_' + Math.random().toString(36).substring(2,10);
+      setLocal('relatorioId', relatorioId);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const urlRel = params.get('relatorioId');
+    if (urlRel && urlRel !== relatorioId) {
+      relatorioId = urlRel;
+      setLocal('relatorioId', relatorioId);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('statusGeral').textContent = 'Carregando...';
+    });
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.appspot.com",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+
+    function loadScript(src){ return new Promise((res,rej)=>{ if (document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
+    async function ensureFirebase(){
+      if (typeof firebase === 'undefined') await loadScript('https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js');
+      if (!firebase.firestore) await loadScript('https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js');
+      if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      return firebase.firestore();
+    }
+
+    let db;
+    let semearDocRef;
+    let semearData = null;
+    let currentMonth = new Date();
+    let entrevistas = [];
+    let selecionada = null;
+    let jitsiApi = null;
+
+    function toTimestamp(date){ return firebase.firestore.Timestamp.fromDate(date); }
+    function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function formatDateTime(d){ return d.toLocaleString('pt-BR'); }
+    function generateId(){ return 'evt_' + Math.random().toString(36).substring(2,9); }
+
+    async function loadOrCreate() {
+      const query = db.collection('semear')
+        .where('relatorioId','==',relatorioId)
+        .where('userEmail','==',userEmail)
+        .where('vagaId','==',vagaId)
+        .where('companyEmail','==',companyEmail)
+        .limit(1);
+      const snap = await query.get();
+      if (!snap.empty) {
+        semearDocRef = snap.docs[0].ref;
+        semearData = snap.docs[0].data();
+      } else {
+        const doc = {
+          relatorioId,
+          userEmail,
+          vagaId,
+          companyEmail,
+          entrevistas: [],
+          aprovacao: { status:'pendente', data:null, responsavel:null, motivo:null },
+          notificacoes: [],
+          auditTrail: [],
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        const added = await db.collection('semear').add(doc);
+        semearDocRef = added;
+        semearData = { ...doc };
+      }
+    }
+
+    async function patchSemear(updates) {
+      if (!semearDocRef) return;
+      updates.atualizadoEm = firebase.firestore.FieldValue.serverTimestamp();
+      await semearDocRef.set(updates,{ merge: true });
+      const fresh = await semearDocRef.get();
+      semearData = fresh.data();
+      atualizarUI();
+    }
+
+    async function pushNotificacao(tipo,mensagem) {
+      const nova = { tipo, mensagem, visto:false, criadoEm: firebase.firestore.FieldValue.serverTimestamp() };
+      const exist = semearData.notificacoes || [];
+      exist.unshift(nova);
+      await patchSemear({ notificacoes: exist });
+    }
+
+    function renderCalendario() {
+      const mesAnoEl = document.getElementById('mesAno');
+      const grid = document.getElementById('calendarioGrid');
+      grid.innerHTML = '';
+      const ano = currentMonth.getFullYear();
+      const mes = currentMonth.getMonth();
+      mesAnoEl.textContent = new Intl.DateTimeFormat('pt-BR',{ month:'long', year:'numeric' }).format(currentMonth);
+
+      const primeiroDia = new Date(ano,mes,1).getDay();
+      const diasNoMes = new Date(ano,mes+1,0).getDate();
+
+      for (let i=0;i<primeiroDia;i++){
+        const blank = document.createElement('div');
+        blank.className='dia outro-mes';
+        grid.appendChild(blank);
+      }
+      entrevistas = semearData.entrevistas || [];
+      for (let d=1; d<=diasNoMes; d++){
+        const diaEl = document.createElement('div');
+        diaEl.className='dia';
+        diaEl.textContent=d;
+        const dataAtual = new Date(ano,mes,d);
+        const hoje = new Date();
+        if (
+          dataAtual.getFullYear()===hoje.getFullYear() &&
+          dataAtual.getMonth()===hoje.getMonth() &&
+          dataAtual.getDate()===hoje.getDate()
+        ) diaEl.classList.add('hoje');
+
+        const eventosNoDia = entrevistas.filter(ev => {
+          const inicio = ev.dataInicio?.toDate ? ev.dataInicio.toDate() : null;
+          if (!inicio) return false;
+          return (
+            inicio.getFullYear()===dataAtual.getFullYear() &&
+            inicio.getMonth()===dataAtual.getMonth() &&
+            inicio.getDate()===dataAtual.getDate()
+          );
+        });
+        if (eventosNoDia.length) {
+          const badge = document.createElement('div');
+          badge.className='dot';
+          diaEl.appendChild(badge);
+        }
+        diaEl.addEventListener('click', () => {
+          if (eventosNoDia.length) selectEntrevista(eventosNoDia[0]);
+        });
+        grid.appendChild(diaEl);
+      }
+      renderListaEntrevistas();
+    }
+
+    function renderListaEntrevistas() {
+      const container = document.getElementById('listaEntrevistas');
+      container.innerHTML = '';
+      if (!entrevistas || entrevistas.length === 0) {
+        container.innerHTML = `<div class="nota">Ainda não há entrevistas agendadas.</div>`;
+        return;
+      }
+      entrevistas.forEach(ev => {
+        const inicio = ev.dataInicio?.toDate ? ev.dataInicio.toDate() : null;
+        const card = document.createElement('div');
+        card.className='evento-card';
+        const statusCandidato = ev.confirmacaoCandidato || 'pendente';
+        card.innerHTML = `
+          <div class="evento-title">${escapeHtml(ev.titulo || 'Entrevista')}</div>
+          <div class="evento-meta">Data: ${inicio ? formatDateTime(inicio) : '—'}</div>
+          <div class="evento-meta">Status da empresa: <span class="pill">${escapeHtml(ev.status || '—')}</span></div>
+          <div class="evento-meta">Sua resposta: <span class="pill">${escapeHtml(statusCandidato)}</span></div>
+          <div style="margin-top:6px;">
+            <button class="btn btn-primario" data-id="${ev.eventoId}">Ver / Gerenciar</button>
+          </div>
+        `;
+        container.appendChild(card);
+        card.querySelector('button').addEventListener('click', () => selectEntrevista(ev));
+      });
+    }
+
+    function selectEntrevista(ev) {
+      selecionada = ev;
+      const inicio = ev.dataInicio?.toDate ? ev.dataInicio.toDate() : null;
+      document.getElementById('infoEvento').textContent = `Título: ${ev.titulo || 'Entrevista'} • ${inicio ? formatDateTime(inicio) : 'Data indefinida'}`;
+      document.getElementById('statusConfirmacao').textContent = `Sua resposta: ${ev.confirmacaoCandidato || 'pendente'}`;
+      renderAcoesSobreEntrevista(ev);
+      atualizarStatusGeral();
+      initJitsiIfNeeded(ev);
+    }
+
+    function renderAcoesSobreEntrevista(ev) {
+      const container = document.getElementById('acaoConfirmacao');
+      container.innerHTML = '';
+      const statusCandidato = ev.confirmacaoCandidato || 'pendente';
+      if (statusCandidato === 'confirmada') {
+        const span = document.createElement('div');
+        span.textContent = 'Você confirmou. Aguardando a reunião.';
+        span.className='pill';
+        container.appendChild(span);
+      } else if (statusCandidato === 'recusada') {
+        const span = document.createElement('div');
+        span.textContent = 'Você recusou essa entrevista.';
+        span.className='pill';
+        container.appendChild(span);
+        const recBtn = document.createElement('button');
+        recBtn.textContent='Solicitar remarcação';
+        recBtn.className='btn btn-recusar';
+        recBtn.onclick = () => { alert('Solicitação de remarcação enviada.'); };
+        container.appendChild(recBtn);
+      } else {
+        const confirmar = document.createElement('button');
+        confirmar.textContent = 'Confirmar';
+        confirmar.className='btn btn-confirmar';
+        confirmar.onclick = async () => {
+          ev.confirmacaoCandidato = 'confirmada';
+          await patchSemear({ entrevistas: entrevistas });
+          await pushNotificacao('confirmacao_candidato', 'Candidato confirmou a entrevista.');
+          selectEntrevista(ev);
+        };
+        const recusar = document.createElement('button');
+        recusar.textContent = 'Recusar';
+        recusar.className='btn btn-recusar';
+        recusar.onclick = async () => {
+          const motivo = prompt('Motivo da recusa (opcional):') || '';
+          ev.confirmacaoCandidato = 'recusada';
+          ev.recusaMotivo = motivo;
+          await patchSemear({ entrevistas: entrevistas });
+          await pushNotificacao('recusa_candidato', `Candidato recusou a entrevista. Motivo: ${motivo}`);
+          selectEntrevista(ev);
+        };
+        container.appendChild(confirmar);
+        container.appendChild(recusar);
+      }
+    }
+
+    function renderNotificacoes() {
+      const container = document.getElementById('notificacoes');
+      container.innerHTML = '';
+      const notas = semearData.notificacoes || [];
+      if (!notas.length) {
+        container.innerHTML = `<div class="nota">Nenhuma notificação</div>`;
+        return;
+      }
+      notas.forEach(n => {
+        const d = document.createElement('div');
+        d.className='nota';
+        d.innerHTML = `<div>${escapeHtml(n.mensagem)}</div><div class="small">${n.tipo}</div>`;
+        container.appendChild(d);
+      });
+    }
+
+    function getRoomName(){ return `Semear_${relatorioId}`; }
+
+    function initJitsiIfNeeded(ev) {
+      if (!ev) return;
+      if ((ev.confirmacaoCandidato === 'confirmada') || ev.status === 'agendado') {
+        initJitsi();
+      }
+    }
+
+    function initJitsi(){
+      const domain = 'meet.jit.si';
+      const options = {
+        roomName: getRoomName(),
+        parentNode: document.getElementById('jitsiWrapper'),
+        interfaceConfigOverwrite: {
+          SHOW_JITSI_WATERMARK: false,
+          MOBILE_APP_PROMO: false
+        },
+        userInfo: {
+          displayName: userEmail
+        }
+      };
+      if (typeof JitsiMeetExternalAPI !== 'undefined') {
+        if (!jitsiApi) jitsiApi = new JitsiMeetExternalAPI(domain, options);
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://meet.jit.si/external_api.js';
+        script.onload = () => { jitsiApi = new JitsiMeetExternalAPI(domain, options); };
+        document.head.appendChild(script);
+      }
+    }
+
+    async function fetchContextNames() {
+      // Vaga
+      try {
+        const vagaQuery = await db.collection('vagas')
+          .where('id','==',vagaId)
+          .limit(1)
+          .get();
+        if (!vagaQuery.empty) {
+          const vagaData = vagaQuery.docs[0].data();
+          document.getElementById('vagaBadge').textContent = `Vaga: ${vagaData.title || vagaData.nome || vagaId}`;
+        } else {
+          document.getElementById('vagaBadge').textContent = `Vaga: ${vagaId}`;
+        }
+      } catch {
+        document.getElementById('vagaBadge').textContent = `Vaga: ${vagaId}`;
+      }
+
+      // Empresa: usa a coleção "profiles" e pega full_name
+      let nomeEmpresa = null;
+      try {
+        const profileQuery = await db.collection('profiles')
+          .where('email', '==', companyEmail)
+          .where('role', '==', 'company')
+          .limit(1)
+          .get();
+        if (!profileQuery.empty) {
+          const profile = profileQuery.docs[0].data();
+          nomeEmpresa = profile.full_name || profile.displayName || companyEmail;
+        }
+      } catch (e) {
+        console.warn("Erro buscando profile da empresa:", e);
+      }
+      document.getElementById('empresaBadge').textContent = `Empresa: ${nomeEmpresa || companyEmail}`;
+    }
+
+    function atualizarUI() {
+      renderCalendario();
+      renderListaEntrevistas();
+      atualizarStatusGeral();
+      if (selecionada) selectEntrevista(selecionada);
+      renderNotificacoes();
+    }
+
+    function atualizarStatusGeral() {
+      const statusEl = document.getElementById('statusGeral');
+      if (!entrevistas || entrevistas.length === 0) {
+        statusEl.textContent = 'Nenhuma entrevista';
+      } else {
+        const pendente = entrevistas.some(e=> (e.confirmacaoCandidato||'pendente') === 'pendente');
+        statusEl.textContent = pendente ? 'Pendente de sua confirmação' : 'Confirmada';
+      }
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      currentMonth.setMonth(currentMonth.getMonth() -1);
+      renderCalendario();
+    });
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      currentMonth.setMonth(currentMonth.getMonth() +1);
+      renderCalendario();
+    });
+
+    async function main() {
+      try {
+        db = await ensureFirebase();
+        await loadOrCreate();
+        await fetchContextNames();
+        atualizarUI();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('mensagemErro').textContent = 'Erro ao carregar dados. Veja console.';
+        document.getElementById('mensagemErro').classList.remove('hidden');
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

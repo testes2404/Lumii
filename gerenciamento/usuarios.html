@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Usuários • Gerenciamento</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background:#0A0A0A;
+      color:#EAEAEA;
+      font-family:'Poppins',sans-serif;
+      display:flex;
+      flex-direction:column;
+    }
+    .container {
+      flex:1;
+      padding:2rem;
+      max-width:1000px;
+      margin:0 auto;
+    }
+    table {
+      width:100%; border-collapse:collapse;
+      margin-top:1rem;
+    }
+    th, td {
+      padding:0.75rem; text-align:left;
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    th { background:rgba(255,255,255,0.05); }
+
+    /* === ESTILOS DO TOGGLE SWITCH === */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #555;
+      border-radius: 30px;
+      transition: .4s;
+    }
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 26px; width: 26px;
+      left: 2px; bottom: 2px;
+      background-color: #222;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    .slider::after {
+      content: "ON";
+      position: absolute;
+      color: #0A0A0A;
+      font-size: 12px;
+      font-weight: bold;
+      top: 6px;
+      right: 8px;
+      opacity: 0;
+      transition: .4s;
+    }
+    .switch input:checked + .slider {
+      background-color: #39ff14;
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(30px);
+    }
+    .switch input:checked + .slider::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gerenciamento de Usuários</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable">
+        <!-- Linhas preenchidas via JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+    import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.firebasestorage.app",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
+      measurementId: "G-9WH6Z7XKK"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const usersTable = document.getElementById('usersTable');
+
+    // Função para renderizar usuários
+    async function loadUsers() {
+      usersTable.innerHTML = '';
+      try {
+        const snapshot = await getDocs(collection(db, 'profiles'));
+        snapshot.forEach(docSnap => {
+          const user = docSnap.data();
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td>${user.full_name || '-'}</td>
+            <td>${user.email || '-'}</td>
+            <td>${user.role || '-'}</td>
+            <td>${user.approved ? 'Aprovado' : 'Pendente'}</td>
+            <td></td>
+          `;
+          const actionsTd = tr.querySelector('td:last-child');
+
+          // Cria o toggle switch
+          const switchLabel = document.createElement('label');
+          switchLabel.className = 'switch';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = user.approved;
+          checkbox.onchange = () => toggleApproval(docSnap.id, checkbox.checked);
+          const spanSlider = document.createElement('span');
+          spanSlider.className = 'slider';
+          switchLabel.append(checkbox, spanSlider);
+
+          actionsTd.append(switchLabel);
+          usersTable.append(tr);
+        });
+      } catch (err) {
+        alert('Erro ao carregar usuários: ' + err.message);
+      }
+    }
+
+    // Função para atualizar aprovação
+    async function toggleApproval(uid, isApproved) {
+      try {
+        await updateDoc(doc(db, 'profiles', uid), { approved: isApproved });
+        alert(`Usuário ${isApproved ? 'aprovado' : 'reprovado'} com sucesso!`);
+        loadUsers();
+      } catch (err) {
+        alert('Erro ao atualizar status: ' + err.message);
+      }
+    }
+
+    // Carrega ao iniciar
+    loadUsers();
+  </script>
+</body>
+</html>

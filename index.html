@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumii • Landing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* RESET */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      display:flex; justify-content:center; align-items:center;
+      background:#0A0A0A; color:#EAEAEA;
+      font-family:'Poppins',sans-serif;
+    }
+    a { color:inherit; text-decoration:none; cursor:pointer; }
+    .container {
+      display:flex; justify-content:space-between; align-items:center;
+      width:90%; max-width:1200px; padding:4rem 2rem;
+    }
+    .left { flex:1; max-width:60%; }
+    .left h1 { font-size:8rem; line-height:1; font-weight:700; color:#F5F5F5; }
+    .left h1 span { display:inline-block; transition:transform .2s ease-out; }
+    .left p { margin-top:1.5rem; font-size:1.125rem; color:#CCCCCC; max-width:500px; }
+    .right { width:300px; display:flex; flex-direction:column; gap:2rem; }
+    .access .btn {
+      display:block; width:100%; padding:1rem 1.5rem;
+      border:1px solid rgba(255,255,255,0.2); border-radius:8px;
+      background:none; font-size:1rem; font-weight:600;
+      color:#F5F5F5; transition:background .3s,border-color .3s;
+    }
+    .access .btn:hover {
+      background:rgba(255,255,255,0.1);
+      border-color:rgba(255,255,255,0.4);
+    }
+    .info-section span { display:block; font-size:1rem; color:#F5F5F5; word-wrap:break-word; }
+    .modal {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      display:none; justify-content:center; align-items:center;
+      background:rgba(0,0,0,0.5); z-index:1000;
+    }
+    .modal.show { display:flex; }
+    .modal-content {
+      position:relative;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.3);
+      border-radius:16px;
+      padding:2rem;
+      width:90%; max-width:420px;
+      max-height:90vh; overflow:hidden;
+      color:#fff;
+    }
+    .modal-content h2 { text-align:center; margin-bottom:1rem; font-size:1.5rem; }
+    .modal-content input {
+      width:100%; padding:.75rem; margin-bottom:1rem;
+      border:none; border-radius:8px;
+      background:rgba(255,255,255,0.2); color:#fff;
+    }
+    .modal-content input::placeholder { color:rgba(255,255,255,0.7); }
+    .modal-content .btn {
+      width:100%; padding:.75rem; margin-top:.5rem;
+      border:none; border-radius:8px;
+      background:rgba(255,255,255,0.3);
+      color:#0A0A0A; font-weight:600;
+      cursor:pointer; transition:background .3s;
+    }
+    .modal-content .btn:disabled { background:rgba(255,255,255,0.15); cursor:not-allowed; }
+    .modal-content .btn:hover:not(:disabled) { background:rgba(255,255,255,0.5); }
+    .modal-content .close {
+      position:absolute; top:1rem; right:1rem;
+      font-size:1.5rem; cursor:pointer;
+    }
+    .modal-content p { text-align:center; margin-top:1rem; }
+    .modal-content p a { font-weight:600; color:#FFF; }
+
+    /* TERMS CONTENT */
+    .terms-content {
+      height:60vh; overflow-y:auto; padding:1rem;
+      border-radius:8px; background:rgba(255,255,255,0.1);
+      text-align: justify;
+    }
+    .terms-content h3 { margin-top:1.5rem; margin-bottom:0.5rem; text-align:center; }
+    .terms-content h4 { margin-top:1rem; margin-bottom:0.25rem; }
+    .terms-content p, .terms-content ul { margin-bottom:0.75rem; }
+    .terms-content ul { margin-left:1.5rem; }
+    .terms-content::-webkit-scrollbar { display:none; }
+    .terms-content { -ms-overflow-style:none; scrollbar-width:none; }
+    .terms-checkbox {
+      display:flex; align-items:center; margin-top:2rem;
+    }
+    .terms-checkbox input { margin-right:.5rem; width:1.2rem; height:1.2rem; flex-shrink:0; }
+    .terms-checkbox label { text-align:left; }
+    .accepted-icon { margin-left:.5rem; color:#4CAF50; font-size:1.2rem; vertical-align:middle; }
+
+    @media (max-width:768px) {
+      .container { flex-direction:column; padding:2rem; }
+      .left { max-width:100%; margin-bottom:3rem; }
+      .left h1 { font-size:5rem; }
+      .right { width:100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="left">
+      <h1><span>L</span><span>U</span><span>M</span><span>I</span><span>I</span></h1>
+      <p>Deciframos talentos, impulsionamos negócios. Análise de perfis com a profundidade que só a IA Majoris pode oferecer.</p>
+    </div>
+    <div class="right">
+      <div class="access">
+        <h4>Acesso à Plataforma</h4>
+        <a class="btn" data-modal="candidateLoginModal">Sou Candidato</a>
+        <a class="btn" data-modal="companyLoginModal">Sou Empresa</a>
+        <a class="btn" data-modal="masterLoginModal">Acesso Master</a>
+      </div>
+      <div class="info-section"><h4>Social</h4><span>@lumii_inteligente</span></div>
+      <div class="info-section"><h4>Endereço</h4><span>Av. Dep. Jamel Cecílio, 2690</span><span>Jardim Goiás, Goiânia - GO</span></div>
+      <div class="info-section"><h4>Contato</h4><span>+55 62 9 8109-4687</span></div>
+    </div>
+  </div>
+
+  <!-- ===== CANDIDATO ===== -->
+  <div id="candidateLoginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="candidateLoginModal">&times;</span>
+      <h2>Login Candidato</h2>
+      <form id="candidateLoginForm">
+        <input type="email" id="candidateLoginEmail" placeholder="E‑mail" required />
+        <input type="password" id="candidateLoginPassword" placeholder="Senha" required />
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+      <p>Não tem conta? <a data-modal="candidateRegisterModal">Criar conta</a></p>
+      <p><a data-modal="candidateResetModal">Esqueci minha senha</a></p>
+    </div>
+  </div>
+
+  <div id="candidateRegisterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="candidateRegisterModal">&times;</span>
+      <h2>Cadastro Candidato</h2>
+      <form id="candidateForm">
+        <input type="text"     id="candidateName"      placeholder="Nome Completo" required />
+        <input type="email"    id="candidateEmail"     placeholder="E‑mail" required />
+        <input type="password" id="candidatePassword"  placeholder="Senha" required />
+        <input type="password" id="candidatePassword2" placeholder="Confirmar Senha" required />
+        <input type="text"     id="candidateCPF"       placeholder="CPF" required />
+        <input type="date"     id="candidateBirth"     placeholder="Data de Nascimento" required />
+        <input type="tel"      id="candidatePhone"     placeholder="Telefone" required />
+        <input type="text"     id="candidateCity"      placeholder="Cidade" required />
+        <input type="text"     id="candidateState"     placeholder="Estado" required />
+        <p>
+          <a id="openCandidateTerms">Termo de Uso e Política de Privacidade</a>
+          <span id="candidateAcceptedIcon" class="accepted-icon" style="display:none;">✓</span>
+        </p>
+        <button type="submit" id="candidateRegisterBtn" class="btn" disabled>Cadastrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="candidateResetModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="candidateResetModal">&times;</span>
+      <h2>Redefinir Senha</h2>
+      <form id="candidateResetForm">
+        <input type="email" id="candidateResetEmail" placeholder="E‑mail" required />
+        <button type="submit" class="btn">Enviar link</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="candidateTermsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="candidateTermsModal">&times;</span>
+      <h2>Termo de Uso e Política de Privacidade</h2>
+      <div class="terms-content" id="candidateTermsContent">
+        <h3>Termos de Uso e Política de Privacidade da Plataforma Lumii</h3>
+        <p><strong>Última atualização: 24 de julho de 2025</strong></p>
+        <p>Bem-vindo à Lumii! Estes Termos de Uso e Política de Privacidade ("Termos") regem o seu acesso e uso da plataforma Lumii ("Plataforma"), incluindo nosso site, aplicativos e serviços relacionados, fornecidos pela Lumii Inteligência Ltda. ("Lumii", "nós", "nosso"). Ao se cadastrar ou utilizar nossa Plataforma, você concorda em cumprir e estar vinculado a estes Termos.</p>
+        <h4>1. Objeto da Plataforma</h4>
+        <p>A Lumii é uma plataforma de tecnologia que utiliza a Inteligência Artificial "Majoris" para realizar análises de perfis profissionais, com o objetivo de conectar talentos (Candidatos) a oportunidades de negócios e vagas (Empresas). A Plataforma facilita a identificação de competências, habilidades e potencial de desenvolvimento dos Candidatos, oferecendo às Empresas uma ferramenta avançada para seus processos de recrutamento e seleção.</p>
+        <h4>2. Cadastro e Conta de Usuário</h4>
+        <p>Para acessar as funcionalidades da Plataforma, você deve criar uma conta. Você concorda em fornecer informações verdadeiras, precisas, atuais e completas durante o processo de registro e em manter essas informações atualizadas. Você é o único responsável por todas as atividades que ocorrem em sua conta e pela manutenção da confidencialidade de sua senha.</p>
+        <ul>
+          <li><strong>Candidatos:</strong> Fornecerão dados pessoais e profissionais para a criação de seu perfil.</li>
+          <li><strong>Empresas:</strong> Fornecerão dados corporativos e de seus representantes para acessar os perfis dos candidatos.</li>
+        </ul>
+        <h3>Política de Privacidade</h3>
+        <p>A sua privacidade é de extrema importância para nós. Esta seção descreve como coletamos, usamos, compartilhamos e protegemos suas informações.</p>
+        <h4>3. Coleta de Dados</h4>
+        <ul>
+          <li><strong>Informações que você nos fornece:</strong> Nome completo, e-mail, senha, CPF, data de nascimento, telefone, cidade, estado e outras informações profissionais que você adicionar ao perfil.</li>
+          <li><strong>Informações de Uso:</strong> Coletamos dados sobre como você interage com a Plataforma, como páginas visitadas, funcionalidades utilizadas e tempo de permanência.</li>
+          <li><strong>Dados de Análise da IA:</strong> Os dados fornecidos por você são processados pela nossa IA Majoris para gerar análises de perfil, que ficam associadas à sua conta.</li>
+        </ul>
+      </div>
+      <div class="terms-checkbox">
+        <input type="checkbox" id="candidateTermsCheckbox" disabled />
+        <label for="candidateTermsCheckbox">Li e aceito o Termo de Uso e Política de Privacidade</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EMPRESA ===== -->
+  <div id="companyLoginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="companyLoginModal">&times;</span>
+      <h2>Login Empresa</h2>
+      <form id="companyLoginForm">
+        <input type="email" id="companyLoginEmail" placeholder="E‑mail Corporativo" required />
+        <input type="password" id="companyLoginPassword" placeholder="Senha" required />
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+      <p>Não tem conta? <a data-modal="companyRegisterModal">Criar conta</a></p>
+      <p><a data-modal="companyResetModal">Esqueci minha senha</a></p>
+    </div>
+  </div>
+
+  <div id="companyRegisterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="companyRegisterModal">&times;</span>
+      <h2>Cadastro Empresa</h2>
+      <form id="companyForm">
+        <input type="text"     id="companyName"      placeholder="Nome da Empresa" required />
+        <input type="email"    id="companyEmail"     placeholder="E‑mail Corporativo" required />
+        <input type="password" id="companyPassword"  placeholder="Senha" required />
+        <input type="password" id="companyPassword2" placeholder="Confirmar Senha" required />
+        <p>
+          <a id="openCompanyTerms">Termo de Uso e Política de Privacidade</a>
+          <span id="companyAcceptedIcon" class="accepted-icon" style="display:none;">✓</span>
+        </p>
+        <button type="submit" id="companyRegisterBtn" class="btn" disabled>Cadastrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="companyResetModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="companyResetModal">&times;</span>
+      <h2>Redefinir Senha Empresa</h2>
+      <form id="companyResetForm">
+        <input type="email" id="companyResetEmail" placeholder="E‑mail Corporativo" required />
+        <button type="submit" class="btn">Enviar link</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="companyTermsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="companyTermsModal">&times;</span>
+      <h2>Termo de Uso e Política de Privacidade</h2>
+      <div class="terms-content" id="companyTermsContent">
+        <!-- será preenchido via script -->
+      </div>
+      <div class="terms-checkbox">
+        <input type="checkbox" id="companyTermsCheckbox" disabled />
+        <label for="companyTermsCheckbox">Li e aceito o Termo de Uso e Política de Privacidade</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MASTER ===== -->
+  <div id="masterLoginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="masterLoginModal">&times;</span>
+      <h2>Login Master</h2>
+      <form id="masterLoginForm">
+        <input type="email" id="masterLoginEmail" placeholder="E‑mail Master" required />
+        <input type="password" id="masterLoginPassword" placeholder="Senha" required />
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+      <p>Não tem conta? <a data-modal="masterRegisterModal">Criar conta</a></p>
+      <p><a data-modal="masterResetModal">Esqueci minha senha</a></p>
+    </div>
+  </div>
+
+  <div id="masterRegisterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="masterRegisterModal">&times;</span>
+      <h2>Cadastro Master</h2>
+      <form id="masterForm">
+        <input type="text"     id="masterName"      placeholder="Nome Master" required />
+        <input type="email"    id="masterEmail"     placeholder="E‑mail Master" required />
+        <input type="password" id="masterPassword"  placeholder="Senha" required />
+        <input type="password" id="masterPassword2" placeholder="Confirmar Senha" required />
+        <p>
+          <a id="openMasterTerms">Termo de Uso e Política de Privacidade</a>
+          <span id="masterAcceptedIcon" class="accepted-icon" style="display:none;">✓</span>
+        </p>
+        <button type="submit" id="masterRegisterBtn" class="btn" disabled>Cadastrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="masterResetModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="masterResetModal">&times;</span>
+      <h2>Redefinir Senha Master</h2>
+      <form id="masterResetForm">
+        <input type="email" id="masterResetEmail" placeholder="E‑mail Master" required />
+        <button type="submit" class="btn">Enviar link</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="masterTermsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="masterTermsModal">&times;</span>
+      <h2>Termo de Uso e Política de Privacidade</h2>
+      <div class="terms-content" id="masterTermsContent">
+        <!-- será preenchido via script -->
+      </div>
+      <div class="terms-checkbox">
+        <input type="checkbox" id="masterTermsCheckbox" disabled />
+        <label for="masterTermsCheckbox">Li e aceito o Termo de Uso e Política de Privacidade</label>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      signOut
+    } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc
+    } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.firebasestorage.app",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
+      measurementId: "G-9WH6Z7XKK"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // Abre/fecha modais e animação do logo
+    document.querySelectorAll('[data-modal]').forEach(el=>{
+      el.addEventListener('click',e=>{
+        e.preventDefault();
+        document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
+        if(!el.classList.contains('close'))
+          document.getElementById(el.dataset.modal).classList.add('show');
+      });
+    });
+    document.addEventListener('mousemove',e=>{
+      document.querySelectorAll('.left h1 span').forEach(letter=>{
+        const r=letter.getBoundingClientRect();
+        const dx=e.clientX-(r.left+r.width/2),
+              dy=e.clientY-(r.top+r.height/2),
+              d=Math.hypot(dx,dy),R=200;
+        letter.style.transform = d<R
+          ? `translate(${dx*(R-d)/R*0.3}px,${dy*(R-d)/R*0.3}px)`
+          : '';
+      });
+    });
+
+    // Terms setup
+    function setupTerms(openId,modalId,contentId,checkboxId,btnId,iconId){
+      const open=document.getElementById(openId),
+            modal=document.getElementById(modalId),
+            content=document.getElementById(contentId),
+            chk=document.getElementById(checkboxId),
+            btn=btnId?document.getElementById(btnId):null,
+            icon=iconId?document.getElementById(iconId):null;
+      open.addEventListener('click',e=>{e.preventDefault(); modal.classList.add('show');});
+      content.addEventListener('scroll',()=>{
+        if(content.scrollTop+content.clientHeight>=content.scrollHeight-10)
+          chk.disabled=false;
+      });
+      chk.addEventListener('change',()=>{
+        if(chk.checked){
+          modal.classList.remove('show');
+          if(btn) btn.disabled=false;
+          if(icon) icon.style.display='inline-block';
+        }
+      });
+    }
+    setupTerms('openCandidateTerms','candidateTermsModal','candidateTermsContent','candidateTermsCheckbox','candidateRegisterBtn','candidateAcceptedIcon');
+    setupTerms('openCompanyTerms','companyTermsModal','companyTermsContent','companyTermsCheckbox','companyRegisterBtn','companyAcceptedIcon');
+    setupTerms('openMasterTerms','masterTermsModal','masterTermsContent','masterTermsCheckbox','masterRegisterBtn','masterAcceptedIcon');
+
+    // Copy terms
+    document.getElementById('companyTermsContent').innerHTML = document.getElementById('candidateTermsContent').innerHTML;
+    document.getElementById('masterTermsContent').innerHTML  = document.getElementById('candidateTermsContent').innerHTML;
+
+    // — CADASTRO CANDIDATO —
+    document.getElementById('candidateForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const n=document.getElementById('candidateName').value.trim(),
+            em=document.getElementById('candidateEmail').value.trim(),
+            p1=document.getElementById('candidatePassword').value,
+            p2=document.getElementById('candidatePassword2').value;
+      if(p1!==p2){ alert('Senhas não coincidem.'); return; }
+      try{
+        const { user } = await createUserWithEmailAndPassword(auth, em, p1);
+        await setDoc(doc(db,'profiles',user.uid),{
+          full_name:n,
+          role:'candidate',
+          email:em,
+          approved:false
+        });
+        alert('Conta criada com sucesso! Aguarde aprovação.');
+        document.getElementById('candidateForm').reset();
+        document.getElementById('candidateRegisterModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+    // — LOGIN CANDIDATO COM CHECAGEM DE approved E role === 'candidate' —
+    document.getElementById('candidateLoginForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const em = document.getElementById('candidateLoginEmail').value.trim();
+      const pw = document.getElementById('candidateLoginPassword').value;
+      try {
+        const { user } = await signInWithEmailAndPassword(auth, em, pw);
+        const snap = await getDoc(doc(db,'profiles',user.uid));
+        if (!snap.exists()) {
+          await signOut(auth);
+          return alert('Perfil não encontrado.');
+        }
+        const data = snap.data();
+        if (data.role !== 'candidate') {
+          await signOut(auth);
+          return alert('Este e‑mail não pertence a uma conta de Candidato.');
+        }
+        if (!data.approved) {
+          await signOut(auth);
+          return alert('Sua conta ainda não foi aprovada. Aguarde a aprovação.');
+        }
+        localStorage.setItem('candidateEmail', em);
+        window.location.href = 'candidato/candidato.html';
+      } catch (err) {
+        alert('Erro no login do candidato: ' + err.message);
+      }
+    });
+
+    // — REDEFINIÇÃO DE SENHA CANDIDATO —
+    document.getElementById('candidateResetForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      try{
+        await sendPasswordResetEmail(auth,document.getElementById('candidateResetEmail').value);
+        alert('Link de redefinição enviado!');
+        document.getElementById('candidateResetModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+    // — CADASTRO EMPRESA —
+    document.getElementById('companyForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const n=document.getElementById('companyName').value.trim(),
+            em=document.getElementById('companyEmail').value.trim(),
+            p1=document.getElementById('companyPassword').value,
+            p2=document.getElementById('companyPassword2').value;
+      if(p1!==p2){ alert('Senhas não coincidem.'); return; }
+      try{
+        const { user } = await createUserWithEmailAndPassword(auth, em, p1);
+        await setDoc(doc(db,'profiles',user.uid),{
+          full_name:n,
+          role:'company',
+          email:em,
+          approved:false
+        });
+        alert('Conta Empresa criada! Aguarde aprovação.');
+        document.getElementById('companyForm').reset();
+        document.getElementById('companyRegisterModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+    // — LOGIN EMPRESA COM CHECAGEM DE approved E role === 'company' —
+    document.getElementById('companyLoginForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const em = document.getElementById('companyLoginEmail').value.trim();
+      const pw = document.getElementById('companyLoginPassword').value;
+      try {
+        const { user } = await signInWithEmailAndPassword(auth, em, pw);
+        const snap = await getDoc(doc(db,'profiles',user.uid));
+        if (!snap.exists()) {
+          await signOut(auth);
+          return alert('Perfil não encontrado.');
+        }
+        const data = snap.data();
+        if (data.role !== 'company') {
+          await signOut(auth);
+          return alert('Este e‑mail não pertence a uma conta de Empresa.');
+        }
+        if (!data.approved) {
+          await signOut(auth);
+          return alert('Sua conta de empresa ainda não foi aprovada. Aguarde a aprovação.');
+        }
+        localStorage.setItem('companyEmail', em);
+        window.location.href = 'empresa/empresa.html';
+      } catch (err) {
+        alert('Erro no login da empresa: ' + err.message);
+      }
+    });
+
+    // — REDEFINIÇÃO DE SENHA EMPRESA —
+    document.getElementById('companyResetForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      try{
+        await sendPasswordResetEmail(auth,document.getElementById('companyResetEmail').value);
+        alert('Link de redefinição enviado!');
+        document.getElementById('companyResetModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+    // — CADASTRO MASTER —
+    document.getElementById('masterForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const n=document.getElementById('masterName').value.trim(),
+            em=document.getElementById('masterEmail').value.trim(),
+            p1=document.getElementById('masterPassword').value,
+            p2=document.getElementById('masterPassword2').value;
+      if(p1!==p2){ alert('Senhas não coincidem.'); return; }
+      try{
+        const { user } = await createUserWithEmailAndPassword(auth, em, p1);
+        await setDoc(doc(db,'profiles',user.uid),{
+          full_name:n,
+          role:'master',
+          email:em,
+          approved:false
+        });
+        alert('Conta Master criada! Aguarde aprovação.');
+        document.getElementById('masterForm').reset();
+        document.getElementById('masterRegisterModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+    // — LOGIN MASTER COM CHECAGEM DE approved E role === 'master' —
+    document.getElementById('masterLoginForm').addEventListener('submit', async e=>{
+      e.preventDefault();
+      const em = document.getElementById('masterLoginEmail').value.trim();
+      const pw = document.getElementById('masterLoginPassword').value;
+      try {
+        const { user } = await signInWithEmailAndPassword(auth, em, pw);
+        const snap = await getDoc(doc(db,'profiles',user.uid));
+        if (!snap.exists()) {
+          await signOut(auth);
+          return alert('Perfil não encontrado.');
+        }
+        const data = snap.data();
+        if (data.role !== 'master') {
+          await signOut(auth);
+          return alert('Este e‑mail não pertence a uma conta Master.');
+        }
+        if (!data.approved) {
+          await signOut(auth);
+          return alert('Sua conta master ainda não foi aprovada. Aguarde a aprovação.');
+        }
+        localStorage.setItem('masterEmail', em);
+        window.location.href = 'gerenciamento/master.html';
+      } catch (err) {
+        alert('Erro no login master: ' + err.message);
+      }
+    });
+
+    // — REDEFINIÇÃO DE SENHA MASTER —
+    document.getElementById('masterResetForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      try{
+        await sendPasswordResetEmail(auth,document.getElementById('masterResetEmail').value);
+        alert('Link de redefinição enviado!');
+        document.getElementById('masterResetModal').classList.remove('show');
+      }catch(err){
+        alert('Erro: '+err.message);
+      }
+    });
+
+  </script>
+</body>
+</html>

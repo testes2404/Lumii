@@ -1,0 +1,42 @@
+{
+  "kpis": {
+    "total_candidaturas": 1453,
+    "vagas_abertas": 9,
+    "contratados_30_dias": 11,
+    "taxa_conversao": 16
+  },
+  "candidaturas_mensais": {
+    "labels": ["Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho"],
+    "data": [150, 210, 180, 280, 223, 410]
+  },
+  "origem_candidatos": {
+    "labels": ["LinkedIn", "Indeed", "Site da Empresa", "Indicação", "Outros"],
+    "data": [510, 390, 250, 110, 43]
+  },
+  "ultimas_candidaturas": [
+    {
+      "id": 101,
+      "candidato": "Mariana Almeida",
+      "vaga": "UX/UI Designer Sênior",
+      "data_aplicacao": "2025-08-01",
+      "status": "Em Entrevista",
+      "status_class": "bg-warning text-dark"
+    },
+    {
+      "id": 102,
+      "candidato": "Ricardo Borges",
+      "vaga": "Engenheiro de Dados Pleno",
+      "data_aplicacao": "2025-07-31",
+      "status": "Triagem",
+      "status_class": "bg-info"
+    },
+    {
+      "id": 103,
+      "candidato": "Fernanda Souza",
+      "vaga": "Desenvolvedor(a) Backend",
+      "data_aplicacao": "2025-07-30",
+      "status": "Aprovado",
+      "status_class": "bg-success"
+    }
+  ]
+}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumii • Semente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      background: #0A0A0A;
+      font-family: 'Poppins', sans-serif;
+      color: #EAEAEA;
+      overflow-x: hidden;
+    }
+    a, button { color: inherit; text-decoration: none; background: none; border: none; cursor: pointer; }
+    .topnav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      background: #111;
+      border-bottom: 1px solid #222;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      z-index: 100;
+      overflow-x: auto;
+    }
+    .topnav .btn {
+      background-color: transparent;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F5F5F5;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .topnav .btn:hover, .topnav .btn.active {
+      background: #222;
+      border-color: #555;
+    }
+    .content {
+      margin-top: 5rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #userEmailBadge {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(30,30,30,0.6);
+      backdrop-filter: blur(10px);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #EAEAEA;
+      z-index: 200;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+    .vagas-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    .vaga-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .vaga-card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #FFD54F;
+      word-wrap: break-word;
+    }
+    .vaga-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #E0E0E0;
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .vaga-card p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #BDBDBD;
+      word-wrap: break-word;
+    }
+    .vaga-card .score-value {
+        font-weight: 600;
+        color: #EAEAEA;
+    }
+    .vaga-card ul {
+        list-style-position: inside;
+        padding-left: 0.5rem;
+    }
+    .vaga-card li { margin-bottom: 0.5rem; }
+    .vaga-actions {
+      margin-top: auto;
+      padding-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      flex-grow: 1;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: opacity 0.2s;
+      text-align: center;
+      cursor: pointer;
+    }
+    .action-btn:hover { opacity: 0.8; }
+    .btn-semear { background: #4CAF50; color: #0A0A0A; }
+
+    /* --- Modal Styles --- */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .modal.active {
+        display: flex; /* Show when active */
+    }
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+    }
+    .modal-content {
+        position: relative;
+        background: #1A1A1A;
+        border: 1px solid #333;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 900px; /* Grande modal */
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        z-index: 1001;
+    }
+    .modal-header {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #333;
+    }
+    .modal-body {
+        padding: 2rem;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    .modal-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #AAA;
+    }
+    .modal-close-btn:hover { color: #FFF; }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="meu-perfil-empresa.html" class="btn">Meu Perfil</a>
+    <a href="relatorios.html" class="btn" target="_blank">Relatórios</a>
+    <button id="btnMajoris" class="btn">Majoris</button>
+    <a href="semente.html" class="btn active">Semente</a>
+    <a href="engajar.html" class="btn" id="btnEngajar" target="_blank">Engajar</a>
+    <button id="btnValores" class="btn">Valores</button>
+    <button id="btnDinamica" class="btn">Dinâmica Específica</button>
+    <a href="../central_lumii.html" class="btn">Sair</a>
+  </nav>
+
+  <div id="userEmailBadge"></div>
+
+  <main class="content">
+    <h1>Relatórios de Análise de IA</h1>
+    <div id="vagasContainer" class="vagas-container">
+      <p>Carregando relatórios...</p>
+    </div>
+  </main>
+  
+  <div id="semearModal" class="modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+          <button class="modal-close-btn">&times;</button>
+          <div id="semearContent" class="modal-body">
+              </div>
+      </div>
+  </div>
+  
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+        authDomain: "mini-genio-c204d.firebaseapp.com",
+        projectId: "mini-genio-c204d",
+        storageBucket: "mini-genio-c204d.firebasestorage.app",
+        messagingSenderId: "553494129644",
+        appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const companyEmail = localStorage.getItem('companyEmail') || '';
+    const badge = document.getElementById('userEmailBadge');
+    badge.textContent = companyEmail ? `Logado como: ${companyEmail}` : 'Empresa não autenticada';
+
+    const vagasContainer = document.getElementById('vagasContainer');
+    const perfilCache = {};
+    const vagaCache = {};
+
+    async function getProfileByEmail(email) {
+      if (!email) return null;
+      if (perfilCache[email]) return perfilCache[email];
+      try {
+        const profilesRef = collection(db, 'profiles');
+        const q = query(profilesRef, where("email", "==", email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const data = snap.docs[0].data();
+          perfilCache[email] = data;
+          return data;
+        }
+      } catch (e) {
+        console.warn("Erro buscando profile para email", email, e);
+      }
+      return null;
+    }
+
+    async function getVagaById(vagaId) {
+      if (!vagaId) return null;
+      if (vagaCache[vagaId]) return vagaCache[vagaId];
+      try {
+        const directRef = doc(db, 'vagas', vagaId);
+        const directSnap = await getDoc(directRef);
+        if (directSnap.exists()) {
+          const data = directSnap.data();
+          vagaCache[vagaId] = data;
+          return data;
+        }
+        const vagasRef = collection(db, 'vagas');
+        const q = query(vagasRef, where("id", "==", vagaId));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const data = snap.docs[0].data();
+          vagaCache[vagaId] = data;
+          return data;
+        }
+      } catch (e) {
+        console.warn("Erro buscando vaga para id", vagaId, e);
+      }
+      return null;
+    }
+
+    function renderVagas(relatorios) {
+      vagasContainer.innerHTML = '';
+      if (relatorios.length === 0) {
+        vagasContainer.innerHTML = '<p>Nenhum relatório de IA encontrado para sua empresa.</p>';
+        return;
+      }
+
+      relatorios.forEach(async relatorio => {
+        const data = relatorio.data();
+        const card = document.createElement('div');
+        card.className = 'vaga-card';
+
+        const vagaId = data.vagaId || null;
+        const candidatoEmail = data.userEmail || null;
+
+        const [perfil, vagaInfo] = await Promise.all([
+          getProfileByEmail(candidatoEmail),
+          getVagaById(vagaId)
+        ]);
+
+        const candidatoNome = perfil?.full_name || candidatoEmail || 'Candidato não informado';
+        const tituloVaga = vagaInfo?.title || vagaId || 'Vaga não informada';
+        
+        let analiseDetalhada = '';
+        if (data.scores) {
+          const affinity = data.scores.affinity ?? 0;
+          const compatibility = data.scores.cultural_compatibility ?? 0;
+          analiseDetalhada += `
+            <div>
+              <p><strong>affinity:</strong> <span class="score-value">${affinity}</span></p>
+              <p><strong>cultural_compatibility:</strong> <span class="score-value">${compatibility}</span></p>
+            </div>
+          `;
+        } else {
+          analiseDetalhada += `
+            <div>
+              <p><strong>affinity:</strong> <span class="score-value">0</span></p>
+              <p><strong>cultural_compatibility:</strong> <span class="score-value">0</span></p>
+            </div>
+          `;
+        }
+
+        if (data.summary) {
+          analiseDetalhada += `
+            <div style="margin-top:6px;">
+              <h4 style="margin:4px 0;">Resumo:</h4>
+              <p style="font-size:0.85rem; color:#CCC;">${data.summary}</p>
+            </div>
+          `;
+        }
+
+        if (Array.isArray(data.weaknesses) && data.weaknesses.length > 0) {
+          analiseDetalhada += `
+            <div style="margin-top:6px;">
+              <h4 style="margin:4px 0;">Pontos de Atenção (IA):</h4>
+              <ul>${data.weaknesses.map(w => `<li style="font-size:0.8rem; margin-bottom:4px;">${w}</li>`).join('')}</ul>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <h2>${tituloVaga}</h2>
+          <p><strong>Candidato:</strong> ${candidatoNome}</p>
+          <div>
+            <h3 style="margin-bottom:4px;">Análise da IA</h3>
+            <div>${analiseDetalhada}</div>
+          </div>
+          <div class="vaga-actions">
+              <button class="action-btn btn-semear" onclick="window.openSemearModal('${relatorio.id}')">Semear</button>
+          </div>
+        `;
+
+        vagasContainer.appendChild(card);
+      });
+    }
+
+    async function fetchVagas() {
+      if (!companyEmail) {
+        vagasContainer.innerHTML = '<p>Erro: E-mail da empresa não encontrado. Faça o login novamente.</p>';
+        return;
+      }
+      try {
+        const q = query(collection(db, 'relatorios'), where("companyEmail", "==", companyEmail));
+        const querySnapshot = await getDocs(q);
+        renderVagas(querySnapshot.docs);
+      } catch (error) {
+        console.error("Erro ao buscar relatórios: ", error);
+        vagasContainer.innerHTML = `<p style="color:red;">Ocorreu um erro ao carregar os relatórios. Tente novamente mais tarde.</p>`;
+      }
+    }
+    
+    // --- Modal Logic ---
+    const semearModal = document.getElementById('semearModal');
+    const semearContent = document.getElementById('semearContent');
+
+    function loadExternalResource(url, type) {
+        return new Promise((resolve, reject) => {
+            let element;
+            const id = `resource-${url.split('/').pop().replace('.','-')}`;
+            if (document.getElementById(id)) {
+                resolve();
+                return;
+            }
+
+            if (type === 'css') {
+                element = document.createElement('link');
+                element.rel = 'stylesheet';
+                element.href = url;
+            } else if (type === 'js') {
+                element = document.createElement('script');
+                element.src = url;
+            }
+
+            if (element) {
+                element.id = id;
+                element.onload = () => resolve();
+                element.onerror = () => reject(new Error(`Falha ao carregar ${url}`));
+                document.head.appendChild(element);
+            } else {
+                reject(new Error('Tipo de recurso inválido'));
+            }
+        });
+    }
+
+    window.openSemearModal = async (relatorioId) => {
+        if (!semearModal) return;
+
+        semearModal.dataset.relatorioId = relatorioId;
+        semearContent.innerHTML = '<p>Carregando interface...</p>';
+        semearModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        try {
+            // Espera o CSS e o JS serem carregados
+            await Promise.all([
+                loadExternalResource('semear.css', 'css'),
+                loadExternalResource('semear.js', 'js')
+            ]);
+
+            // Agora que semear.js foi carregado, a função initSemear deve estar disponível
+            if (window.initSemear) {
+                window.initSemear(); // Chama a função principal do semear.js
+            } else {
+                // Se a função não for encontrada, exibe um erro claro
+                throw new Error("A função de inicialização initSemear() não foi encontrada no arquivo semear.js.");
+            }
+
+        } catch (error) {
+            console.error("Erro ao carregar ou inicializar a interface 'Semear':", error);
+            semearContent.innerHTML = `<p style="color:red;">Falha ao carregar a interface. Verifique o console do navegador para mais detalhes (F12).</p>`;
+        }
+    };
+
+    function closeSemearModal() {
+        if (!semearModal) return;
+        semearModal.classList.remove('active');
+        semearContent.innerHTML = '';
+        document.body.style.overflow = 'auto';
+    }
+
+    semearModal.querySelector('.modal-overlay').addEventListener('click', closeSemearModal);
+    semearModal.querySelector('.modal-close-btn').addEventListener('click', closeSemearModal);
+
+    document.addEventListener('DOMContentLoaded', fetchVagas);
+  </script>
+</body>
+</html>

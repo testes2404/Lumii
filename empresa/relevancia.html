@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minha Relevância</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: #EAEAEA;
+    }
+    body {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+    }
+    .card h1 {
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
+    }
+    .card p {
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+    .card .close {
+      display: block;
+      margin-top: 1.5rem;
+      background: #FFB300;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #0A0A0A;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Minha Relevância</h1>
+    <p>Aqui entra o conteúdo sobre a relevância da sua empresa na plataforma.</p>
+    <p>Você pode exibir gráficos, métricas ou qualquer outro dado que preferir.</p>
+    <button class="close" onclick="window.parent.document.getElementById('relevanciaModal').classList.remove('show')">
+      Fechar
+    </button>
+  </div>
+</body>
+</html>

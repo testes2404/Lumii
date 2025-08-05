@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Majoris • Lumii</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --modal-timing: 0.3s; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body { min-height:100%; }
+    body { background:#0A0A0A; font-family:'Poppins',sans-serif; color:#EAEAEA; overflow-x:hidden; }
+
+    #userEmailBadge { position: fixed; top:1rem; right:1rem; background:rgba(30,30,30,0.6); backdrop-filter: blur(10px); padding:0.5rem 1rem; border-radius:8px; font-size:0.9rem; z-index:200; border:1px solid rgba(255,255,255,0.1); }
+    .content { padding:6rem 2rem 2rem 2rem; max-width:800px; margin:0 auto; transition: filter 0.3s ease; }
+    .candidatura-container { background:rgba(255,255,255,0.05); border:1px solid #333; border-radius:8px; padding:1.5rem; margin-bottom:1.5rem; }
+    .candidatura-container h2 { border-bottom:1px solid #444; padding-bottom:.5rem; margin-bottom:1rem; color:#fff; }
+    .info-item { margin-bottom:.75rem; font-size:1rem; word-wrap: break-word; }
+    .info-item strong { color:#AAAAAA; display:inline-block; min-width:120px; margin-right:10px; }
+    .majoris-button, .back-button { background:#2a2a2a; color:#EAEAEA; border:1px solid #444; padding:.5rem 1.25rem; border-radius:6px; cursor:pointer; font-family:'Poppins',sans-serif; font-size:.9rem; font-weight:600; transition: background-color .2s, border-color .2s; }
+    .majoris-button:hover, .back-button:hover { background:#3a3a3a; border-color:#666; }
+    #loadingMessage,#errorMessage { text-align:center; font-size:1.1rem; color:#888; padding:2rem; width:100%; }
+    .card-actions { margin-top:1.5rem; display:flex; justify-content:flex-end; }
+
+    /* --- Efeito de Digitação --- */
+    .typewriter .info-item {
+        overflow: hidden; /* Garante que o texto não apareça antes da animação */
+        white-space: nowrap; /* Mantém o conteúdo em uma única linha */
+        margin: 0 auto; /* Dá aquele efeito de texto centralizado */
+        letter-spacing: .15em; /* Espaçamento entre as letras */
+        animation: typing 2.5s steps(40, end), blink-caret .75s step-end infinite;
+        animation-fill-mode: forwards;
+        width: 0;
+    }
+    .typewriter h2 {
+        overflow: hidden;
+        white-space: nowrap;
+        width: 0;
+        animation: typing-h2 1.5s steps(20, end) forwards;
+    }
+
+    /* Animação do cursor */
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes typing-h2 {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: orange; }
+    }
+
+
+    /* --- Split Screen --- */
+    #splitScreenView {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(10,10,10,0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+    #leftPanel, #rightPanel {
+      height: 100%; border-radius:14px;
+      display:flex; flex-direction:column;
+      box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
+      overflow:hidden;
+    }
+    #leftPanel { width:55%; background:#121212; border:1px solid #333; }
+    #rightPanel { width:45%; background: rgba(20,20,35,0.9); border:1px solid rgba(255,255,255,0.1); font-family:'Roboto Mono', monospace; color:#e6e6e6; }
+
+    .panel-header {
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid #333; padding:1.5rem 2rem; flex-shrink:0;
+    }
+    .panel-header h2 { font-size:1.5rem; color:#fff; margin:0; }
+
+    .panel-content {
+      overflow-y:auto; flex-grow:1;
+      scrollbar-width:thin; scrollbar-color:#444 #1f1f1f;
+      padding:1.5rem 2rem;
+    }
+    .panel-content::-webkit-scrollbar { width:8px; }
+    .panel-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .panel-content::-webkit-scrollbar-thumb { background-color:#444; border-radius:4px; }
+
+    .left-panel-text { font-family:'Roboto Mono', monospace; white-space: pre-wrap; font-size:0.9rem; color:#ccc; line-height:1.6; }
+
+/* Adicione a nova classe aqui */
+.texto-embacado {
+  filter: blur(4px);
+}
+    .analysis-section { margin-bottom:1.75rem; }
+    .analysis-section h3 {
+      font-family:'Poppins',sans-serif; font-size:1rem; font-weight:600;
+      color:#9e9eff; border-bottom:1px solid #4a4a7a;
+      padding-bottom:0.5rem; margin-bottom:0.75rem;
+    }
+    .analysis-section h4 {
+        font-family:'Poppins',sans-serif; font-size:0.9rem; font-weight:600;
+        color: #bdbdff; margin-top: 1rem; margin-bottom: 0.5rem;
+    }
+    .analysis-section ul { list-style:none; padding-left:5px; }
+    .analysis-section ul li { margin-bottom:0.5rem; line-height:1.5; font-size:0.85rem; }
+    .analysis-section ul li::before { content:'»'; margin-right:8px; color:#8282ff; }
+    .analysis-section p { margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.6;}
+
+    .summary-text, .score-item { font-size:0.9rem; line-height:1.6; }
+    .score-item strong { color:#bdbdff; }
+    .small-muted { font-size:0.75rem; color:#999; margin-top:4px; }
+  </style>
+</head>
+<body>
+
+  <div id="userEmailBadge">Carregando...</div>
+  
+  <main class="content" id="candidaturaContent"></main>
+
+  <div id="splitScreenView">
+    <div id="leftPanel"></div>
+    <div id="rightPanel"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // === CONFIGURAÇÕES ===
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.appspot.com",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+
+    // === CHAVE GEMINI HARD CODED (SUBSTITUA PELA SUA) ===
+    const GEMINI_API_KEY = "AIzaSyCuUt5tLclO6vhUSoe3-MSBnPF5ETcrQis"; // <--- coloque sua chave aqui
+
+    // --- DOM ---
+    const candidaturaContent = document.getElementById('candidaturaContent');
+    const splitScreenView = document.getElementById('splitScreenView');
+    const leftPanel = document.getElementById('leftPanel');
+    const rightPanel = document.getElementById('rightPanel');
+    const badgeElement = document.getElementById('userEmailBadge');
+
+    // --- FORMATAÇÃO E UTILIDADES ---
+    function formatCurriculo(data) {
+      if (!data || Object.keys(data).length === 0) return 'Currículo não encontrado.';
+      let text = 'Habilidades: ' + (data.habilidades?.join(', ') || 'N/A') + '\n\n';
+      text += 'Experiências:\n';
+      data.experiencias?.forEach(exp => {
+        text += `- Cargo: ${exp.cargo} na empresa ${exp.empresa} (de ${exp.inicio} a ${exp.fim || 'Atual'})\n`;
+        if (exp.descricao) text += `  Descrição: ${exp.descricao}\n`;
+      });
+      text += '\nFormação:\n';
+      data.formacoes?.forEach(form => {
+        text += `- ${form.curso} em ${form.instituicao} (${form.anoConclusao})\n`;
+      });
+      return text;
+    }
+
+    function formatRespostas(data) {
+      if (!data || Object.keys(data).length === 0) return 'Respostas não encontradas.';
+      const ignored = ['userEmail', 'vagaId', 'timestamp'];
+      const recurse = (obj) => {
+        let out = '';
+        for (const k in obj) {
+          if (!Object.hasOwnProperty.call(obj, k) || ignored.includes(k)) continue;
+          const v = obj[k];
+          const title = k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+          out += `\n--- ${title} ---\n`;
+          if (Array.isArray(v)) {
+            v.forEach(item => {
+              if (item.questao && item.resposta) out += `Questão: ${item.questao}\nResposta: ${item.resposta}\n`;
+              else if (item.nomeValor && item.resposta) out += `Valor: ${item.nomeValor}\nResposta: ${item.resposta}\n`;
+            });
+          } else if (typeof v === 'object' && v !== null) {
+            out += recurse(v);
+          } else {
+            out += `${v}\n`;
+          }
+        }
+        return out;
+      };
+      return recurse(data).trim() || 'Nenhuma resposta formatável encontrada.';
+    }
+
+    function closeSplitView() {
+      splitScreenView.style.display = 'none';
+      candidaturaContent.style.filter = 'none';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, function(m) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+      });
+    }
+
+    /**
+     * NOVA FUNÇÃO: Ofusca (mascara) dados sensíveis para exibição.
+     */
+    function obfuscateData(text, type) {
+        if (!text) return 'N/A';
+        if (type === 'email') {
+            const [user, domain] = text.split('@');
+            if (!domain) return text; // Retorna o texto original se não for um e-mail válido
+            const userPart = user.substring(0, 3);
+            return `${userPart}...@${domain}`;
+        }
+        if (type === 'id') {
+            if (text.length < 12) return text; // Retorna o texto original se for muito curto
+            const startPart = text.substring(0, 6);
+            const endPart = text.substring(text.length - 6);
+            return `${startPart}...${endPart}`;
+        }
+        return text;
+    }
+
+    /**
+     * NOVA FUNÇÃO: Encontra e extrai uma string JSON de um texto maior.
+     */
+    function extractAndParseJson(str) {
+        const firstBrace = str.indexOf('{');
+        const lastBrace = str.lastIndexOf('}');
+
+        if (firstBrace === -1 || lastBrace === -1 || lastBrace < firstBrace) {
+            throw new Error("Não foi possível encontrar um objeto JSON válido na resposta da IA.");
+        }
+
+        const jsonSubstring = str.substring(firstBrace, lastBrace + 1);
+
+        try {
+            return JSON.parse(jsonSubstring);
+        } catch (error) {
+            console.error("Erro ao processar o JSON extraído:", jsonSubstring);
+            throw new Error(`O JSON extraído da IA é inválido: ${error.message}`);
+        }
+    }
+
+    // --- LÓGICA DA IA ATUALIZADA ---
+
+    /**
+    * ATUALIZADO: Renderiza o painel de análise a partir do objeto JSON estruturado e completo.
+    */
+    function renderAnalysisInRightPanel(data) {
+        if (!data || typeof data !== 'object') {
+            rightPanel.innerHTML = `<div id="errorMessage">A resposta da IA não é um objeto JSON válido.</div>`;
+            return;
+        }
+
+        let hypothesesHtml = '';
+        if (data.hypotheses && data.hypotheses.length > 0) {
+            data.hypotheses.forEach(hypo => {
+                hypothesesHtml += `
+                    <div class="analysis-section">
+                        <h3>Hipótese: ${escapeHtml(hypo.title)}</h3>
+                        <p>${escapeHtml(hypo.description)}</p>
+                        <p><strong>Cargo Sugerido:</strong> ${escapeHtml(hypo.suggested_role || 'N/A')} (${escapeHtml(hypo.suggested_level || 'N/A')})</p>
+                        <p><strong>Justificativa:</strong> ${escapeHtml(hypo.strategic_rationale)}</p>
+                        ${hypo.validation_questions && hypo.validation_questions.length > 0 ? `
+                        <h4>Perguntas de Validação:</h4>
+                        <ul>${hypo.validation_questions.map(q => `<li>${escapeHtml(q)}</li>`).join('')}</ul>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        let behavioralHtml = '';
+        if (data.behavioral_analysis) {
+            behavioralHtml += '<div class="analysis-section"><h3>Análise Comportamental</h3>';
+            if(data.behavioral_analysis.big_five) {
+                behavioralHtml += '<h4>Perfil Big Five</h4>';
+                const traits = data.behavioral_analysis.big_five;
+                for(const trait in traits) {
+                    const traitName = trait.charAt(0).toUpperCase() + trait.slice(1);
+                    const traitData = traits[trait];
+                    behavioralHtml += `<p><strong>${traitName}:</strong> ${traitData.score}/100 - <em>${escapeHtml(traitData.justification)}</em></p>`;
+                }
+            }
+            if(data.behavioral_analysis.motivators) {
+                behavioralHtml += '<h4>Motivadores</h4>';
+                if(data.behavioral_analysis.motivators.internal?.length > 0) {
+                    behavioralHtml += `<p><strong>Internos:</strong> ${escapeHtml(data.behavioral_analysis.motivators.internal.join(', '))}</p>`;
+                }
+                if(data.behavioral_analysis.motivators.external?.length > 0) {
+                     behavioralHtml += `<p><strong>Externos:</strong> ${escapeHtml(data.behavioral_analysis.motivators.external.join(', '))}</p>`;
+                }
+            }
+            behavioralHtml += '</div>';
+        }
+
+        rightPanel.innerHTML = `
+          <div class="panel-header" style="border-color: rgba(255,255,255,0.1);">
+            <h2>Análise Majoris</h2>
+            <button class="back-button" id="closeAnalysisBtn">Fechar</button>
+          </div>
+          <div class="panel-content">
+            <div class="analysis-section">
+              <h3>Resumo Rápido</h3>
+              <p class="summary-text">${escapeHtml(data.summary)}</p>
+            </div>
+            ${data.scores ? `
+            <div class="analysis-section">
+                <h3>Scores</h3>
+                <div class="score-item"><strong>Afinidade com a Vaga:</strong> ${data.scores.affinity || 0}%</div>
+                <div class="score-item"><strong>Compatibilidade Cultural:</strong> ${data.scores.cultural_compatibility || 0}%</div>
+            </div>` : ''}
+            
+            ${behavioralHtml}
+
+            ${(data.strengths && data.strengths.length > 0 && data.strengths[0]) ? `<div class="analysis-section"><h3>Pontos Fortes</h3><ul>${data.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>` : ''}
+            ${(data.weaknesses && data.weaknesses.length > 0 && data.weaknesses[0]) ? `<div class="analysis-section"><h3>Pontos Fracos</h3><ul>${data.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul></div>` : ''}
+            ${(data.recommendations && data.recommendations.length > 0 && data.recommendations[0]) ? `<div class="analysis-section"><h3>Recomendações</h3><ul>${data.recommendations.map(rec => `<li>${escapeHtml(rec)}</li>`).join('')}</ul></div>` : ''}
+            
+            ${hypothesesHtml}
+
+            ${(data.follow_up_questions && data.follow_up_questions.length > 0 && data.follow_up_questions[0]) ? `<div class="analysis-section"><h3>Perguntas de Follow-up</h3><ul>${data.follow_up_questions.map(q => `<li>${escapeHtml(q)}</li>`).join('')}</ul></div>` : ''}
+
+            <div class="small-muted">Confidence flags: ${ (data.confidence_flags || []).join(', ') || 'nenhuma' }</div>
+          </div>
+        `;
+
+        document.getElementById('closeAnalysisBtn').addEventListener('click', closeSplitView);
+    }
+
+    /**
+    * VERSÃO FINAL E DEFINITIVA - ESTRATEGISTA DE TALENTOS MESTRE
+    */
+    function buildPrompt(resume, candidate_answers, company_values, job_requirements, focus) {
+        const promptTemplate = `
+Você é a IA "Majoris", uma fusão de psicólogo organizacional, recrutador de elite e estrategista de talentos. Seu trabalho é gerar o relatório de análise de candidatos mais profundo e acionável do mundo.
+
+### REGRA MESTRA E INEGOCIÁVEL: PROTOCOLO DE DADOS INSUFICIENTES
+Sua primeira tarefa é avaliar a qualidade das entradas. Se você detectar que as respostas do candidato são sistematicamente monossilábicas, repetitivas ou vazias (ex: 'Sim, claro'), você deve ativar o 'Protocolo de Dados Insuficientes'. Sob este protocolo, sua análise DEVE ser 90% focada nos riscos e na falta de evidências. Você está PROIBIDO de inventar eventos positivos (como 'respostas positivas em testes') ou inferir traços de personalidade positivos (como 'abertura a experiências') a partir de dados que demonstram o oposto. Sua análise especulativa, neste caso, deve focar exclusivamente nos RISCOS ESTRATÉGICOS de contratar um perfil não engajado, e suas hipóteses devem ser sobre os possíveis motivos negativos para tal comportamento.
+
+### ENTRADAS:
+- Currículo do candidato:
+{resume}
+
+- Respostas das dinâmicas / valores / questionários:
+{candidate_answers}
+
+- Valores da empresa:
+{company_values}
+
+- Requisitos da vaga:
+{job_requirements}
+
+- Foco (opcional):
+{focus}
+
+---
+
+### INSTRUÇÕES GERAIS:
+1.  **Diagnóstico de Dados:** Sua primeira tarefa é diagnosticar a qualidade dos dados. Identifique e liste as fraquezas em \`confidence_flags\`.
+2.  **Análise Estruturada:** Você DEVE preencher todos os campos do JSON de saída. Se não há dados para uma seção, você deve preenchê-la com uma explicação do porquê (ex: "strengths: ['Nenhum ponto forte pôde ser objetivamente determinado devido à superficialidade das respostas.']").
+3.  **Análise Comportamental Mandatória:** A análise de Big Five e Motivadores é crucial. Mesmo com dados mínimos, você deve inferir um perfil hipotético, deixando claro o baixo grau de confiança. Justifique cada score do Big Five.
+4.  **Preenchimento de Motivadores Mandatório:** A seção \`behavioral_analysis.motivators\` DEVE ser preenchida. Se nenhuma motivação positiva puder ser inferida, você DEVE listar o 'Mínimo Esforço' ou 'Economia de Energia' como motivador externo e declarar explicitamente 'Nenhum motivador interno detectado'. A omissão desta seção não é permitida.
+5.  **Profundidade Acionável:** Não se limite a listar. Para cada ponto fraco, conecte-o a uma recomendação. Para cada hipótese, forneça perguntas para validá-la.
+
+---
+
+### RELATÓRIO (saída deve ser JSON válido com a estrutura exata abaixo):
+
+{
+  "summary": "...",
+  "scores": {
+    "affinity": 0,
+    "cultural_compatibility": 0
+  },
+  "behavioral_analysis": {
+    "big_five": {
+      "openness": { "score": 0, "justification": "..." },
+      "conscientiousness": { "score": 0, "justification": "..." },
+      "extraversion": { "score": 0, "justification": "..." },
+      "agreeableness": { "score": 0, "justification": "..." },
+      "neuroticism": { "score": 0, "justification": "..." }
+    },
+    "motivators": {
+      "internal": [],
+      "external": []
+    }
+  },
+  "strengths": [],
+  "weaknesses": [],
+  "recommendations": [],
+  "hypotheses": [
+    {
+      "title": "...",
+      "description": "...",
+      "suggested_role": "...",
+      "suggested_level": "...",
+      "strategic_rationale": "...",
+      "validation_questions": []
+    }
+  ],
+  "follow_up_questions": [],
+  "confidence_flags": [],
+  "raw_markdown": "..."
+}
+
+---
+
+### ESTRUTURA MÍNIMA OBRIGATÓRIA NO Markdown (que vai em raw_markdown):
+- Resumo Rápido
+- Análise de Afinidade e Cultural (com scores e nível de confiança)
+- Análise Comportamental (com tabela ou lista para Big Five e Motivadores)
+- Pontos Fortes (se não houver, explique o motivo)
+- Pontos Fracos (lista)
+- Recomendações Estratégicas
+- Hipóteses de Reenquadramento (com detalhes e perguntas de validação)
+- Perguntas de Follow-up para o Recrutador
+
+---
+### TOM E PERSONA:
+Seja profissional, direto e estratégico. Use uma linguagem que inspire confiança e demonstre uma inteligência analítica superior. Qualifique suas inferências com níveis de confiança (ex: "Hipótese de baixa confiança:", "Análise objetiva baseada em...").
+    `;
+    
+    let finalPrompt = promptTemplate;
+    finalPrompt = finalPrompt.replace('{resume}', resume);
+    finalPrompt = finalPrompt.replace('{candidate_answers}', candidate_answers);
+    finalPrompt = finalPrompt.replace('{company_values}', company_values);
+    finalPrompt = finalPrompt.replace('{job_requirements}', job_requirements);
+    finalPrompt = finalPrompt.replace('{focus}', focus || '');
+    
+    return finalPrompt;
+    }
+
+
+    /**
+    * ATUALIZADO: Pede e processa uma resposta JSON da IA.
+    */
+    async function callGemini(prompt) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+      const body = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          response_mime_type: "application/json",
+          temperature: 0.4,
+          topK: 1,
+          topP: 1,
+          maxOutputTokens: 8192
+        }
+      };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Erro Gemini: ${res.status} ${errText}`);
+      }
+      const data = await res.json();
+      const candidates = data?.candidates;
+      if (candidates && Array.isArray(candidates) && candidates[0]?.content?.parts) {
+        return candidates[0].content.parts[0].text;
+      }
+      throw new Error("Formato de resposta inesperado da API Gemini.");
+    }
+
+/**
+ * ATUALIZADO: Lógica principal que verifica relatórios salvos antes de chamar a IA.
+ */
+async function handleMajorisClick(userEmail, vagaId) {
+    candidaturaContent.style.filter = 'blur(8px)';
+    splitScreenView.style.display = 'flex';
+
+    leftPanel.innerHTML = `<div id="loadingMessage">Carregando dados...</div>`;
+    rightPanel.innerHTML = `<div id="loadingMessage">Verificando análise prévia...</div>`;
+
+    try {
+        // --- 1. VERIFICAR SE O RELATÓRIO JÁ EXISTE NO FIREBASE ---
+        const relatorioRef = db.collection('relatorios')
+                               .where('vagaId', '==', vagaId)
+                               .where('userEmail', '==', userEmail)
+                               .limit(1);
+        const relatorioSnap = await relatorioRef.get();
+
+        // Carrega os dados do candidato para o painel esquerdo (necessário em ambos os casos)
+        const [vagaSnap, curriculoSnap, respostasSnap] = await Promise.all([
+            db.collection('vagas').where('id', '==', vagaId).limit(1).get(),
+            db.collection('curriculo').where('email', '==', userEmail).limit(1).get(),
+            db.collection('respostas-valores-dinamicas-trilhas').where('userEmail', '==', userEmail).where('vagaId', '==', vagaId).limit(1).get()
+        ]);
+
+        const vagaData = vagaSnap.empty ? {} : vagaSnap.docs[0].data();
+        const curriculoData = curriculoSnap.empty ? {} : curriculoSnap.docs[0].data();
+        const respostasData = respostasSnap.empty ? {} : respostasSnap.docs[0].data();
+        const textoParaLeitura = `--- INFORMAÇÕES DA VAGA ---\nTítulo: ${vagaData.title || 'N/A'}\nDescrição: ${vagaData.description || 'N/A'}\n\n--- CURRÍCULO DO CANDIDATO ---\n${formatCurriculo(curriculoData)}\n\n--- RESPOSTAS DO CANDIDATO ---\n${formatRespostas(respostasData)}`;
+        const detailTitle = `Candidatura: ${curriculoData.nome || userEmail}`;
+
+        // Monta o painel esquerdo
+        leftPanel.innerHTML = `
+            <div class="panel-header">
+                <h2 id="leftPanelTitle"></h2>
+                <button id="closeSplitViewBtn" class="back-button">Fechar</button>
+            </div>
+            <div class="panel-content">
+                <div id="leftPanelContent" class="left-panel-text"></div>
+            </div>`;
+        document.getElementById('leftPanelTitle').textContent = detailTitle;
+        document.getElementById('closeSplitViewBtn').addEventListener('click', closeSplitView);
+        
+        // Aplica o efeito de desfoque que implementamos antes
+        const panelContentDiv = document.getElementById('leftPanelContent');
+        panelContentDiv.textContent = textoParaLeitura.trim();
+        panelContentDiv.classList.add('texto-embacado');
+
+
+        if (!relatorioSnap.empty) {
+            // --- 2a. SE O RELATÓRIO EXISTE, RENDERIZA E PARA ---
+            console.log("Relatório encontrado no Firebase. Renderizando...");
+            const relatorioData = relatorioSnap.docs[0].data();
+            renderAnalysisInRightPanel(relatorioData.analise);
+            return; // Encerra a função aqui
+        }
+
+        // --- 2b. SE NÃO EXISTE, CHAMA A IA ---
+        console.log("Nenhum relatório encontrado. Gerando nova análise...");
+        rightPanel.innerHTML = `<div id="loadingMessage">Analisando com Majoris...</div>`;
+
+        const prompt = buildPrompt(
+            formatCurriculo(curriculoData),
+            formatRespostas(respostasData),
+            "Inovação, Colaboração, Foco no Cliente, Resiliência, Transparência",
+            vagaData.description || "Não especificado"
+        );
+
+        const rawResponseFromAI = await callGemini(prompt);
+        const parsedData = extractAndParseJson(rawResponseFromAI);
+
+        renderAnalysisInRightPanel(parsedData);
+
+        // --- 3. SALVA O NOVO RELATÓRIO NO FIREBASE ---
+        const companyEmail = localStorage.getItem('companyEmail');
+        if (companyEmail) {
+            await db.collection('relatorios').add({
+                vagaId: vagaId,
+                userEmail: userEmail,
+                companyEmail: companyEmail,
+                analise: parsedData,
+                criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log("Novo relatório salvo no Firebase!");
+        } else {
+            console.warn("companyEmail não encontrado no localStorage. O relatório não foi salvo.");
+        }
+
+    } catch (err) {
+        console.error("Erro no fluxo Majoris:", err);
+        const errorMessage = err.message || "Não foi possível carregar os detalhes. Verifique o console.";
+        // O restante do seu bloco de tratamento de erro...
+        leftPanel.innerHTML = `
+            <div class="panel-header"><h2>Erro</h2><button id="closeSplitViewBtnError" class="back-button">Fechar</button></div>
+            <div class="panel-content" style="color:#ff6b6b;"><p>${escapeHtml(errorMessage)}</p></div>`;
+        rightPanel.innerHTML = '';
+        document.getElementById('closeSplitViewBtnError')?.addEventListener('click', closeSplitView);
+    }
+}
+
+    /**
+    * ATUALIZADO: Busca os dados e aplica a ofuscação e o efeito de digitação.
+    */
+    async function fetchCandidaturaData(emailDaEmpresa) {
+      candidaturaContent.innerHTML = `<div id="loadingMessage">Buscando candidaturas...</div>`;
+      try {
+        const queryRef = db.collection("candidaturas-realizadas").where("companyEmail","==", emailDaEmpresa);
+        const querySnapshot = await queryRef.get();
+        
+        if (querySnapshot.empty) {
+          candidaturaContent.innerHTML = `<div id="errorMessage">Nenhuma candidatura encontrada para esta empresa.</div>`;
+          return;
+        }
+
+        candidaturaContent.innerHTML = ''; 
+        querySnapshot.forEach((doc, index) => {
+          const data = doc.data();
+          const container = document.createElement('div');
+          // Adiciona a classe typewriter para a animação
+          container.className = 'candidatura-container typewriter';
+          
+          // Aplica a ofuscação dos dados antes de renderizar
+          container.innerHTML = `
+            <h2>Candidatura Recebida</h2>
+            <div class="info-item" style="animation-delay: 1.5s;"><strong>User Email:</strong> ${escapeHtml(obfuscateData(data.userEmail, 'email'))}</div>
+            <div class="info-item" style="animation-delay: 2s;"><strong>Vaga Id:</strong> ${escapeHtml(obfuscateData(data.vagaId, 'id'))}</div>
+            <div class="info-item" style="animation-delay: 2.5s;"><strong>Data:</strong> ${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleDateString('pt-BR') : 'N/A'}</div>
+            <div class="card-actions">
+                <button class="majoris-button" data-user-email="${data.userEmail}" data-vaga-id="${data.vagaId}">
+                  Majoris
+                </button>
+            </div>
+          `;
+          candidaturaContent.appendChild(container);
+        });
+      } catch (err) {
+        console.error("Erro ao listar candidaturas:", err);
+        candidaturaContent.innerHTML = `<div id="errorMessage">Ocorreu um erro ao listar os dados. Verifique o console para mais detalhes.</div>`;
+      }
+    }
+
+    // --- INICIALIZAÇÃO (Não mexido) ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const companyEmail = localStorage.getItem('companyEmail');
+
+      if (companyEmail) {
+        badgeElement.textContent = `Logado como: ${companyEmail}`;
+        fetchCandidaturaData(companyEmail);
+      } else {
+        badgeElement.textContent = 'Empresa não autenticada';
+        candidaturaContent.innerHTML = `<div id="errorMessage">Não foi possível encontrar o e-mail da empresa no localStorage. Faça login novamente.</div>`;
+      }
+
+      candidaturaContent.addEventListener('click', (event) => {
+        if (event.target.classList.contains('majoris-button')) {
+          const userEmail = event.target.dataset.userEmail;
+          const vagaId = event.target.dataset.vagaId;
+          if (userEmail && vagaId) handleMajorisClick(userEmail, vagaId);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

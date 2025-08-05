@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Candidatura — Vaga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box }
+    html, body { height:100%; }
+    body {
+      background: #0A0A0A;
+      color: #EAEAEA;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
+    }
+    .vaga-header {
+      width:100%; max-width:600px; padding:2rem; border-radius:16px;
+      background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25);
+      box-shadow:0 8px 32px rgba(0,0,0,0.37); backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px); text-align:center; margin-bottom:1rem;
+      position: relative;
+    }
+    .vaga-header h2 { font-size:1.75rem; margin-bottom:0.75rem; color:#FFF; }
+    .vaga-header p  { color:#DDD; line-height:1.6; text-align:left; }
+    .actions { display:flex; gap:1rem; margin-bottom:1.5rem; }
+    .btn-action {
+      padding:0.75rem 1.5rem; border:none; border-radius:12px;
+      background:rgba(255,255,255,0.15); color:#EAEAEA; font-size:1rem; font-weight:600;
+      cursor:pointer; transition:background .3s;
+    }
+    .btn-action:hover { background:rgba(255,255,255,0.25); }
+    .btn-action:disabled {
+      background: rgba(255,255,255,0.05);
+      color: #999;
+      cursor: not-allowed;
+    }
+    .content-container {
+      display:none; width:100%; max-width:600px; padding:1.5rem;
+      border-radius:16px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25);
+      box-shadow:0 8px 32px rgba(0,0,0,0.37); backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px); margin-top:1rem; text-align:left;
+    }
+    .content-container ul, .content-container div { list-style:none; padding:0;
+      color:#DDD; line-height:1.8; }
+    .response-item { margin-bottom:1.5rem; }
+    .response-item textarea {
+      width:100%; min-height:80px; margin-top:0.5rem;
+      padding:0.75rem; border-radius:8px; border:1px solid rgba(255,255,255,0.2);
+      background:rgba(0,0,0,0.2); color:#FFF; font-family:'Poppins',sans-serif;
+    }
+    .response-item p { font-style:italic; color:#BBB; font-size:0.9rem; }
+    .btn-save {
+      display:block; width:100%; padding:0.8rem; margin-top:1rem;
+      background:#39ff14; color:#0A0A0A; border:none; border-radius:8px;
+      font-weight:600; cursor:pointer;
+    }
+    .btn-save:disabled { background:#444; color:#888; cursor:not-allowed; }
+    .trilha-category {
+      font-size:1.25rem; color:#FFF; margin:1rem 0 0.5rem;
+      border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem;
+    }
+    .feito {
+      opacity: 0.9;
+      filter: brightness(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="vaga-header">
+    <h2 id="vagaTitle">Carregando vaga...</h2>
+    <p id="vagaDetails"></p>
+  </div>
+
+  <div class="actions">
+    <button id="btnValores" class="btn-action">Valores</button>
+    <button id="btnDinamicas" class="btn-action">Dinâmicas</button>
+    <button id="btnTrilhas" class="btn-action">Trilhas</button>
+  </div>
+
+  <div id="valoresContainer" class="content-container">
+    <strong>Valores da empresa:</strong>
+    <ul id="valoresList"></ul>
+    <button id="btnSalvarValores" class="btn-save">Salvar Respostas dos Valores</button>
+  </div>
+
+  <div id="dinamicasContainer" class="content-container">
+    <strong>Dinâmicas propostas:</strong>
+    <ul id="dinamicasList"></ul>
+    <button id="btnSalvarDinamicas" class="btn-save">Salvar Respostas das Dinâmicas</button>
+  </div>
+
+  <div id="trilhasContainer" class="content-container">
+    <strong>Trilha de Desafios:</strong>
+    <div id="trilhasList"></div>
+    <button id="btnSalvarTrilhas" class="btn-save">Salvar Respostas da Trilha</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
+    import {
+      getFirestore, collection, query, where, getDocs, getDoc,
+      doc, setDoc, addDoc, serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.appspot.com",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    const vagaTitle = document.getElementById('vagaTitle');
+    const vagaDetails = document.getElementById('vagaDetails');
+    const btnValores = document.getElementById('btnValores');
+    const btnDinamicas = document.getElementById('btnDinamicas');
+    const btnTrilhas = document.getElementById('btnTrilhas');
+    const valoresContainer = document.getElementById('valoresContainer');
+    const dinamicasContainer = document.getElementById('dinamicasContainer');
+    const trilhasContainer = document.getElementById('trilhasContainer');
+    const valoresList = document.getElementById('valoresList');
+    const dinamicasList = document.getElementById('dinamicasList');
+    const trilhasList = document.getElementById('trilhasList');
+    const btnSalvarValores = document.getElementById('btnSalvarValores');
+    const btnSalvarDinamicas = document.getElementById('btnSalvarDinamicas');
+    const btnSalvarTrilhas = document.getElementById('btnSalvarTrilhas');
+
+    const vagaId = localStorage.getItem('vagaId');
+    let companyEmail = localStorage.getItem('companyEmail');
+    let userEmail = localStorage.getItem('userEmail') || localStorage.getItem('candidateEmail');
+
+    if (!userEmail) {
+      alert('Erro: e-mail do usuário não encontrado no localStorage.');
+      throw new Error('Email não encontrado');
+    }
+
+    const respostasRef = doc(db, 'respostas-valores-dinamicas-trilhas', userEmail);
+    let savedData = {};
+
+    const hideAllContainers = () => {
+      valoresContainer.style.display = 'none';
+      dinamicasContainer.style.display = 'none';
+      trilhasContainer.style.display = 'none';
+    };
+
+    function findCandidatarBtn() {
+      // procura botão com texto "Candidatar-se" dentro do documento (case insensitive)
+      return Array.from(document.querySelectorAll('button')).find(b =>
+        b.textContent.trim().toLowerCase().includes('candidatar-se')
+      );
+    }
+
+    function marcarComoCandidatou() {
+      const btn = findCandidatarBtn();
+      if (btn) {
+        btn.textContent = 'Candidatou-se ✅';
+        btn.disabled = true;
+        btn.classList.add('feito');
+      }
+    }
+
+    async function loadVaga() {
+      if (!vagaId) {
+        vagaTitle.textContent = 'Vaga não especificada'; return;
+      }
+      const q = query(collection(db,'vagas'), where('id','==',vagaId));
+      const snap = await getDocs(q);
+      if (snap.empty) { vagaTitle.textContent = 'Vaga não encontrada'; return; }
+      const docu = snap.docs[0];
+      const d = docu.data();
+      companyEmail = docu.id;
+      const perfilQ = query(collection(db,'profiles'), where('email','==',companyEmail));
+      const perfilSnap = await getDocs(perfilQ);
+      const fullName = perfilSnap.empty ? 'Empresa' : perfilSnap.docs[0].data().full_name;
+      vagaTitle.textContent = d.title || '—';
+      vagaDetails.innerHTML = `
+        <strong>Empresa:</strong> ${fullName}<br>
+        <strong>Salário:</strong> R$ ${d.salary!=null ? parseFloat(String(d.salary).replace(',','.')).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}<br><br>
+        ${d.description || 'Sem descrição.'}
+      `;
+    }
+
+    async function loadResponses() {
+      const snap = await getDoc(respostasRef);
+      if (snap.exists()) savedData = snap.data();
+    }
+
+    btnValores.addEventListener('click', async () => {
+      hideAllContainers(); await loadResponses();
+      if (savedData.respostasValores?.length) {
+        alert('Você já respondeu esta etapa.'); return;
+      }
+      const docId = companyEmail.replace(/[@.]/g,'_');
+      const snap = await getDocs(query(collection(db,'valores_unicos'), where('__name__','==',docId)));
+      const arr = snap.docs[0].data().valores||[];
+      valoresList.innerHTML = arr.map((v,i) =>
+        `<li class="response-item" data-name="${v.nomeValor}">
+           <strong>${v.nomeValor}:</strong> ${v.explicacao}
+           <textarea id="val_${i}"></textarea>
+         </li>`
+      ).join('');
+      valoresContainer.style.display = 'block';
+    });
+
+    btnDinamicas.addEventListener('click', async () => {
+      hideAllContainers(); await loadResponses();
+      if (savedData.respostasDinamicas?.length) {
+        alert('Você já respondeu esta etapa.'); return;
+      }
+      const docId = companyEmail.replace(/[@.]/g,'_');
+      const snap = await getDocs(query(collection(db,'dinamicas_unicas'), where('__name__','==',docId)));
+      const arr = snap.docs[0].data().dinamicas||[];
+      dinamicasList.innerHTML = arr.map((v,i) =>
+        `<li class="response-item" data-name="${v.nomeDinamica}">
+           <strong>${v.nomeDinamica}:</strong> ${v.explicacao}
+           <textarea id="din_${i}"></textarea>
+         </li>`
+      ).join('');
+      dinamicasContainer.style.display = 'block';
+    });
+
+    btnTrilhas.addEventListener('click', async () => {
+      hideAllContainers(); await loadResponses();
+      if (savedData.respostasTrilhas && Object.keys(savedData.respostasTrilhas).length) {
+        alert('Você já respondeu esta etapa.'); return;
+      }
+      const snap = await getDocs(collection(db,'trilhas'));
+      let html=''; let idx=0;
+      snap.docs.forEach(docu => {
+        const data = docu.data();
+        Object.entries(data).forEach(([cat,arr]) => {
+          html += `<h3 class="trilha-category">${cat}</h3>`;
+          arr.forEach(q => {
+            html += `<div class="response-item" data-cat="${cat}" data-q="${encodeURIComponent(q)}">
+                       <p>${q}</p>
+                       <textarea id="tri_${idx}"></textarea>
+                     </div>`;
+            idx++;
+          });
+        });
+      });
+      trilhasList.innerHTML = html;
+      trilhasContainer.style.display = 'block';
+    });
+
+    async function saveValores() {
+      const respostas = [];
+      document.querySelectorAll('#valoresList .response-item').forEach((el,i) => {
+        const nome = el.dataset.name;
+        const txt = document.getElementById(`val_${i}`).value.trim();
+        if(txt) respostas.push({ nomeValor:nome, resposta:txt });
+      });
+      if(!respostas.length){ alert('Preencha ao menos uma resposta.'); return; }
+      await setDoc(respostasRef, {
+        companyEmail, vagaId, userEmail,
+        respostasValores:respostas, timestamp:serverTimestamp()
+      }, { merge:true });
+      // registrar candidatura realizada com ID aleatório e email do usuário dentro do documento:
+      await addDoc(collection(db, 'candidaturas-realizadas'), {
+        vagaId: vagaId,
+        userEmail: userEmail,
+        companyEmail: companyEmail,
+        status: 'candidatura_feita',
+        timestamp: serverTimestamp()
+      });
+
+      alert('Respostas dos valores salvas com sucesso!');
+      btnSalvarValores.disabled = true;
+      btnSalvarValores.textContent = 'Salvo';
+      marcarComoCandidatou();
+    }
+    btnSalvarValores.addEventListener('click', saveValores);
+
+    async function saveDinamicas() {
+      const respostas = [];
+      document.querySelectorAll('#dinamicasList .response-item').forEach((el,i) => {
+        const nome = el.dataset.name;
+        const txt = document.getElementById(`din_${i}`).value.trim();
+        if(txt) respostas.push({ nomeDinamica:nome, resposta:txt });
+      });
+      if(!respostas.length){ alert('Preencha ao menos uma resposta.'); return; }
+      await setDoc(respostasRef, {
+        companyEmail, vagaId, userEmail,
+        respostasDinamicas:respostas, timestamp:serverTimestamp()
+      }, { merge:true });
+      alert('Respostas das dinâmicas salvas com sucesso!');
+      btnSalvarDinamicas.disabled = true;
+      btnSalvarDinamicas.textContent = 'Salvo';
+      marcarComoCandidatou();
+    }
+    btnSalvarDinamicas.addEventListener('click', saveDinamicas);
+
+    async function saveTrilhas() {
+      const agrup={}; let any=false;
+      document.querySelectorAll('#trilhasList .response-item').forEach((el,i) => {
+        const cat = el.dataset.cat;
+        const quest = decodeURIComponent(el.dataset.q);
+        const txt = document.getElementById(`tri_${i}`).value.trim();
+        if(txt){ any=true; agrup[cat]=agrup[cat]||[]; agrup[cat].push({ questao:quest, resposta:txt }); }
+      });
+      if(!any){ alert('Preencha ao menos uma resposta.'); return; }
+      await setDoc(respostasRef, {
+        companyEmail, vagaId, userEmail,
+        respostasTrilhas:agrup, timestamp:serverTimestamp()
+      }, { merge:true });
+      alert('Respostas da trilha salvas com sucesso!');
+      btnSalvarTrilhas.disabled = true;
+      btnSalvarTrilhas.textContent = 'Salvo';
+      marcarComoCandidatou();
+    }
+    btnSalvarTrilhas.addEventListener('click', saveTrilhas);
+
+    loadVaga();
+    loadResponses().then(() => {
+      if (savedData.respostasValores?.length) {
+        btnValores.disabled = true;
+        btnValores.textContent += ' ✅';
+      }
+      if (savedData.respostasDinamicas?.length) {
+        btnDinamicas.disabled = true;
+        btnDinamicas.textContent += ' ✅';
+      }
+      if (savedData.respostasTrilhas && Object.keys(savedData.respostasTrilhas).length) {
+        btnTrilhas.disabled = true;
+        btnTrilhas.textContent += ' ✅';
+      }
+      // se já tiver respondido algum, marca o botão como "Candidatou-se"
+      if (savedData.respostasValores?.length || savedData.respostasDinamicas?.length || (savedData.respostasTrilhas && Object.keys(savedData.respostasTrilhas).length)) {
+        marcarComoCandidatou();
+      }
+    });
+  </script>
+</body>
+</html>
