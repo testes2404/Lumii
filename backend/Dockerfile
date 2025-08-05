@@ -1,3 +1,5 @@
+# backend/Dockerfile
+
 # 1. Imagem base leve do Python
 FROM python:3.11-slim
 
@@ -8,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # 3. Diretório de trabalho dentro do container
 WORKDIR /app
 
-# 4. Copia apenas o requirements.txt primeiro para aproveitar o cache do Docker
+# 4. Copia apenas o requirements.txt primeiro para aproveitar cache
 COPY requirements.txt .
 
 # 5. Instala as dependências
@@ -18,8 +20,8 @@ RUN pip install --upgrade pip \
 # 6. Copia todo o resto do código da sua API
 COPY . .
 
-# 7. Expõe a porta que o Uvicorn irá usar (Render injeta $PORT, mas aqui fixamos 8080)
+# 7. Expõe a porta que o Uvicorn irá usar
 EXPOSE 8080
 
-# 8. Comando default para rodar a sua app FastAPI
+# 8. Comando padrão para rodar a sua app FastAPI
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
