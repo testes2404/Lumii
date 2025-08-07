@@ -44,16 +44,32 @@ def health():
 # 6.1) Rota para fornecer configurações do Firebase para o frontend
 @app.get("/api/config")
 def get_config():
+    # Todas as variáveis devem vir do ambiente (Render)
+    firebase_config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
+    }
+    
+    # Verifica se todas as variáveis estão configuradas
+    missing_vars = [key for key, value in firebase_config.items() if not value]
+    if missing_vars:
+        print(f"⚠️ Variáveis de ambiente não configuradas: {missing_vars}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Variáveis de ambiente Firebase não configuradas: {missing_vars}"
+        )
+    
+    # Log apenas para indicar sucesso (sem expor credenciais)
+    print("✅ Todas as variáveis Firebase carregadas do ambiente")
+    
     return {
-        "firebase": {
-            "apiKey": os.getenv("FIREBASE_API_KEY"),
-            "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-            "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-            "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-            "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-            "appId": os.getenv("FIREBASE_APP_ID"),
-            "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
-        }
+        "firebase": firebase_config,
+        "environment": os.getenv("ENVIRONMENT", "production")
     }
 
 # 7) Rota que chama o modelo Gemini (Text Generation) no Vertex AI

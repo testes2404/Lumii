@@ -100,6 +100,7 @@
     <button id="btnSalvarTrilhas" class="btn-save">Salvar Respostas da Trilha</button>
   </div>
 
+  <script src="../js/firebase-config.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js';
     import {
@@ -107,14 +108,8 @@
       doc, setDoc, addDoc, serverTimestamp
     } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
-      authDomain: "mini-genio-c204d.firebaseapp.com",
-      projectId: "mini-genio-c204d",
-      storageBucket: "mini-genio-c204d.appspot.com",
-      messagingSenderId: "553494129644",
-      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
-    };
+    // Carrega configuração Firebase do backend
+    const firebaseConfig = await loadFirebaseConfig();
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
