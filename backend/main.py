@@ -44,23 +44,32 @@ def health():
 # 6.1) Rota para fornecer configurações do Firebase para o frontend
 @app.get("/api/config")
 def get_config():
-    # Debug: verificar se as variáveis estão sendo carregadas
+    # Todas as variáveis devem vir do ambiente (Render)
     firebase_config = {
-        "apiKey": os.getenv("FIREBASE_API_KEY", "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o"),
-        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", "mini-genio-c204d.firebaseapp.com"),
-        "projectId": os.getenv("FIREBASE_PROJECT_ID", "mini-genio-c204d"),
-        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", "mini-genio-c204d.firebasestorage.app"),
-        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", "553494129644"),
-        "appId": os.getenv("FIREBASE_APP_ID", "1:553494129644:web:cc6f0de9d013392fc4eec9"),
-        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID", "G-9WH6Z7XKK")
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
     }
     
-    # Log para debug (removir em produção)
-    print("🔥 Firebase Config:", {k: v[:10] + "..." if v and len(v) > 10 else v for k, v in firebase_config.items()})
+    # Verifica se todas as variáveis estão configuradas
+    missing_vars = [key for key, value in firebase_config.items() if not value]
+    if missing_vars:
+        print(f"⚠️ Variáveis de ambiente não configuradas: {missing_vars}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Variáveis de ambiente Firebase não configuradas: {missing_vars}"
+        )
+    
+    # Log apenas para indicar sucesso (sem expor credenciais)
+    print("✅ Todas as variáveis Firebase carregadas do ambiente")
     
     return {
         "firebase": firebase_config,
-        "environment": os.getenv("ENVIRONMENT", "development")
+        "environment": os.getenv("ENVIRONMENT", "production")
     }
 
 # 7) Rota que chama o modelo Gemini (Text Generation) no Vertex AI

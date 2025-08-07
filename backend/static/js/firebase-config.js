@@ -35,21 +35,10 @@ async function loadFirebaseConfig() {
         return firebaseConfig;
     } catch (error) {
         console.error('❌ Erro ao carregar configurações do Firebase:', error);
-        console.log('🔄 Usando configuração de fallback...');
+        console.error('🔒 Não é possível continuar sem as credenciais do Firebase configuradas no servidor');
         
-        // Fallback para configuração hardcoded (desenvolvimento)
-        firebaseConfig = {
-            apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
-            authDomain: "mini-genio-c204d.firebaseapp.com",
-            projectId: "mini-genio-c204d",
-            storageBucket: "mini-genio-c204d.firebasestorage.app",
-            messagingSenderId: "553494129644",
-            appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
-            measurementId: "G-9WH6Z7XKK"
-        };
-        
-        console.log('⚠️ Usando config de fallback');
-        return firebaseConfig;
+        // Não use fallback hardcoded em produção - é inseguro
+        throw new Error('Firebase não configurado. Verifique as variáveis de ambiente no Render.');
     }
 }
 
