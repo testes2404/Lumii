@@ -44,16 +44,23 @@ def health():
 # 6.1) Rota para fornecer configurações do Firebase para o frontend
 @app.get("/api/config")
 def get_config():
+    # Debug: verificar se as variáveis estão sendo carregadas
+    firebase_config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY", "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", "mini-genio-c204d.firebaseapp.com"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", "mini-genio-c204d"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", "mini-genio-c204d.firebasestorage.app"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", "553494129644"),
+        "appId": os.getenv("FIREBASE_APP_ID", "1:553494129644:web:cc6f0de9d013392fc4eec9"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID", "G-9WH6Z7XKK")
+    }
+    
+    # Log para debug (removir em produção)
+    print("🔥 Firebase Config:", {k: v[:10] + "..." if v and len(v) > 10 else v for k, v in firebase_config.items()})
+    
     return {
-        "firebase": {
-            "apiKey": os.getenv("FIREBASE_API_KEY"),
-            "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-            "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-            "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-            "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-            "appId": os.getenv("FIREBASE_APP_ID"),
-            "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
-        }
+        "firebase": firebase_config,
+        "environment": os.getenv("ENVIRONMENT", "development")
     }
 
 # 7) Rota que chama o modelo Gemini (Text Generation) no Vertex AI
