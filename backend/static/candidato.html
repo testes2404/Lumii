@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionando...</title>
+    <script>
+        // Redireciona para candidato/candidato.html e preserva a rota SPA
+        const path = window.location.pathname;
+        const hash = window.location.hash;
+        
+        if (path === '/candidato' || path === '/candidato/') {
+            // Redireciona para o arquivo real mantendo a lógica SPA
+            window.location.href = '/candidato/candidato.html';
+        } else if (path.startsWith('/candidato/')) {
+            // Para sub-rotas, redireciona e deixa o router.js lidar com a navegação
+            const route = path;
+            window.location.href = '/candidato/candidato.html';
+            // Armazena a rota desejada para o router processar
+            sessionStorage.setItem('desired_route', route);
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecionando para área do candidato...</p>
+</body>
+</html>

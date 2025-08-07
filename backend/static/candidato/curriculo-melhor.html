@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Comparativo de Currículo • Original vs Melhorado</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main:#F2F4F8;
+      --sidebar-bg:#0F2D4A;
+      --accent:#1E90FF;
+      --text-dark:#1F2833;
+      --transition:.3s;
+    }
+    *{box-sizing:border-box; scrollbar-width:none; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+    *::-webkit-scrollbar{width:0;height:0;}
+    body{margin:0;background: var(--bg-main);font-family: 'Inter',system-ui,-apple-system,sans-serif;color: var(--text-dark);padding:1rem 1.5rem;line-height:1.4;-webkit-font-smoothing:antialiased;}
+    h1{font-size:1.8rem;margin:0 0 .5rem;font-weight:700;}
+    .page{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+    .resume{display:flex;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 40px 80px -20px rgba(0,0,0,0.1);min-height:700px;position:relative;}
+    .sidebar{background: var(--sidebar-bg);padding:2rem 1.75rem;color:#fff;display:flex;flex-direction:column;gap:1rem;flex:0 0 260px;position:relative;}
+    .main{padding:2rem 1.75rem;flex:1;display:flex;flex-direction:column;gap:1.25rem;}
+    .name{font-size:1.7rem;font-weight:700;margin:0;letter-spacing:0.5px;}
+    .title{font-size:1rem;font-weight:500;margin:4px 0 10px;opacity:.9;}
+    .summary{font-size:.9rem;margin:0;line-height:1.35;}
+    .section{display:flex;flex-direction:column;gap:6px;}
+    .section h3{margin:0;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+    .subtle{font-size:.8rem;color:#555;}
+    .item{margin-top:8px;}
+    .item-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px;}
+    .item-title{font-weight:600;font-size:.95rem;margin:0;}
+    .item-meta{font-size:.75rem;color:#777;}
+    .skill{display:flex;flex-direction:column;gap:4px;margin-bottom:6px;}
+    .skill-name{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;}
+    .bar-wrapper{background:#e6e9f0;border-radius:6px;overflow:hidden;height:8px;}
+    .bar{height:100%;background: var(--accent);transition:width .3s;}
+    .contact-item,.lang-item{display:flex;align-items:center;gap:8px;font-size:.8rem;margin-bottom:6px;}
+    .divider{height:1px;background:rgba(0,0,0,0.05);margin:12px 0;}
+    .badge{background: var(--accent);color:#fff;padding:4px 12px;border-radius:999px;font-size:.65rem;display:inline-block;margin-right:4px;}
+    .header-compare{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+    .meta-small{font-size:.65rem;color:#888;}
+    .btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;background: var(--accent);color:#fff;display:inline-flex;gap:6px;transition:var(--transition);}
+    .btn-secondary{background:#444;color:#fff;}
+    .analysis-box{background:#f9f9fc;border:1px solid #dfe2ea;border-radius:10px;padding:14px;margin-top:12px;font-size:.85rem;}
+    .analysis-title{font-weight:700;margin-bottom:6px;color:#1f3d7a;}
+    .pill{display:inline-block;background:#e8f0ff;color:#1a4f9c;padding:4px 10px;border-radius:999px;font-size:0.65rem;margin-right:4px;margin-bottom:4px;}
+    .recommendation-item{margin-bottom:4px;display:flex;gap:8px;}
+    .quality-score{margin-top:6px;font-size:.85rem;font-weight:600;color:#1e4d8b;}
+    .toast {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #1f8f3e;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 20px 40px -10px rgba(31,143,62,0.5);
+      font-weight:600;
+      z-index: 1000;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .toast.fallback { background: #d9821f; }
+
+    @media print {
+      body { background: none !important; padding:0; }
+      .page { grid-template-columns:1fr; }
+      .resume { box-shadow: none; }
+      .resume[aria-label="Currículo original"] { display: none !important; }
+      .analysis-box { display: none !important; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .btn { display:none; }
+      h1 { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Comparativo de Currículo</h1>
+  </header>
+
+  <div class="page">
+    <!-- Versão melhorada -->
+    <div class="resume" aria-label="Currículo melhorado">
+      <div class="sidebar">
+        <div>
+          <p class="name" id="melhorado-nome">—</p>
+          <p class="title" id="melhorado-cargo">—</p>
+        </div>
+        <div class="summary" id="melhorado-resumo">—</div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="badge">VERSÃO MELHORADA</div>
+          <div class="contact-item"><strong>Email:</strong>&nbsp;<span id="melhorado-email">—</span></div>
+          <div class="contact-item"><strong>Telefone:</strong>&nbsp;<span id="melhorado-telefone">—</span></div>
+          <div class="contact-item"><strong>LinkedIn:</strong>&nbsp;<span id="melhorado-linkedin">—</span></div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="header-compare">
+          <div class="meta-small">
+            <div id="quality-display" class="quality-score">Qualidade estimada: —</div>
+          </div>
+          <div>
+            <button class="btn" id="btnGerarIA">Melhorar com IA</button>
+            <button class="btn btn-secondary" id="btnExportar">Exportar PDF</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Educação</h3>
+          <div id="melhorado-educacao"></div>
+        </div>
+
+        <div class="section">
+          <h3>Experiência</h3>
+          <div id="melhorado-experiencia"></div>
+        </div>
+
+        <div class="section">
+          <h3>Habilidades</h3>
+          <div id="melhorado-habilidades"></div>
+        </div>
+
+        <div class="analysis-box" id="analise-box">
+          <div class="analysis-title">Diagnóstico &amp; Recomendações</div>
+          <div><strong>Métricas faltantes:</strong> <span id="missing-metrics">—</span></div>
+          <div><strong>Verbos fracos detectados:</strong> <span id="weak-verbs">—</span></div>
+          <div class="recommendations">
+            <div><strong>Recomendações:</strong></div>
+            <div id="recommendations-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Versão original -->
+    <div class="resume" aria-label="Currículo original">
+      <div class="sidebar">
+        <div>
+          <p class="name" id="original-nome">—</p>
+          <p class="title" id="original-cargo">—</p>
+        </div>
+        <div class="summary" id="original-resumo">—</div>
+        <div class="divider"></div>
+        <div class="section">
+          <div class="badge" style="background:#888;">VERSÃO ORIGINAL</div>
+          <div class="contact-item"><strong>Email:</strong>&nbsp;<span id="original-email">—</span></div>
+          <div class="contact-item"><strong>Telefone:</strong>&nbsp;<span id="original-telefone">—</span></div>
+          <div class="contact-item"><strong>LinkedIn:</strong>&nbsp;<span id="original-linkedin">—</span></div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="header-compare">
+          <div class="meta-small">Base</div>
+        </div>
+
+        <div class="section">
+          <h3>Educação</h3>
+          <div id="original-educacao"></div>
+        </div>
+
+        <div class="section">
+          <h3>Experiência</h3>
+          <div id="original-experiencia"></div>
+        </div>
+
+        <div class="section">
+          <h3>Habilidades</h3>
+          <div id="original-habilidades"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase compat + lógica -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // === configuração Firebase ===
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
+      authDomain: "mini-genio-c204d.firebaseapp.com",
+      projectId: "mini-genio-c204d",
+      storageBucket: "mini-genio-c204d.appspot.com",
+      messagingSenderId: "553494129644",
+      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
+    };
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+
+    // toast utilitário
+    function showToast(message, { fallback=false } = {}) {
+      const div = document.createElement('div');
+      div.className = 'toast' + (fallback ? ' fallback' : '');
+      div.textContent = message;
+      document.body.appendChild(div);
+      setTimeout(() => {
+        div.style.opacity = '0';
+        setTimeout(() => div.remove(), 400);
+      }, 3000);
+    }
+
+    // DOM helpers
+    function createEducationEntry(container, title, institution, range) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <div class="item-header">
+          <div class="item-title">${title}</div>
+          <div class="item-meta">${range}</div>
+        </div>
+        <div class="subtle">${institution}</div>
+      `;
+      container.appendChild(div);
+    }
+    function createExperienceEntry(container, cargo, empresa, periodo, descricao) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <div class="item-header">
+          <div class="item-title">${cargo}</div>
+          <div class="item-meta">${periodo}</div>
+        </div>
+        <div class="subtle">${empresa}</div>
+        <div class="small">${descricao}</div>
+      `;
+      container.appendChild(div);
+    }
+    function createSkillEntry(container, nome, nivelPercent) {
+      const div = document.createElement('div');
+      div.className = 'skill';
+      div.innerHTML = `
+        <div class="skill-name"><span>${nome}</span><span class="skill-percentage">${nivelPercent}%</span></div>
+        <div class="bar-wrapper"><div class="bar" style="width:${nivelPercent}%;"></div></div>
+      `;
+      container.appendChild(div);
+    }
+
+    // globais
+    let curriculoOriginal = null;
+    let analiseDocId = null; // para atualizar se existir
+
+    // verbos e utilitários
+    const STRONG_VERBS = [
+      "Liderou", "Desenvolveu", "Implementou", "Otimizou", "Automatizou",
+      "Conduziu", "Aumentou", "Reduziu", "Criou", "Projetou", "Estruturou",
+      "Melhorou", "Orquestrou", "Estabeleceu"
+    ];
+    const WEAK_VERBS = ["responsável por", "ajudou", "trabalhou com", "participou de", "faz parte de", "auxiliou"];
+
+    function detectWeakVerbs(text) {
+      if (!text) return [];
+      const lowered = text.toLowerCase();
+      return WEAK_VERBS.filter(v => lowered.includes(v));
+    }
+
+    function normalizeSkillName(raw) {
+      if (!raw) return '';
+      return raw.trim().replace(/\bpython\b/i, 'Python').replace(/\bjava\b/i, 'Java');
+    }
+
+    function inferSkillLevel(skillName, experiencias = []) {
+      const lower = skillName.toLowerCase();
+      const inExp = (experiencias || []).some(exp => exp.descricao && exp.descricao.toLowerCase().includes(lower));
+      return inExp ? 90 : 75;
+    }
+
+    function rewriteExperienceFallback(exp) {
+      const verb = STRONG_VERBS[Math.floor(Math.random() * STRONG_VERBS.length)];
+      const descricaoBase = exp.descricao || '';
+      const temPercent = /\d+%/.test(descricaoBase);
+      let impacto = '';
+      if (temPercent) {
+        impacto = descricaoBase.match(/(\d+%)/)[1];
+      } else {
+        const impactos = [
+          "melhorando a eficiência dos relatórios",
+          "reduzindo o tempo de processamento de dados",
+          "aumentando a clareza das decisões estratégicas",
+          "otimizando fluxos e automatizando tarefas repetitivas",
+          "estruturando insights acionáveis para stakeholders"
+        ];
+        impacto = impactos[Math.floor(Math.random() * impactos.length)];
+      }
+
+      let bullet = `${verb} ${exp.empresa ? `na ${exp.empresa} ` : ''}em ${exp.cargo || ''}, ${impacto}`;
+      if (exp.inicio) {
+        bullet += ` durante ${exp.inicio}`;
+      }
+      if (!bullet.trim().startsWith("-")) bullet = `- ${bullet.trim()}.`;
+      else if (!bullet.trim().endsWith(".")) bullet = bullet.trim() + ".";
+      return bullet;
+    }
+
+    function rewriteSummaryFallback(resumo, experiencias = [], habilidades = []) {
+      if (!resumo && experiencias.length === 0) return '';
+      const skillList = (habilidades || []).map(h => normalizeSkillName(h).toUpperCase());
+      const uniqSkills = [...new Set(skillList)].slice(0, 3);
+      const topSkills = uniqSkills.join(', ');
+      const cargos = experiencias.map(e => e.cargo).filter(Boolean);
+      const primaryRole = cargos[0] || '';
+
+      const phrases = [];
+
+      if (primaryRole) {
+        phrases.push(`Especialista em ${primaryRole} com foco em transformar dados em decisões acionáveis`);
+      }
+
+      if (topSkills) {
+        phrases.push(`Experiência com ${topSkills} para entregar soluções escaláveis`);
+      }
+
+      const anosMatch = resumo ? (resumo.match(/(\d+)\s+anos?/i) || [])[1] : null;
+      if (anosMatch && primaryRole) {
+        phrases[0] = `Especialista em ${primaryRole} com ${anosMatch} anos de experiência transformando dados em insights de alto impacto`;
+      }
+
+      if (resumo) {
+        const extra = resumo.split('.').filter(p => p.trim()).slice(0,1)[0];
+        if (extra && !phrases.some(p => p.includes(extra))) {
+          phrases.push(extra.replace(/\.$/, ''));
+        }
+      }
+
+      const result = phrases.slice(0, 3).join('. ') + '.';
+      return result;
+    }
+
+    function suggestTitleFallback(originalTitle, experiencias = [], habilidades = []) {
+      let title = originalTitle || 'Especialista em Dados';
+      const temVariosAnos = (experiencias || []).some(exp => {
+        if (!exp.inicio) return false;
+        const m = exp.inicio.match(/(\d{4})/);
+        if (!m) return false;
+        return parseInt(m[1]) <= new Date().getFullYear() - 3;
+      });
+
+      if (/Analista de Dados/i.test(title)) {
+        title = temVariosAnos ? 'Especialista Sênior em Inteligência de Dados' : 'Especialista em Inteligência de Dados & Automação';
+      } else if (/Engenheiro/i.test(title)) {
+        title = temVariosAnos ? 'Engenheiro de Dados Sênior' : 'Engenheiro de Dados';
+      }
+
+      if (habilidades && habilidades.length) {
+        const top = normalizeSkillName(habilidades[0]);
+        title += ` • ${top}`;
+      }
+
+      return title;
+    }
+
+    function analyzeGaps(curr) {
+      const missing_metrics = [];
+      const weak_verbs_detected = [];
+      const recommendations = [];
+
+      (curr.experiencias || []).forEach(exp => {
+        if (!/\d+%/.test(exp.descricao || "")) {
+          missing_metrics.push(`${exp.cargo} na ${exp.empresa}`);
+          recommendations.push(`Adicionar um resultado quantificável para "${exp.cargo}" (ex: "aumentou X em Y%" ou "reduziu tempo em Z%").`);
+        }
+        const weak = detectWeakVerbs(exp.descricao || "");
+        if (weak.length) {
+          weak_verbs_detected.push(...weak);
+          recommendations.push(`Substituir verbos genéricos como ${weak.map(w => `"${w}"`).join(', ')} por verbos de ação fortes como "Liderou", "Implementou", "Otimizou".`);
+        }
+      });
+
+      if (!curr.resumo || curr.resumo.split(" ").length < 25) {
+        recommendations.push("Expandir o resumo com especialização, habilidades-chave e impacto concreto. Ex: 'Especialista em Inteligência de Dados com 5 anos, entregando dashboards que reduziram custos em 15%.'");
+      }
+
+      return {
+        missing_metrics,
+        weak_verbs: [...new Set(weak_verbs_detected)],
+        recommendations: [...new Set(recommendations)]
+      };
+    }
+
+    function computeQualityScore(analise) {
+      let score = 100;
+      if (analise.missing_metrics.length) score -= 10 * analise.missing_metrics.length;
+      if (analise.weak_verbs.length) score -= 5 * analise.weak_verbs.length;
+      return Math.max(50, score);
+    }
+
+    // carga inicial de possível análise salva
+    async function carregarAnaliseExistente(userEmail) {
+      const query = db.collection('curriculos-ia').where('userEmail', '==', userEmail).limit(1);
+      const snap = await query.get();
+      if (!snap.empty) {
+        const doc = snap.docs[0];
+        analiseDocId = doc.id;
+        const saved = doc.data();
+        // aplica no DOM como se tivesse sido gerado
+        // versão original básica (já carregada por carregarCurriculoReal)
+        if (saved.analise) {
+          document.getElementById("missing-metrics").textContent = saved.analise.missing_metrics?.length
+            ? saved.analise.missing_metrics.join(", ")
+            : "Nenhum detectado";
+          document.getElementById("weak-verbs").textContent = saved.analise.weak_verbs?.length
+            ? saved.analise.weak_verbs.join(", ")
+            : "Nenhum detectado";
+          const recList = document.getElementById("recommendations-list");
+          recList.innerHTML = "";
+          (saved.analise.recommendations || []).forEach(r => {
+            const div = document.createElement('div');
+            div.className = "recommendation-item";
+            div.innerHTML = `<div class="pill">✔</div><div>${r}</div>`;
+            recList.appendChild(div);
+          });
+        }
+        if (saved.resumo_melhorado) {
+          document.getElementById("melhorado-resumo").textContent = saved.resumo_melhorado;
+        }
+        if (saved.sugestao_cargo) {
+          document.getElementById("melhorado-cargo").textContent = saved.sugestao_cargo;
+        }
+        if (Array.isArray(saved.experiencias_melhoradas)) {
+          const container = document.getElementById("melhorado-experiencia");
+          container.innerHTML = "";
+          saved.experiencias_melhoradas.forEach(txt => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `<div class="subtle">${txt}</div>`;
+            container.appendChild(div);
+          });
+        }
+        if (saved.quality_score !== undefined) {
+          document.getElementById("quality-display").textContent = `Qualidade estimada: ${saved.quality_score}/100`;
+        }
+        // habilidades (normalizadas)
+        const melHab = document.getElementById("melhorado-habilidades");
+        melHab.innerHTML = '';
+        (curriculoOriginal.habilidades || []).forEach(h => {
+          const nome = normalizeSkillName(h);
+          const nivel = inferSkillLevel(nome, curriculoOriginal.experiencias);
+          createSkillEntry(melHab, nome, nivel);
+        });
+        showToast("Usando análise salva anteriormente.");
+        return true;
+      }
+      return false;
+    }
+
+    // salvar ou atualizar análise
+    async function persistirAnalise(userEmail, resultado) {
+      const payload = {
+        userEmail,
+        resumo_melhorado: resultado.resumo_melhorado,
+        sugestao_cargo: resultado.sugestao_cargo,
+        experiencias_melhoradas: resultado.experiencias_melhoradas,
+        analise: resultado.analise,
+        quality_score: computeQualityScore(resultado.analise),
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      try {
+        if (analiseDocId) {
+          await db.collection('curriculos-ia').doc(analiseDocId).update(payload);
+        } else {
+          const docRef = await db.collection('curriculos-ia').add(payload);
+          analiseDocId = docRef.id;
+        }
+      } catch (e) {
+        console.warn("Erro salvando análise no Firebase:", e);
+      }
+    }
+
+    // melhoria principal
+    async function melhorarCurriculoComIA() {
+      if (!curriculoOriginal) {
+        showToast("Currículo não carregado ainda", { fallback: true });
+        return;
+      }
+
+      const userEmail = localStorage.getItem('userEmail') || localStorage.getItem('candidateEmail') || '';
+      if (!userEmail) {
+        showToast("Email do usuário ausente", { fallback: true });
+        return;
+      }
+
+      const experienciaTexto = (curriculoOriginal.experiencias || []).map(exp =>
+        `Cargo: ${exp.cargo}\nEmpresa: ${exp.empresa}\nPeríodo: ${exp.inicio || ''} – ${exp.fim || 'Atual'}\nDescrição: ${exp.descricao}`
+      ).join("\n\n");
+      const formacoesTexto = (curriculoOriginal.formacoes || []).map(f =>
+        `Curso: ${f.curso}\nInstituição: ${f.instituicao}\nAno de conclusão: ${f.anoConclusao}`
+      ).join("\n\n");
+      const habilidadesTexto = (curriculoOriginal.habilidades || []).join(", ");
+
+      const prompt = `
+Você é um especialista em currículos de alto impacto. Analise o currículo abaixo e gere melhorias competitivas.
+
+Currículo original:
+Resumo:
+${curriculoOriginal.resumo || ''}
+
+Experiências:
+${experienciaTexto}
+
+Formações:
+${formacoesTexto}
+
+Habilidades:
+${habilidadesTexto}
+
+Instruções:
+1. Reescreva o resumo para que seja conciso e orientado a resultados (2-3 frases).
+2. Sugira um título de cargo mais forte com seniority quando aplicável.
+3. Reescreva cada experiência em bullets com verbos de ação fortes e impacto claro.
+4. Identifique gaps (falta de métricas, verbos genéricos) e dê recomendações.
+
+Retorne JSON com:
+- resumo_melhorado
+- sugestao_cargo
+- experiencias_melhoradas (array de strings)
+- analise: { missing_metrics, weak_verbs, recommendations }
+`;
+
+      let finalResult = null;
+      let usedFallback = false;
+
+      try {
+        const GEMINI_API_KEY = "AIzaSyCuUt5tLclO6vhUSoe3-MSBnPF5ETcrQis"; // substitua
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+        const body = {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            response_mime_type: "application/json",
+            temperature: 0.4,
+            topK: 1,
+            topP: 1,
+            maxOutputTokens: 2000
+          }
+        };
+        const resp = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const raw = await resp.text();
+        console.log("Resposta bruta Gemini:", raw);
+        if (resp.ok) {
+          let parsed = null;
+          try {
+            const first = raw.indexOf("{");
+            const last = raw.lastIndexOf("}");
+            if (first !== -1 && last !== -1 && last > first) {
+              parsed = JSON.parse(raw.substring(first, last + 1));
+            }
+          } catch (e) {
+            console.warn("Falha ao parsear JSON da IA:", e);
+          }
+          if (parsed && parsed.resumo_melhorado) {
+            finalResult = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn("Erro chamando Gemini:", e);
+      }
+
+      if (!finalResult) {
+        usedFallback = true;
+        finalResult = {
+          resumo_melhorado: rewriteSummaryFallback(curriculoOriginal.resumo || '', curriculoOriginal.experiencias || [], curriculoOriginal.habilidades || []),
+          sugestao_cargo: suggestTitleFallback(
+            curriculoOriginal.experiencias?.[0]?.cargo || '',
+            curriculoOriginal.experiencias || [],
+            curriculoOriginal.habilidades || []
+          ),
+          experiencias_melhoradas: (curriculoOriginal.experiencias || []).map(rewriteExperienceFallback),
+          analise: analyzeGaps(curriculoOriginal)
+        };
+      } else {
+        if (!finalResult.resumo_melhorado) {
+          finalResult.resumo_melhorado = rewriteSummaryFallback(curriculoOriginal.resumo || '', curriculoOriginal.experiencias || [], curriculoOriginal.habilidades || []);
+        }
+        if (!finalResult.sugestao_cargo) {
+          finalResult.sugestao_cargo = suggestTitleFallback(
+            curriculoOriginal.experiencias?.[0]?.cargo || '',
+            curriculoOriginal.experiencias || [],
+            curriculoOriginal.habilidades || []
+          );
+        }
+        if (!finalResult.experiencias_melhoradas) {
+          finalResult.experiencias_melhoradas = (curriculoOriginal.experiencias || []).map(rewriteExperienceFallback);
+        }
+        if (!finalResult.analise) {
+          finalResult.analise = analyzeGaps(curriculoOriginal);
+        }
+      }
+
+      // aplica conteúdo
+      if (finalResult.resumo_melhorado) {
+        document.getElementById("melhorado-resumo").textContent = finalResult.resumo_melhorado;
+      }
+      if (finalResult.sugestao_cargo) {
+        document.getElementById("melhorado-cargo").textContent = finalResult.sugestao_cargo;
+      }
+
+      const melExp = document.getElementById("melhorado-experiencia");
+      melExp.innerHTML = "";
+      (finalResult.experiencias_melhoradas || []).forEach(txt => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<div class="subtle">${txt}</div>`;
+        melExp.appendChild(div);
+      });
+
+      // habilidades normalizadas
+      const melHab = document.getElementById("melhorado-habilidades");
+      melHab.innerHTML = '';
+      (curriculoOriginal.habilidades || []).forEach(h => {
+        const nome = normalizeSkillName(h);
+        const nivel = inferSkillLevel(nome, curriculoOriginal.experiencias);
+        createSkillEntry(melHab, nome, nivel);
+      });
+
+      // diagnóstico visual
+      document.getElementById("missing-metrics").textContent = finalResult.analise.missing_metrics.length
+        ? finalResult.analise.missing_metrics.join(", ")
+        : "Nenhum detectado";
+      document.getElementById("weak-verbs").textContent = finalResult.analise.weak_verbs.length
+        ? finalResult.analise.weak_verbs.join(", ")
+        : "Nenhum detectado";
+
+      const recList = document.getElementById("recommendations-list");
+      recList.innerHTML = "";
+      finalResult.analise.recommendations.forEach(r => {
+        const div = document.createElement('div');
+        div.className = "recommendation-item";
+        div.innerHTML = `<div class="pill">✔</div><div>${r}</div>`;
+        recList.appendChild(div);
+      });
+
+      // quality score
+      const score = computeQualityScore(finalResult.analise);
+      document.getElementById("quality-display").textContent = `Qualidade estimada: ${score}/100`;
+
+      // persistir
+      await persistirAnalise(userEmail, finalResult);
+
+      // notificação
+      if (usedFallback) {
+        showToast("Melhoria local aplicada e salva", { fallback: true });
+      } else {
+        showToast("Melhoria com IA aplicada e salva com sucesso");
+      }
+    }
+
+    // carrega currículo real e possível análise existente
+    async function inicializarFluxo() {
+      const userEmail = localStorage.getItem('userEmail') || localStorage.getItem('candidateEmail') || '';
+      if (!userEmail) {
+        console.warn("userEmail ausente no localStorage.");
+        return;
+      }
+
+      // carrega currículo
+      const snap = await db.collection('curriculo').where('email','==', userEmail).limit(1).get();
+      if (snap.empty) {
+        console.warn("Nenhum currículo encontrado para", userEmail);
+        return;
+      }
+      const data = snap.docs[0].data();
+      curriculoOriginal = data;
+
+      // original
+      document.getElementById('original-nome').textContent = data.nome || '';
+      document.getElementById('original-cargo').textContent = data.experiencias && data.experiencias[0]?.cargo ? data.experiencias[0].cargo : '';
+      document.getElementById('original-resumo').textContent = data.resumo || '';
+      document.getElementById('original-email').textContent = data.email || userEmail;
+      document.getElementById('original-telefone').textContent = data.telefone || '';
+      document.getElementById('original-linkedin').textContent = data.linkedin || '';
+
+      // melhorado preliminar
+      document.getElementById('melhorado-nome').textContent = data.nome || '';
+      document.getElementById('melhorado-email').textContent = data.email || '';
+      document.getElementById('melhorado-telefone').textContent = data.telefone || '';
+      document.getElementById('melhorado-linkedin').textContent = data.linkedin || '';
+      document.getElementById('melhorado-resumo').textContent = data.resumo || '';
+      document.getElementById('melhorado-cargo').textContent = suggestTitleFallback(
+        data.experiencias?.[0]?.cargo || '',
+        data.experiencias || [],
+        data.habilidades || []
+      );
+
+      // educação
+      const origEdu = document.getElementById('original-educacao');
+      const melEdu = document.getElementById('melhorado-educacao');
+      origEdu.innerHTML = '';
+      melEdu.innerHTML = '';
+      if (Array.isArray(data.formacoes)) {
+        data.formacoes.forEach(f => {
+          createEducationEntry(origEdu, f.curso || '', f.instituicao || '', f.anoConclusao || '');
+          createEducationEntry(melEdu, f.curso || '', f.instituicao || '', f.anoConclusao || '');
+        });
+      }
+
+      // experiência
+      const origExp = document.getElementById('original-experiencia');
+      const melExp = document.getElementById('melhorado-experiencia');
+      origExp.innerHTML = '';
+      melExp.innerHTML = '';
+      if (Array.isArray(data.experiencias)) {
+        data.experiencias.forEach(exp => {
+          const periodo = `${exp.inicio || ''} – ${exp.fim || 'Atual'}`;
+          createExperienceEntry(origExp, exp.cargo || '', exp.empresa || '', periodo, exp.descricao || '');
+          createExperienceEntry(melExp, exp.cargo || '', exp.empresa || '', periodo, exp.descricao || '');
+        });
+      }
+
+      // habilidades
+      const origHab = document.getElementById('original-habilidades');
+      const melHab = document.getElementById('melhorado-habilidades');
+      origHab.innerHTML = '';
+      melHab.innerHTML = '';
+      if (Array.isArray(data.habilidades)) {
+        data.habilidades.forEach(h => {
+          const nome = normalizeSkillName(h);
+          const nivel = inferSkillLevel(nome, data.experiencias);
+          createSkillEntry(origHab, nome, nivel);
+          createSkillEntry(melHab, nome, nivel);
+        });
+      }
+
+      // carrega análise anterior se houver
+      await carregarAnaliseExistente(userEmail);
+    }
+
+    document.getElementById("btnGerarIA").addEventListener("click", melhorarCurriculoComIA);
+    document.getElementById("btnExportar").addEventListener("click", () => window.print());
+
+    // inicialização
+    inicializarFluxo();
+  </script>
+</body>
+</html>

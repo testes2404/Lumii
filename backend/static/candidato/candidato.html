@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumii • Área do Candidato</title>
+  <style>
+    /* =========================================================================== RESET =========================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      background: #0A0A0A;
+      font-family: 'Poppins', sans-serif;
+      color: #EAEAEA;
+    }
+    a, button {
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* =========================================================================== TOP NAVBAR =========================================================================== */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1rem 0;
+      z-index: 100;
+    }
+    .topnav .btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #F5F5F5;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .topnav .btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.4);
+    }
+    @media (max-width: 768px) {
+      .topnav {
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 1rem 0;
+      }
+    }
+
+    /* =========================================================================== MAIN CONTENT =========================================================================== */
+    .content {
+      padding: 2rem;
+      margin-top: 6rem; /* espaço para a navbar fixa */
+    }
+    @media (max-width: 768px) {
+      .content {
+        margin-top: 10rem;
+      }
+    }
+
+    /* =========================================================================== CONTAINER RESPONSIVO =========================================================================== */
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+    }
+
+    .section-header h1 {
+      color: #39ff14;
+      font-size: 2rem;
+      margin: 0;
+      flex: 1;
+    }
+
+
+    .section-content {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .page-container {
+        padding: 0 15px;
+      }
+      
+      .section-content {
+        padding: 1.5rem;
+      }
+      
+      .section-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Ajustes para o container principal do perfil */
+    .container-principal {
+      max-width: none;
+      margin: 0;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container-principal {
+        flex-direction: column;
+      }
+      
+      .coluna-esquerda, .coluna-direita {
+        width: 100% !important;
+      }
+    }
+
+    /* =========================================================================== POPUPS DESABILITADOS =========================================================================== */
+    #vagasOverlay, #vagasPanel, #perfilOverlay, #perfilPanel {
+      display: none !important;
+    }
+    
+    /* =========================================================================== MINHAS VAGAS =========================================================================== */
+    #vagasOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      z-index: 997;
+    }
+    #vagasPanel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%; max-width: 900px;
+      height: 80vh; max-height: 90vh;
+      background: #1C1C1C;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none;
+      flex-direction: column;
+      padding: 1.5rem;
+      overflow: hidden;
+      z-index: 998;
+    }
+    #closeVagasBtn {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none; border: none;
+      color: #EAEAEA;
+      font-size: 2rem; font-weight: 300;
+      cursor: pointer; line-height: 1;
+      z-index: 999;
+    }
+    #vagasPanel h2 {
+      margin-bottom: 1rem;
+      color: #F5F5F5;
+      text-align: center;
+    }
+    #vagasContent {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    #vagasContent::-webkit-scrollbar {
+      width: 8px;
+    }
+    #vagasContent::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+    }
+    #vagasContent::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .filters input {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: #FFF;
+      backdrop-filter: blur(8px);
+    }
+    .filters input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+    .vaga-item {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+    }
+    .vaga-info h3 {
+      margin-bottom: 0.5rem;
+      color: #FFF;
+      font-size: 1.2rem;
+    }
+    .vaga-info p {
+      margin: 0.25rem 0;
+      color: #CCC;
+      font-size: 0.9rem;
+    }
+    .btn-candidate {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #39ff14;
+      color: #0A0A0A;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .3s;
+    }
+    .btn-candidate:hover {
+      opacity: 0.8;
+    }
+    .btn-applied {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    @media (max-width: 600px) {
+      .vaga-item {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================================================================== MEU PERFIL / CRIADOR DE CURRÍCULO =========================================================================== */
+    #perfilOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      z-index: 997;
+    }
+    #perfilPanel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%; max-width: 1400px;
+      height: 80vh; max-height: 90vh;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      display: none;
+      flex-direction: column;
+      z-index: 998;
+    }
+    #closePerfilBtn {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none; border: none;
+      color: #EAEAEA;
+      font-size: 2rem; font-weight: 300;
+      cursor: pointer; line-height: 1;
+      z-index: 999;
+    }
+    #perfilContent {
+      background-color: #000;
+      height: 100%;
+      overflow-y: auto;
+      padding: 2em;
+    }
+    .container-principal {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+      margin: auto;
+      gap: 1rem;
+    }
+    .coluna {
+      padding: 1.5em 2.5em;
+      min-height: 400px;
+      background: rgba(30,30,30,0.5);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+    }
+    .coluna-esquerda { width: 65%; border-right: 1px solid rgba(255,255,255,0.1); }
+    .coluna-direita { 
+      width: 35%; 
+      display: flex;
+      flex-direction: column;
+    }
+    h1, h2 {
+      font-weight: 600;
+      color: #fff;
+      border-bottom: 1px solid rgba(40,167,69,0.6);
+      padding-bottom: 0.5em;
+      margin-top: 1.5em;
+    }
+    h1 { margin-top: 0; }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.9em;
+      margin-bottom: 1em;
+      font-size: 1em;
+      border-radius: 8px;
+      color: #fff;
+      background: #1c1c1c;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      background: #252525;
+      border-color: rgba(40,167,69,0.9);
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    label { display: block; margin-bottom: 0.5em; color: #aaa; font-size: 0.9em; }
+    .campo-grupo {
+      padding: 1.5em;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      margin-bottom: 1.5em;
+      position: relative;
+    }
+    button {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 0.8em 1.2em;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: all 0.2s;
+      margin-top: 0.5em;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #444;
+      border-color: #777;
+    }
+    .botao-principal {
+      width: 100%;
+      background: #28a745;
+      border: none;
+      padding: 1em;
+      font-size: 1.1em;
+      margin-top: 2em;
+    }
+    .botao-principal:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    #bio-textarea { 
+      min-height: 500px; 
+      height: auto;
+      width: 100%;
+      resize: vertical;
+      flex: 1;
+      font-family: inherit;
+    }
+    
+    .coluna-direita h1 {
+      margin-bottom: 0.5rem;
+    }
+    
+    .coluna-direita p {
+      margin-bottom: 1rem;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    /* Cards de acesso rápido do dashboard */
+    .quick-access-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .quick-access-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(57, 255, 20, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .quick-access-card h3 {
+      color: #39ff14;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .quick-access-card p {
+      color: #ccc;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <button id="meuPerfilBtn"           class="btn">Meu Perfil</button>
+    <button id="minhasVagasBtn"         class="btn">Minhas Vagas</button>
+    <button id="meusEstudosBtn"         class="btn">Meus Estudos</button>
+    <button id="meuDesenvolvimentoBtn"  class="btn">Meu Desenvolvimento</button>
+    <button id="curriculoBtn"           class="btn">Currículo</button>
+    <button id="logoutBtn"              class="btn">Sair</button>
+  </nav>
+
+  <main class="content" id="mainContent">
+    <div id="mainContentArea">
+      <h1>Carregando informações do candidato...</h1>
+    </div>
+  </main>
+
+  <!-- MINHAS VAGAS -->
+  <div id="vagasOverlay"></div>
+  <div id="vagasPanel">
+    <button id="closeVagasBtn">&times;</button>
+    <h2>Minhas Vagas</h2>
+    <div id="vagasContent">
+      <div class="filters">
+        <input id="filterTitle"   type="text"   placeholder="Filtrar por título…" />
+        <input id="filterCompany" type="text"   placeholder="Filtrar por empresa…" />
+        <input id="filterSalary"  type="number" placeholder="Salário mínimo" />
+      </div>
+      <div id="listaVagas"></div>
+    </div>
+  </div>
+
+  <!-- MEU PERFIL / CRIADOR DE CURRÍCULO -->
+  <div id="perfilOverlay"></div>
+  <div id="perfilPanel">
+    <button id="closePerfilBtn">&times;</button>
+    <div id="perfilContent">
+      <main class="container-principal">
+        <div class="coluna coluna-esquerda">
+          <h1>Criador de Currículo</h1>
+          <form id="form-curriculo">
+            <!-- campos pessoais, resumo, experiências, formação, habilidades -->
+            <h2>Dados Pessoais</h2>
+            <input type="text" name="nome" placeholder="Nome Completo" required>
+            <input type="email" name="email" placeholder="Seu E-mail" required>
+            <input type="tel" name="telefone" placeholder="Telefone / WhatsApp">
+            <input type="text" name="linkedin" placeholder="URL do LinkedIn">
+            <input type="text" name="portfolio" placeholder="URL do Portfólio">
+
+            <h2>Resumo Profissional</h2>
+            <textarea name="resumo" placeholder="Um parágrafo sobre sua carreira"></textarea>
+
+            <h2>Experiência Profissional</h2>
+            <div id="experiencias-container"></div>
+            <button type="button" id="add-experiencia">+ Adicionar Experiência</button>
+
+            <h2>Formação Acadêmica</h2>
+            <div id="formacao-container"></div>
+            <button type="button" id="add-formacao">+ Adicionar Formação</button>
+
+            <h2>Habilidades</h2>
+            <textarea name="habilidades" placeholder="Liste suas habilidades, separadas por vírgula"></textarea>
+
+            <button type="submit" class="botao-principal">Salvar Currículo</button>
+          </form>
+        </div>
+        <div class="coluna coluna-direita">
+          <h1>Sua Biografia</h1>
+          <p>Escreva um texto autêntico sobre você. (Colar e Desfazer desativados)</p>
+          <textarea id="bio-textarea"></textarea>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/onboarding.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import { getAuth, signOut }    from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    import { getFirestore, collection, query, where, getDocs }
+      from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+    // Configuração Firebase dinâmica
+    const firebaseConfig = await loadFirebaseConfig();
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    
+    // Torna o db disponível globalmente para o router
+    window.db = db;
+
+    // Inicializa o router
+    window.candidateRouter = new CandidateRouter();
+
+    // Inicializa o sistema de onboarding após um delay
+    setTimeout(() => {
+      const email = localStorage.getItem('candidateEmail');
+      if (email && !window.candidateOnboarding) {
+        console.log('🚀 Inicializando onboarding para:', email);
+        window.candidateOnboarding = new CandidateOnboarding();
+      } else if (window.candidateOnboarding) {
+        console.log('⚠️ Onboarding já inicializado, ignorando');
+      }
+    }, 1500);
+
+    // Função para recarregar perfil principal (agora redireciona para dashboard)
+    window.loadMainProfile = function() {
+      window.candidateRouter.navigateTo('/candidato');
+    };
+
+    async function loadMainProfile() {
+      const mainContent = document.getElementById('mainContentArea');
+      const email = localStorage.getItem('candidateEmail');
+      
+      if (!email) {
+        window.location.href = '/index.html';
+        return;
+      }
+      
+      try {
+        const perfilRef = collection(db, 'profiles');
+        const perfilQ   = query(perfilRef, where('email', '==', email));
+        const snap      = await getDocs(perfilQ);
+        if (snap.empty) {
+          mainContent.innerHTML = '<h1>Erro: perfil não encontrado.</h1>';
+        } else {
+          const d = snap.docs[0].data();
+          mainContent.innerHTML = `
+            <h1>Olá, ${d.full_name}!</h1>
+            <p><strong>E-mail:</strong> ${d.email}</p>
+            <p><strong>CPF:</strong> ${d.cpf||'–'}</p>
+            <p><strong>Data de nascimento:</strong> ${d.birth_date||'–'}</p>
+            <p><strong>Cidade:</strong> ${d.city||'–'} — <strong>Estado:</strong> ${d.state||'–'}</p>
+          `;
+        }
+      } catch {
+        mainContent.innerHTML = '<h1>Erro ao carregar perfil.</h1>';
+      }
+    }
+
+    
+    // Event listener para o botão de ajuda (removido pois o botão não existe mais)
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          localStorage.removeItem('candidateEmail');
+          window.location.href = '/index.html';
+        })
+        .catch(console.error);
+    });
+
+    // Variáveis globais para as vagas
+    window.allVagas = [];
+    window.appliedVagaIds = new Set();
+    window.userId = sessionStorage.getItem('userId')
+      || `user_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+    sessionStorage.setItem('userId', window.userId);
+    
+    // Função para carregar vagas na seção interna
+    window.loadVagasInterna = async function() {
+      const listaVagasEl = document.getElementById('listaVagas');
+      listaVagasEl.innerHTML = '<p style="text-align:center;color:#CCC;">Carregando vagas...</p>';
+
+      try {
+        const vagasSnap = await getDocs(collection(db, 'vagas'));
+        const rawVagas = vagasSnap.docs.map(doc => ({
+          ...doc.data(), companyEmail: doc.id
+        }));
+
+        const emails = [...new Set(rawVagas.map(v => v.companyEmail))];
+        const batches = [];
+        for (let i = 0; i < emails.length; i += 10)
+          batches.push(emails.slice(i, i + 10));
+
+        const perfilMap = new Map();
+        for (const batch of batches) {
+          const q = query(collection(db, 'profiles'), where('email','in',batch));
+          const snap = await getDocs(q);
+          snap.docs.forEach(p => {
+            perfilMap.set(p.data().email, p.data().full_name);
+          });
+        }
+
+        allVagas = rawVagas.map(v => ({
+          id: v.id,
+          title: v.title,
+          description: v.description,
+          salary: v.salary,
+          companyEmail: v.companyEmail,
+          companyName: perfilMap.get(v.companyEmail) || v.companyEmail
+        }));
+
+        renderVagasInternas(allVagas);
+      } catch (error) {
+        listaVagasEl.innerHTML = '<p style="text-align:center;color:#f00;">Erro ao carregar vagas.</p>';
+        console.error(error);
+      }
+    }
+    
+    // Função para renderizar vagas na seção interna
+    function renderVagasInternas(vagas) {
+      const listaVagasEl = document.getElementById('listaVagas');
+      listaVagasEl.innerHTML = '';
+      
+      if (!vagas.length) {
+        listaVagasEl.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhuma vaga encontrada.</p>';
+        return;
+      }
+      
+      vagas.forEach(v => {
+        const isApp = appliedVagaIds.has(v.id);
+        const cls = isApp ? 'btn-candidate btn-applied' : 'btn-candidate';
+        const txt = isApp ? 'Candidatura Aplicada' : 'Candidatar-se';
+        const href = isApp ? '#' : `candidatura.html?vagaId=${encodeURIComponent(v.id)}`;
+        
+        const div = document.createElement('div');
+        div.className = 'vaga-item';
+        div.style.cssText = `
+          background: rgba(255,255,255,0.05);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          padding: 1rem;
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        `;
+        
+        div.innerHTML = `
+          <div class="vaga-info">
+            <h3 style="margin-bottom: 0.5rem; color: #FFF; font-size: 1.2rem;">${v.title}</h3>
+            <p style="margin: 0.25rem 0; color: #CCC; font-size: 0.9rem;"><strong>Empresa:</strong> ${v.companyName}</p>
+            <p style="margin: 0.25rem 0; color: #CCC; font-size: 0.9rem;"><strong>Salário:</strong> R$ ${typeof v.salary==='number'
+              ? v.salary.toLocaleString('pt-BR',{minimumFractionDigits:2})
+              : '-'
+            }</p>
+            <p style="margin: 0.25rem 0; color: #CCC; font-size: 0.9rem;">${v.description}</p>
+          </div>
+          <div class="vaga-actions">
+            <a href="${href}" class="${cls}" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: ${isApp ? '#444' : '#39ff14'}; color: ${isApp ? '#888' : '#0A0A0A'}; font-weight: 600; cursor: ${isApp ? 'not-allowed' : 'pointer'}; text-decoration: none; transition: opacity .3s; display: inline-block;">${txt}</a>
+          </div>
+        `;
+        
+        listaVagasEl.appendChild(div);
+        
+        if (!isApp) {
+          div.querySelector('a').addEventListener('click', () => {
+            localStorage.setItem('vagaId', v.id);
+            localStorage.setItem('companyEmail', v.companyEmail);
+            const candidateEmail = localStorage.getItem('candidateEmail') || 'desconhecido';
+            localStorage.setItem('userEmail', candidateEmail);
+          });
+        }
+      });
+    }
+    
+    // Função para configurar os filtros de vagas
+    window.setupVagasFilters = function() {
+      ['filterTitle','filterCompany','filterSalary'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('input', () => {
+            const ft = document.getElementById('filterTitle')?.value.toLowerCase() || '';
+            const fc = document.getElementById('filterCompany')?.value.toLowerCase() || '';
+            const sv = parseFloat(document.getElementById('filterSalary')?.value || '0');
+            
+            const filt = allVagas.filter(v => {
+              const mt = v.title?.toLowerCase().includes(ft);
+              const mc = v.companyName?.toLowerCase().includes(fc);
+              return mt && mc && (isNaN(sv) || v.salary >= sv);
+            });
+            renderVagasInternas(filt);
+          });
+        }
+      });
+    }
+
+    // Função loadVagas() removida - agora usa loadVagasInterna()
+
+    // Funções renderVagas() e filtros antigos removidos - agora usam as funções internas
+
+    // As funções de navegação foram movidas para o router.js
+    
+    // Função para configurar os event listeners do formulário de perfil
+    window.setupProfileFormListeners = function() {
+      // Desativa colar/desfazer na bio
+      const bioArea = document.getElementById('bio-textarea');
+      if (bioArea) {
+        bioArea.addEventListener('paste', e => { e.preventDefault(); alert('Colar não permitido.'); });
+        bioArea.addEventListener('keydown', e => {
+          if (e.ctrlKey && e.key.toLowerCase()==='z') {
+            e.preventDefault();
+            alert('Desfazer não permitido.');
+          }
+        });
+      }
+      
+      // Campos dinâmicos
+      const addExperienciaBtn = document.getElementById('add-experiencia');
+      if (addExperienciaBtn) {
+        addExperienciaBtn.addEventListener('click', () => {
+          const container = document.getElementById('experiencias-container');
+          const div = document.createElement('div');
+          div.className = 'campo-grupo';
+          div.innerHTML = `
+            <input type="text" name="cargo" placeholder="Cargo" required>
+            <input type="text" name="empresa" placeholder="Empresa" required>
+            <label>Data de Início:</label><input type="month" name="data_inicio_exp" required>
+            <label>Data de Fim:</label><input type="month" name="data_fim_exp">
+            <textarea name="descricao_exp" placeholder="Descrição"></textarea>
+          `;
+          container.appendChild(div);
+        });
+      }
+      
+      const addFormacaoBtn = document.getElementById('add-formacao');
+      if (addFormacaoBtn) {
+        addFormacaoBtn.addEventListener('click', () => {
+          const container = document.getElementById('formacao-container');
+          const div = document.createElement('div');
+          div.className = 'campo-grupo';
+          div.innerHTML = `
+            <input type="text" name="curso" placeholder="Curso" required>
+            <input type="text" name="instituicao" placeholder="Instituição" required>
+            <input type="number" name="ano_conclusao" placeholder="Ano" min="1950" max="2050" required>
+          `;
+          container.appendChild(div);
+        });
+      }
+      
+      // Formulário de currículo
+      const formCurriculo = document.getElementById('form-curriculo');
+      if (formCurriculo) {
+        formCurriculo.addEventListener('submit', async e => {
+          e.preventDefault();
+          const form = e.target;
+          const btn = form.querySelector('button[type="submit"]');
+          btn.textContent = 'Salvando...';
+          btn.disabled = true;
+
+          const fd = new FormData(form);
+          const cv = {
+            nome: fd.get('nome'),
+            email: fd.get('email'),
+            telefone: fd.get('telefone'),
+            linkedin: fd.get('linkedin'),
+            portfolio: fd.get('portfolio'),
+            resumo: fd.get('resumo'),
+            habilidades: fd.get('habilidades').split(',').map(s=>s.trim()),
+            experiencias: [],
+            formacoes: [],
+            criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          const cargos = fd.getAll('cargo');
+          const empresas = fd.getAll('empresa');
+          const inicios = fd.getAll('data_inicio_exp');
+          const fins = fd.getAll('data_fim_exp');
+          const descrs = fd.getAll('descricao_exp');
+          cargos.forEach((c,i) => cv.experiencias.push({
+            cargo: c,
+            empresa: empresas[i],
+            inicio: inicios[i],
+            fim: fins[i] || 'Atual',
+            descricao: descrs[i]
+          }));
+
+          const cursos = fd.getAll('curso');
+          const insts = fd.getAll('instituicao');
+          const anos = fd.getAll('ano_conclusao');
+          cursos.forEach((c,i) => cv.formacoes.push({
+            curso: c,
+            instituicao: insts[i],
+            ano_conclusao: anos[i]
+          }));
+
+          try {
+            if (!window.dbCompat) {
+              throw new Error('Firebase não inicializado');
+            }
+            const docRef = await window.dbCompat.collection('curriculo').add(cv);
+            alert(`Currículo salvo com sucesso! ID: ${docRef.id}`);
+            form.reset();
+            document.getElementById('experiencias-container').innerHTML = '';
+            document.getElementById('formacao-container').innerHTML = '';
+          } catch (error) {
+            alert('Erro ao salvar currículo.');
+            console.error(error);
+          } finally {
+            btn.textContent = 'Salvar Currículo';
+            btn.disabled = false;
+          }
+        });
+      }
+    }
+
+    // Removido: event listeners antigos do bio (agora estão na função setupProfileFormListeners)
+
+    // Removido: event listeners antigos dos campos dinâmicos (agora estão na função setupProfileFormListeners)
+
+    // Event listeners removidos - agora são gerenciados pelo router.js
+
+    // Função para carregar conteúdo de páginas como seções internas
+    window.loadPageContent = async function loadPageContent(url, title) {
+      const mainContent = document.getElementById('mainContentArea');
+            
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
+        
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Extrai apenas o conteúdo do body
+        const bodyContent = doc.body.innerHTML;
+        mainContent.innerHTML = `
+          <div class="page-container">
+            <div class="section-header">
+              <h1>${title}</h1>
+              </div>
+            
+            <div class="section-content">
+              ${bodyContent}
+            </div>
+          </div>
+        `;
+        
+        
+        // Re-executa scripts se necessário
+        const scripts = mainContent.querySelectorAll('script');
+        scripts.forEach(script => {
+          if (script.src) {
+            const newScript = document.createElement('script');
+            newScript.src = script.src;
+            document.head.appendChild(newScript);
+          } else if (script.textContent) {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.head.appendChild(newScript);
+          }
+        });
+        
+      } catch (error) {
+        mainContent.innerHTML = `
+          <div class="page-container">
+            <div class="section-header">
+              <h1>Erro ao carregar ${title}</h1>
+              </div>
+            
+            <div class="section-content">
+              <p>Não foi possível carregar o conteúdo: ${error.message}</p>
+            </div>
+          </div>
+        `;
+        
+      }
+    }
+
+  </script>
+
+  <!-- Firebase compat para o form de currículo -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+  <script>
+    // Inicialização assíncrona do Firebase compat
+    loadFirebaseConfig().then(config => {
+      const firebaseConfigCompat = {
+        ...config,
+        storageBucket: "mini-genio-c204d.appspot.com" // Override para compat
+      };
+      firebase.initializeApp(firebaseConfigCompat);
+      window.dbCompat = firebase.firestore();
+    });
+
+    // Removido: form de currículo antigo (agora está na função setupProfileFormListeners)
+  </script>
+
+</body>
+</html>
