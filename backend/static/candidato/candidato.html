@@ -589,18 +589,48 @@
       || `user_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
     sessionStorage.setItem('userId', window.userId);
     
+    // Função para carregar candidaturas aplicadas
+    async function loadAppliedJobs() {
+      const candidateEmail = localStorage.getItem('candidateEmail');
+      if (!candidateEmail) return;
+      
+      try {
+        // Carrega candidaturas da coleção 'candidaturas-realizadas'
+        const candidaturasQuery = query(
+          collection(db, 'candidaturas-realizadas'),
+          where('userEmail', '==', candidateEmail)
+        );
+        const candidaturasSnap = await getDocs(candidaturasQuery);
+        
+        candidaturasSnap.docs.forEach(doc => {
+          const candidatura = doc.data();
+          if (candidatura.vagaId) {
+            appliedVagaIds.add(candidatura.vagaId);
+          }
+        });
+        
+        console.log('💼 Candidaturas carregadas:', appliedVagaIds.size);
+      } catch (error) {
+        console.error('❌ Erro ao carregar candidaturas aplicadas:', error);
+      }
+    }
+
     // Função para carregar vagas na seção interna
     window.loadVagasInterna = async function() {
       const listaVagasEl = document.getElementById('listaVagas');
       listaVagasEl.innerHTML = '<p style="text-align:center;color:#CCC;">Carregando vagas...</p>';
 
+      // Carrega candidaturas aplicadas antes de renderizar vagas
+      await loadAppliedJobs();
+
       try {
         const vagasSnap = await getDocs(collection(db, 'vagas'));
         const rawVagas = vagasSnap.docs.map(doc => ({
-          ...doc.data(), companyEmail: doc.id
+          ...doc.data(),
+          docId: doc.id
         }));
 
-        const emails = [...new Set(rawVagas.map(v => v.companyEmail))];
+        const emails = [...new Set(rawVagas.map(v => v.companyEmail).filter(Boolean))];
         const batches = [];
         for (let i = 0; i < emails.length; i += 10)
           batches.push(emails.slice(i, i + 10));
@@ -620,7 +650,7 @@
           description: v.description,
           salary: v.salary,
           companyEmail: v.companyEmail,
-          companyName: perfilMap.get(v.companyEmail) || v.companyEmail
+          companyName: perfilMap.get(v.companyEmail) || v.companyEmail || 'Empresa não informada'
         }));
 
         renderVagasInternas(allVagas);
@@ -683,11 +713,31 @@
             localStorage.setItem('companyEmail', v.companyEmail);
             const candidateEmail = localStorage.getItem('candidateEmail') || 'desconhecido';
             localStorage.setItem('userEmail', candidateEmail);
+            
+            // Adiciona listener para quando a página retornar
+            window.addEventListener('focus', () => {
+              // Recarrega as candidaturas quando a página ganha foco novamente
+              setTimeout(() => {
+                loadVagasInterna();
+              }, 1000);
+            }, { once: true });
           });
         }
       });
     }
     
+    // Função global para marcar candidatura realizada
+    window.markAsApplied = function(vagaId) {
+      if (vagaId) {
+        appliedVagaIds.add(vagaId);
+        console.log('✅ Vaga marcada como candidatada:', vagaId);
+        // Recarrega as vagas para atualizar a interface
+        if (window.loadVagasInterna) {
+          loadVagasInterna();
+        }
+      }
+    };
+
     // Função para configurar os filtros de vagas
     window.setupVagasFilters = function() {
       ['filterTitle','filterCompany','filterSalary'].forEach(id => {

@@ -268,7 +268,7 @@
     import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
     import {
       getFirestore, collection, doc, setDoc,
-      getDoc, query, where, getDocs
+      getDoc, query, where, getDocs, serverTimestamp
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
     // Configuração do Firebase
@@ -365,8 +365,12 @@
         id:               crypto.randomUUID()
       };
 
-      // Grava/atualiza documento com ID = email
-      await setDoc(doc(db, 'vagas', email), data);
+      // Grava documento individual por vaga com ID único
+      await setDoc(doc(db, 'vagas', data.id), {
+        ...data,
+        companyEmail: email,
+        createdAt: serverTimestamp()
+      });
       alert('Vaga salva com sucesso!');
       modalOverlay.classList.remove('active');
       vagasForm.reset();
@@ -375,13 +379,17 @@
     // Exibe vagas
     viewVagasBtn.addEventListener('click', async () => {
       const email = localStorage.getItem('companyEmail');
-      const docSnap = await getDoc(doc(db, 'vagas', email));
+      const q = query(collection(db, 'vagas'), where('companyEmail', '==', email));
+      const querySnapshot = await getDocs(q);
+      
       vagasUl.innerHTML = '';
-      if (docSnap.exists()) {
-        const vaga = docSnap.data();
-        const li = document.createElement('li');
-        li.textContent = `${vaga.title} (ID: ${vaga.id})`;
-        vagasUl.appendChild(li);
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach((doc) => {
+          const vaga = doc.data();
+          const li = document.createElement('li');
+          li.textContent = `${vaga.title} - ${vaga.location || 'Localização não informada'} (ID: ${vaga.id})`;
+          vagasUl.appendChild(li);
+        });
       } else {
         const li = document.createElement('li');
         li.textContent = 'Nenhuma vaga encontrada.';

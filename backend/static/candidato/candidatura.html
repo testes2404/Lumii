@@ -276,6 +276,11 @@
       btnSalvarValores.disabled = true;
       btnSalvarValores.textContent = 'Salvo';
       marcarComoCandidatou();
+      
+      // Marca a vaga como candidatada no sistema principal
+      if (window.opener && window.opener.markAsApplied) {
+        window.opener.markAsApplied(vagaId);
+      }
     }
     btnSalvarValores.addEventListener('click', saveValores);
 
@@ -295,6 +300,11 @@
       btnSalvarDinamicas.disabled = true;
       btnSalvarDinamicas.textContent = 'Salvo';
       marcarComoCandidatou();
+      
+      // Marca a vaga como candidatada no sistema principal
+      if (window.opener && window.opener.markAsApplied) {
+        window.opener.markAsApplied(vagaId);
+      }
     }
     btnSalvarDinamicas.addEventListener('click', saveDinamicas);
 
@@ -315,6 +325,11 @@
       btnSalvarTrilhas.disabled = true;
       btnSalvarTrilhas.textContent = 'Salvo';
       marcarComoCandidatou();
+      
+      // Marca a vaga como candidatada no sistema principal
+      if (window.opener && window.opener.markAsApplied) {
+        window.opener.markAsApplied(vagaId);
+      }
     }
     btnSalvarTrilhas.addEventListener('click', saveTrilhas);
 
