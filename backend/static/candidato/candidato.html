@@ -4,428 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lumii • Área do Candidato</title>
-  <style>
-    /* =========================================================================== RESET =========================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-    }
-    body {
-      background: #0A0A0A;
-      font-family: 'Poppins', sans-serif;
-      color: #EAEAEA;
-    }
-    a, button {
-      color: inherit;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    /* =========================================================================== TOP NAVBAR =========================================================================== */
-    .topnav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      padding: 1rem 0;
-      z-index: 100;
-    }
-    .topnav .btn {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #F5F5F5;
-      transition: background 0.3s, border-color 0.3s;
-    }
-    .topnav .btn:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.4);
-    }
-    @media (max-width: 768px) {
-      .topnav {
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 1rem 0;
-      }
-    }
-
-    /* =========================================================================== MAIN CONTENT =========================================================================== */
-    .content {
-      padding: 2rem;
-      margin-top: 6rem; /* espaço para a navbar fixa */
-    }
-    @media (max-width: 768px) {
-      .content {
-        margin-top: 10rem;
-      }
-    }
-
-    /* =========================================================================== CONTAINER RESPONSIVO =========================================================================== */
-    .page-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-      width: 100%;
-    }
-
-    .section-header {
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-    }
-
-    .section-header h1 {
-      color: #39ff14;
-      font-size: 2rem;
-      margin: 0;
-      flex: 1;
-    }
-
-
-    .section-content {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    @media (max-width: 768px) {
-      .page-container {
-        padding: 0 15px;
-      }
-      
-      .section-content {
-        padding: 1.5rem;
-      }
-      
-      .section-header h1 {
-        font-size: 1.5rem;
-      }
-    }
-
-    /* Ajustes para o container principal do perfil */
-    .container-principal {
-      max-width: none;
-      margin: 0;
-      gap: 2rem;
-    }
-
-    @media (max-width: 1024px) {
-      .container-principal {
-        flex-direction: column;
-      }
-      
-      .coluna-esquerda, .coluna-direita {
-        width: 100% !important;
-      }
-    }
-
-    /* =========================================================================== POPUPS DESABILITADOS =========================================================================== */
-    #vagasOverlay, #vagasPanel, #perfilOverlay, #perfilPanel {
-      display: none !important;
-    }
-    
-    /* =========================================================================== MINHAS VAGAS =========================================================================== */
-    #vagasOverlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(5px);
-      display: none;
-      z-index: 997;
-    }
-    #vagasPanel {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%; max-width: 900px;
-      height: 80vh; max-height: 90vh;
-      background: #1C1C1C;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      display: none;
-      flex-direction: column;
-      padding: 1.5rem;
-      overflow: hidden;
-      z-index: 998;
-    }
-    #closeVagasBtn {
-      position: absolute;
-      top: 1rem; right: 1rem;
-      background: none; border: none;
-      color: #EAEAEA;
-      font-size: 2rem; font-weight: 300;
-      cursor: pointer; line-height: 1;
-      z-index: 999;
-    }
-    #vagasPanel h2 {
-      margin-bottom: 1rem;
-      color: #F5F5F5;
-      text-align: center;
-    }
-    #vagasContent {
-      flex-grow: 1;
-      overflow-y: auto;
-    }
-    #vagasContent::-webkit-scrollbar {
-      width: 8px;
-    }
-    #vagasContent::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.1);
-    }
-    #vagasContent::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.3);
-      border-radius: 4px;
-    }
-    .filters {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .filters input {
-      flex: 1;
-      min-width: 120px;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.1);
-      color: #FFF;
-      backdrop-filter: blur(8px);
-    }
-    .filters input::placeholder {
-      color: rgba(255,255,255,0.7);
-    }
-    .vaga-item {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-    }
-    .vaga-info h3 {
-      margin-bottom: 0.5rem;
-      color: #FFF;
-      font-size: 1.2rem;
-    }
-    .vaga-info p {
-      margin: 0.25rem 0;
-      color: #CCC;
-      font-size: 0.9rem;
-    }
-    .btn-candidate {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      background: #39ff14;
-      color: #0A0A0A;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: opacity .3s;
-    }
-    .btn-candidate:hover {
-      opacity: 0.8;
-    }
-    .btn-applied {
-      background: #444;
-      color: #888;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-    @media (max-width: 600px) {
-      .vaga-item {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* =========================================================================== MEU PERFIL / CRIADOR DE CURRÍCULO =========================================================================== */
-    #perfilOverlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(5px);
-      display: none;
-      z-index: 997;
-    }
-    #perfilPanel {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%; max-width: 1400px;
-      height: 80vh; max-height: 90vh;
-      background: transparent;
-      box-shadow: none;
-      padding: 0;
-      display: none;
-      flex-direction: column;
-      z-index: 998;
-    }
-    #closePerfilBtn {
-      position: absolute;
-      top: 1rem; right: 1rem;
-      background: none; border: none;
-      color: #EAEAEA;
-      font-size: 2rem; font-weight: 300;
-      cursor: pointer; line-height: 1;
-      z-index: 999;
-    }
-    #perfilContent {
-      background-color: #000;
-      height: 100%;
-      overflow-y: auto;
-      padding: 2em;
-    }
-    .container-principal {
-      display: flex;
-      width: 100%;
-      max-width: 1400px;
-      margin: auto;
-      gap: 1rem;
-    }
-    .coluna {
-      padding: 1.5em 2.5em;
-      min-height: 400px;
-      background: rgba(30,30,30,0.5);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.37);
-    }
-    .coluna-esquerda { width: 65%; border-right: 1px solid rgba(255,255,255,0.1); }
-    .coluna-direita { 
-      width: 35%; 
-      display: flex;
-      flex-direction: column;
-    }
-    h1, h2 {
-      font-weight: 600;
-      color: #fff;
-      border-bottom: 1px solid rgba(40,167,69,0.6);
-      padding-bottom: 0.5em;
-      margin-top: 1.5em;
-    }
-    h1 { margin-top: 0; }
-    input, textarea, select {
-      width: 100%;
-      padding: 0.9em;
-      margin-bottom: 1em;
-      font-size: 1em;
-      border-radius: 8px;
-      color: #fff;
-      background: #1c1c1c;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      background: #252525;
-      border-color: rgba(40,167,69,0.9);
-    }
-    textarea { resize: vertical; min-height: 100px; }
-    label { display: block; margin-bottom: 0.5em; color: #aaa; font-size: 0.9em; }
-    .campo-grupo {
-      padding: 1.5em;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      margin-bottom: 1.5em;
-      position: relative;
-    }
-    button {
-      background: #333;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 0.8em 1.2em;
-      font-weight: bold;
-      border-radius: 8px;
-      transition: all 0.2s;
-      margin-top: 0.5em;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #444;
-      border-color: #777;
-    }
-    .botao-principal {
-      width: 100%;
-      background: #28a745;
-      border: none;
-      padding: 1em;
-      font-size: 1.1em;
-      margin-top: 2em;
-    }
-    .botao-principal:hover {
-      background: #218838;
-      transform: translateY(-2px);
-    }
-    #bio-textarea { 
-      min-height: 500px; 
-      height: auto;
-      width: 100%;
-      resize: vertical;
-      flex: 1;
-      font-family: inherit;
-    }
-    
-    .coluna-direita h1 {
-      margin-bottom: 0.5rem;
-    }
-    
-    .coluna-direita p {
-      margin-bottom: 1rem;
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-
-    /* Cards de acesso rápido do dashboard */
-    .quick-access-card {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 1.5rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-
-    .quick-access-card:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(57, 255, 20, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .quick-access-card h3 {
-      color: #39ff14;
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-
-    .quick-access-card p {
-      color: #ccc;
-      margin: 0;
-      font-size: 0.9rem;
-    }
-  </style>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/layout.css">
+  <link rel="stylesheet" href="../css/components/buttons.css">
+  <link rel="stylesheet" href="../css/components/forms.css">
+  <link rel="stylesheet" href="../css/pages/candidato.css">
+  
 </head>
 <body>
 
@@ -433,7 +19,7 @@
     <button id="meuPerfilBtn"           class="btn">Meu Perfil</button>
     <button id="minhasVagasBtn"         class="btn">Minhas Vagas</button>
     <button id="meusEstudosBtn"         class="btn">Meus Estudos</button>
-    <button id="meuDesenvolvimentoBtn"  class="btn">Meu Desenvolvimento</button>
+    <button id="meuDesenvolvimentoBtn"  class="btn" type="button">Meu Desenvolvimento</button>
     <button id="curriculoBtn"           class="btn">Currículo</button>
     <button id="logoutBtn"              class="btn">Sair</button>
   </nav>
@@ -502,9 +88,91 @@
     </div>
   </div>
 
-  <script src="../js/firebase-config.js"></script>
-  <script src="../js/router.js"></script>
-  <script src="../js/onboarding.js"></script>
+  <script src="../js/firebase-config.js?v=20250108"></script>
+  <script src="../js/router.js?v=20250108"></script>
+  <script src="../js/onboarding.js?v=20250108"></script>
+  
+  <!-- Força inicialização imediata do router -->
+  <script>
+    // Intercepta tentativas de abrir entrevistas.html em nova aba
+    const originalWindowOpen = window.open;
+    window.open = function(url, target, features) {
+      console.log('Tentativa de abrir janela:', url, target);
+      if (url && url.includes('entrevistas.html')) {
+        console.log('Interceptando abertura de entrevistas.html - redirecionando para seção');
+        if (window.candidateRouter) {
+          window.candidateRouter.navigateTo('/candidato/desenvolvimento');
+        } else {
+          // Fallback - aguarda o router estar pronto
+          setTimeout(() => {
+            if (window.candidateRouter) {
+              window.candidateRouter.navigateTo('/candidato/desenvolvimento');
+            }
+          }, 100);
+        }
+        return null;
+      }
+      return originalWindowOpen.call(this, url, target, features);
+    };
+    
+    // Intercepta tentativas de mudança de location
+    const originalLocationAssign = window.location.assign;
+    const originalLocationReplace = window.location.replace;
+    
+    Object.defineProperty(window.location, 'href', {
+      set: function(url) {
+        console.log('Tentativa de mudança de location.href:', url);
+        if (url && url.includes('entrevistas.html')) {
+          console.log('Interceptando navegação para entrevistas.html');
+          if (window.candidateRouter) {
+            window.candidateRouter.navigateTo('/candidato/desenvolvimento');
+          }
+          return;
+        }
+        // Permite mudanças normais de href
+        window.location.replace(url);
+      },
+      get: function() {
+        return window.location.toString();
+      }
+    });
+    
+    // Debug global para todos os cliques
+    document.addEventListener('click', function(e) {
+      if (e.target.id === 'meuDesenvolvimentoBtn') {
+        console.log('=== DEBUG CLIQUE NO BOTÃO DESENVOLVIMENTO ===');
+        console.log('Target:', e.target);
+        console.log('Event:', e);
+        console.log('Current target:', e.currentTarget);
+        console.log('Button HTML:', e.target.outerHTML);
+        console.log('Button parent:', e.target.parentNode);
+        console.log('Window.candidateRouter:', window.candidateRouter);
+        console.log('============================================');
+      }
+    }, true);
+    
+    // Limpar qualquer método problemático que possa existir em cache
+    if (window.candidateRouter && window.candidateRouter.handleDesenvolvimentoClick) {
+      delete window.candidateRouter.handleDesenvolvimentoClick;
+      console.log('🗑️ Método handleDesenvolvimentoClick removido');
+    }
+    
+    // Garantir que o router seja inicializado PRIMEIRO
+    if (typeof CandidateRouter !== 'undefined' && !window.candidateRouter) {
+      window.candidateRouter = new CandidateRouter();
+    }
+    
+    // Força remoção de qualquer listener problemático
+    setTimeout(() => {
+      const devBtn = document.getElementById('meuDesenvolvimentoBtn');
+      if (devBtn && window.candidateRouter) {
+        // Remove qualquer listener antigo e força os novos
+        window.candidateRouter.removeAllListeners();
+        window.candidateRouter.setupNavigation();
+        console.log('🔧 Navigation setup forçado para botão desenvolvimento');
+      }
+    }, 500);
+  </script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
     import { getAuth, signOut }    from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';

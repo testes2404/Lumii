@@ -1,0 +1,393 @@
+/* =========================================================================== 
+   CURRICULUM COMPARISON PAGE STYLES
+   =========================================================================== */
+
+/* Page-specific CSS Variables */
+:root {
+  --curriculo-bg-main: #F2F4F8;
+  --curriculo-sidebar-bg: #0F2D4A;
+  --curriculo-accent: #1E90FF;
+  --curriculo-text-dark: #1F2833;
+  --curriculo-transition: 0.3s;
+}
+
+/* Override global styles for curriculum page */
+.curriculo-page,
+.curriculo-container .curriculo-page {
+  background: var(--curriculo-bg-main) !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: var(--curriculo-text-dark) !important;
+  padding: 0 !important; /* Remove padding para usar o do section-content */
+  line-height: 1.4 !important;
+  width: 100%;
+  height: 100%;
+}
+
+.curriculo-page * {
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.curriculo-page *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.curriculo-page h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  color: var(--curriculo-text-dark);
+}
+
+/* Layout */
+.curriculo-container .curriculo-page .page,
+.curriculo-page .page {
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 2rem !important;
+}
+
+.curriculo-container .curriculo-page .resume,
+.curriculo-page .resume {
+  display: flex !important;
+  background: #fff !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.1) !important;
+  min-height: 700px !important;
+  position: relative !important;
+}
+
+.curriculo-container .curriculo-page .sidebar,
+.curriculo-page .sidebar {
+  background: var(--curriculo-sidebar-bg) !important;
+  padding: 2rem 1.75rem !important;
+  color: #fff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  flex: 0 0 260px !important;
+  position: relative !important;
+}
+
+.curriculo-container .curriculo-page .main,
+.curriculo-page .main {
+  padding: 2rem 1.75rem !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.25rem !important;
+}
+
+/* Typography */
+.curriculo-page .name {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.curriculo-page .title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 4px 0 10px;
+  opacity: 0.9;
+}
+
+.curriculo-page .summary {
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.curriculo-page .section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.curriculo-page .section h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.curriculo-page .subtle {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.curriculo-page .item {
+  margin-top: 8px;
+}
+
+.curriculo-page .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.curriculo-page .item-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.curriculo-page .item-meta {
+  font-size: 0.75rem;
+  color: #777;
+}
+
+/* Skills */
+.curriculo-page .skill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.curriculo-page .skill-name {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.curriculo-page .bar-wrapper {
+  background: #e6e9f0;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.curriculo-page .bar {
+  height: 100%;
+  background: var(--curriculo-accent);
+  transition: width var(--curriculo-transition);
+}
+
+/* Contact & Language Items */
+.curriculo-page .contact-item,
+.curriculo-page .lang-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.curriculo-page .divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 12px 0;
+}
+
+/* Badges */
+.curriculo-page .badge {
+  background: var(--curriculo-accent);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* Header */
+.curriculo-page .header-compare {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Container dos botões no header */
+.curriculo-page .header-compare > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.curriculo-page .meta-small {
+  font-size: 0.65rem;
+  color: #888;
+}
+
+/* Buttons */
+.curriculo-container .curriculo-page .btn,
+.curriculo-page .btn {
+  padding: 12px 20px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  background: var(--curriculo-accent) !important;
+  color: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: var(--curriculo-transition) !important;
+  min-width: 140px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  margin: 0 4px 8px 0 !important;
+}
+
+.curriculo-container .curriculo-page .btn-secondary,
+.curriculo-page .btn-secondary {
+  background: #444 !important;
+  color: #fff !important;
+}
+
+.curriculo-container .curriculo-page .btn:hover,
+.curriculo-page .btn:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Analysis Box */
+.curriculo-page .analysis-box {
+  background: #f9f9fc;
+  border: 1px solid #dfe2ea;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 0.85rem;
+}
+
+.curriculo-page .analysis-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1f3d7a;
+}
+
+.curriculo-page .pill {
+  display: inline-block;
+  background: #e8f0ff;
+  color: #1a4f9c;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+.curriculo-page .recommendation-item {
+  margin-bottom: 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.curriculo-page .quality-score {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e4d8b;
+}
+
+/* Toast Notifications */
+.curriculo-page .toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: #1f8f3e;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px -10px rgba(31, 143, 62, 0.5);
+  font-weight: 600;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.curriculo-page .toast.fallback {
+  background: #d9821f;
+}
+
+/* Print Styles */
+@media print {
+  .curriculo-page {
+    background: none !important;
+    padding: 0;
+  }
+  
+  .curriculo-page .page {
+    grid-template-columns: 1fr;
+  }
+  
+  .curriculo-page .resume {
+    box-shadow: none;
+  }
+  
+  .curriculo-page .resume[aria-label="Currículo original"] {
+    display: none !important;
+  }
+  
+  .curriculo-page .analysis-box {
+    display: none !important;
+  }
+  
+  .curriculo-page * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .curriculo-page .btn {
+    display: none;
+  }
+  
+  .curriculo-page h1 {
+    color: inherit;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .curriculo-page .page {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .curriculo-page .resume {
+    min-height: 500px;
+  }
+  
+  .curriculo-page .sidebar {
+    flex: none;
+    padding: 1.5rem;
+  }
+  
+  .curriculo-page .main {
+    padding: 1.5rem;
+  }
+  
+  .curriculo-page .header-compare {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .curriculo-page .header-compare > div:last-child {
+    justify-content: center;
+    margin-top: 8px;
+  }
+  
+  .curriculo-page .btn {
+    min-width: 120px !important;
+  }
+}

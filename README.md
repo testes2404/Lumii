@@ -47,9 +47,14 @@ pip install -r requirements.txt
 
 ### 3. Configure as variáveis de ambiente
 
+#### Desenvolvimento
 Crie um arquivo `.env` na pasta `backend/` com as seguintes variáveis:
 
 ```env
+# Environment
+ENVIRONMENT=development
+DEBUG=true
+
 # Firebase Configuration
 FIREBASE_API_KEY=your_firebase_api_key
 FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
@@ -62,6 +67,29 @@ FIREBASE_MEASUREMENT_ID=your_measurement_id
 # Google Cloud Platform
 GCP_PROJECT=your-gcp-project-id
 GCP_REGION=your-region
+```
+
+#### Produção
+Para produção, use o template `.env.prod.template` como base:
+
+```env
+# Environment
+ENVIRONMENT=production
+DEBUG=false
+
+# Domínios permitidos para CORS
+ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
+# Firebase Production (use credenciais de produção)
+FIREBASE_API_KEY=your-production-firebase-api-key
+# ... outras variáveis Firebase de produção
+
+# Google Cloud Platform Production
+GCP_PROJECT=your-production-gcp-project
+GCP_REGION=us-central1
+
+# Security
+SECRET_KEY=your-32-character-secret-key-here
 ```
 
 ### 4. Configure o Firebase
@@ -136,3 +164,49 @@ O sistema usa roteamento SPA (Single Page Application) com:
 - **Firestore** para banco de dados
 - **Authentication** para login/registro
 - **Security Rules** configuradas
+
+## 🚀 Deploy e Produção
+
+### Preparação para Produção
+
+1. **Configure ambiente de produção:**
+   ```bash
+   cp .env.prod.template .env
+   # Edite .env com credenciais reais de produção
+   ```
+
+2. **Instale dependências de produção:**
+   ```bash
+   pip install gunicorn
+   ```
+
+3. **Execute em produção:**
+   ```bash
+   gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+   ```
+
+### Considerações de Segurança
+
+- ✅ **HTTPS obrigatório** em produção
+- ✅ **CORS configurado** apenas para domínios autorizados
+- ✅ **Credenciais em variáveis de ambiente**
+- ✅ **DEBUG=false** em produção
+- ✅ **Firewall configurado** (apenas portas necessárias)
+- ✅ **Service Account** do GCP com permissões mínimas
+
+### Deploy Recomendado
+
+**Docker:**
+```dockerfile
+FROM python:3.11-slim
+COPY backend/ /app
+WORKDIR /app
+RUN pip install -r requirements.txt
+CMD ["gunicorn", "main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+```
+
+**Cloud Platforms:**
+- Google Cloud Run
+- Heroku
+- AWS Lambda
+- Azure Container Instances
