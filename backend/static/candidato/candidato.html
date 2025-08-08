@@ -5,12 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lumii • Área do Candidato</title>
   
-  <!-- CSS Files -->
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/components/layout.css">
-  <link rel="stylesheet" href="../css/components/buttons.css">
-  <link rel="stylesheet" href="../css/components/forms.css">
-  <link rel="stylesheet" href="../css/pages/candidato.css">
+  <!-- Cache busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="app-version" content="2025-01-08-v2" />
+  
+  <!-- CSS Files with cache busting -->
+  <link rel="stylesheet" href="../css/base.css?v=2025-01-08-v2">
+  <link rel="stylesheet" href="../css/components/layout.css?v=2025-01-08-v2">
+  <link rel="stylesheet" href="../css/components/buttons.css?v=2025-01-08-v2">
+  <link rel="stylesheet" href="../css/components/forms.css?v=2025-01-08-v2">
+  <link rel="stylesheet" href="../css/pages/candidato.css?v=2025-01-08-v2">
   
 </head>
 <body>
@@ -88,9 +94,9 @@
     </div>
   </div>
 
-  <script src="../js/firebase-config.js?v=20250108"></script>
-  <script src="../js/router.js?v=20250108"></script>
-  <script src="../js/onboarding.js?v=20250108"></script>
+  <script src="../js/firebase-config.js?v=20250108-2"></script>
+  <script src="../js/router.js?v=20250108-2"></script>
+  <script src="../js/onboarding.js?v=20250108-2"></script>
   
   <!-- Router initialization -->
   <script>
@@ -232,6 +238,20 @@
           const candidatura = doc.data();
           if (candidatura.vagaId) {
             appliedVagaIds.add(candidatura.vagaId);
+          }
+        });
+
+        // TAMBÉM carrega da coleção 'respostas-valores-dinamicas-trilhas' (candidaturas completas)
+        const respostasQuery = query(
+          collection(db, 'respostas-valores-dinamicas-trilhas'),
+          where('userEmail', '==', candidateEmail)
+        );
+        const respostasSnap = await getDocs(respostasQuery);
+        
+        respostasSnap.docs.forEach(doc => {
+          const resposta = doc.data();
+          if (resposta.vagaId) {
+            appliedVagaIds.add(resposta.vagaId);
           }
         });
         
@@ -1155,8 +1175,22 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         
-        // Extrai apenas o conteúdo do body
+        // Extrai o conteúdo do body E os links de CSS
         const bodyContent = doc.body.innerHTML;
+        const cssLinks = doc.querySelectorAll('link[rel="stylesheet"]');
+        
+        // Adiciona os CSS links ao head se não existirem
+        cssLinks.forEach(link => {
+          const href = link.href;
+          const existingLink = document.querySelector(`link[href*="${href.split('/').pop().split('?')[0]}"]`);
+          if (!existingLink) {
+            const newLink = document.createElement('link');
+            newLink.rel = 'stylesheet';
+            newLink.href = href;
+            document.head.appendChild(newLink);
+          }
+        });
+        
         mainContent.innerHTML = `
           <div class="page-container">
             <div class="section-header">
@@ -1170,17 +1204,53 @@
         `;
         
         
+        // CACHE BUSTING: Force style refresh after content load
+        setTimeout(() => {
+          if (window.forceStyleRefresh) {
+            window.forceStyleRefresh();
+          }
+          
+          // Force recomputation of all elements
+          const allElements = mainContent.querySelectorAll('*');
+          allElements.forEach(el => {
+            if (el.style) {
+              el.offsetHeight; // Force reflow
+            }
+          });
+          
+        }, 100);
+
         // Re-executa scripts se necessário
         const scripts = mainContent.querySelectorAll('script');
         scripts.forEach(script => {
           if (script.src) {
             const newScript = document.createElement('script');
             newScript.src = script.src;
+            // Preserva o tipo do script original
+            if (script.type) {
+              newScript.type = script.type;
+            }
             document.head.appendChild(newScript);
           } else if (script.textContent) {
-            const newScript = document.createElement('script');
-            newScript.textContent = script.textContent;
-            document.head.appendChild(newScript);
+            // Para scripts inline, precisamos criar um blob URL para módulos
+            if (script.type === 'module') {
+              const blob = new Blob([script.textContent], { type: 'application/javascript' });
+              const url = URL.createObjectURL(blob);
+              const newScript = document.createElement('script');
+              newScript.type = 'module';
+              newScript.src = url;
+              document.head.appendChild(newScript);
+              
+              // Limpa o blob URL após um tempo
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } else {
+              const newScript = document.createElement('script');
+              newScript.textContent = script.textContent;
+              if (script.type) {
+                newScript.type = script.type;
+              }
+              document.head.appendChild(newScript);
+            }
           }
         });
         

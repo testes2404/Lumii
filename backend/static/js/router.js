@@ -319,7 +319,7 @@ class CandidateRouter {
     // Rota: /candidato/estudos
     async renderEstudos() {
         if (window.loadPageContent) {
-            await window.loadPageContent('estudos.html', 'Meus Estudos');
+            await window.loadPageContent('/candidato/estudos.html', 'Meus Estudos');
         } else {
             this.mainContent.innerHTML = this.createPageContainer(
                 'Erro',

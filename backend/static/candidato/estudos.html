@@ -4,75 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lumii • Meus Estudos</title>
-  <style>
-    /* RESET */
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { height:100%; }
-    body {
-      background: #0A0A0A;
-      color: #EAEAEA;
-      font-family: 'Poppins', sans-serif;
-      padding: 2rem;
-    }
-    h1 {
-      margin-bottom: 1.5rem;
-      font-size: 1.75rem;
-      text-align: center;
-    }
-    #estudosContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-width: 800px;
-      margin: auto;
-    }
-    .material-box {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .material-box h2 {
-      font-size: 1.25rem;
-      color: #FFF;
-    }
-    .material-box p {
-      font-size: 0.9rem;
-      color: #CCC;
-    }
-    .material-actions {
-      margin-top: 0.75rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-    .btn-open {
-      padding: 0.5rem 1rem;
-      background: #4CAF50;
-      border: none;
-      border-radius: 8px;
-      color: #0A0A0A;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity .3s;
-      display: inline-block;
-    }
-    .btn-open:hover {
-      opacity: 0.8;
-    }
-  </style>
+  
+  <!-- Cache busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  
+  <!-- Version for cache busting -->
+  <meta name="version" content="2025-01-08-v3" />
+  
+  <!-- External CSS Files -->
+  <link rel="stylesheet" href="../css/base.css?v=2025-01-08-v3">
+  <link rel="stylesheet" href="../css/pages/estudos.css?v=2025-01-08-v3">
 </head>
-<body>
+<body class="estudos-page">
 
   <h1>Meus Materiais de Aperfeiçoamento</h1>
   <div id="estudosContainer">
     <!-- Caixinhas serão inseridas aqui -->
   </div>
+  
+  <!-- Force style refresh -->
+  <div style="display: none;" id="style-refresh-trigger"></div>
 
   <script type="module">
+    // Force style recomputation (silent)
+    function forceStyleRefresh() {
+      const trigger = document.getElementById('style-refresh-trigger');
+      if (trigger) {
+        trigger.style.display = 'block';
+        trigger.offsetHeight; // Force reflow
+        trigger.style.display = 'none';
+      }
+      
+      const styleSheets = document.styleSheets;
+      for (let sheet of styleSheets) {
+        try {
+          sheet.disabled = true;
+          sheet.disabled = false;
+        } catch (e) {
+          // Cross-origin stylesheets may throw errors
+        }
+      }
+      
+      document.body.offsetHeight;
+    }
+    
+    // Execute style refresh
+    forceStyleRefresh();
+    document.addEventListener('DOMContentLoaded', forceStyleRefresh);
+    window.addEventListener('load', forceStyleRefresh);
+    
     import { initializeApp }      from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
     import { getFirestore, collection, query, where, getDocs }
       from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
@@ -102,12 +84,101 @@
     // 4. Carrega documentos da coleção
     (async function loadMateriais() {
       const companyEmail = localStorage.getItem('companyEmail');
+      const candidateEmail = localStorage.getItem('candidateEmail');
+      
       if (!companyEmail) {
-        container.innerHTML = '<p style="text-align:center;color:#CCC;">Empresa não identificada.</p>';
+        
+        // Se não tem companyEmail, vamos buscar todas as empresas das candidaturas do usuário
+        if (!candidateEmail) {
+          container.innerHTML = '<p style="text-align:center;color:#CCC;">Usuário não identificado.</p>';
+          return;
+        }
+        
+        // Busca todas as candidaturas do usuário para pegar as empresas
+        const candidaturasRef = collection(db, 'candidaturas-realizadas');
+        const candidaturasQuery = query(candidaturasRef, where('userEmail', '==', candidateEmail));
+        const candidaturasSnap = await getDocs(candidaturasQuery);
+        
+        const respostasRef = collection(db, 'respostas-valores-dinamicas-trilhas');
+        const respostasQuery = query(respostasRef, where('userEmail', '==', candidateEmail));
+        const respostasSnap = await getDocs(respostasQuery);
+        
+        const empresasSet = new Set();
+        candidaturasSnap.docs.forEach(doc => {
+          const data = doc.data();
+          if (data.companyEmail) empresasSet.add(data.companyEmail);
+        });
+        respostasSnap.docs.forEach(doc => {
+          const data = doc.data();
+          if (data.companyEmail) empresasSet.add(data.companyEmail);
+        });
+        
+        const empresas = Array.from(empresasSet);
+        
+        if (empresas.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhuma candidatura encontrada.</p>';
+          return;
+        }
+        
+        // Busca materiais de todas as empresas
+        const allMateriais = [];
+        for (const empresa of empresas) {
+          const colRef = collection(db, 'materiais_aperfeicoamento');
+          const q = query(colRef, where('empresaEmail', '==', empresa));
+          const snap = await getDocs(q);
+          snap.docs.forEach(doc => {
+            allMateriais.push({ ...doc.data(), empresa });
+          });
+        }
+        
+        if (allMateriais.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhum material encontrado para suas candidaturas.</p>';
+          return;
+        }
+        
+        // Renderiza todos os materiais
+        allMateriais.forEach(data => {
+          const box = document.createElement('div');
+          box.className = 'material-box';
+          box.setAttribute('data-tipo', data.tipo || 'pdf');
+
+          const h2 = document.createElement('h2');
+          h2.textContent = data.nome || 'Sem título';
+          
+          const pDesc = document.createElement('p');
+          pDesc.innerHTML = `<strong>Descrição:</strong> ${data.descricao || '–'}`;
+          
+          const pTipo = document.createElement('p');
+          pTipo.innerHTML = `<strong>Tipo:</strong> ${data.tipo || '–'}`;
+          
+          const divider = document.createElement('div');
+          divider.className = 'material-divider';
+          
+          const pData = document.createElement('p');
+          pData.innerHTML = `<strong>Criado em:</strong> ${data.criadoEm ? formatDate(data.criadoEm) : '–'}`;
+
+          const empresaBadge = document.createElement('div');
+          empresaBadge.className = 'empresa-badge';
+          empresaBadge.textContent = data.empresa || '–';
+
+          const actions = document.createElement('div');
+          actions.className = 'material-actions';
+          const openBtn = document.createElement('a');
+          openBtn.href = data.arquivoUrl + '#toolbar=0&navpanes=0&scrollbar=0';
+          openBtn.target = '_blank';
+          openBtn.rel = 'noopener';
+          openBtn.className = 'btn-open';
+          openBtn.textContent = 'Abrir Material';
+
+          actions.appendChild(openBtn);
+          box.append(h2, pDesc, pTipo, divider, pData, empresaBadge, actions);
+          container.appendChild(box);
+        });
+        
         return;
       }
 
-      // consulta apenas os materiais desta empresa
+      // consulta apenas os materiais desta empresa (lógica original)
       const colRef = collection(db, 'materiais_aperfeicoamento');
       const q      = query(colRef, where('empresaEmail','==',companyEmail));
       const snap   = await getDocs(q);
@@ -122,16 +193,23 @@
         const data = doc.data();
         const box  = document.createElement('div');
         box.className = 'material-box';
+        box.setAttribute('data-tipo', data.tipo || 'pdf');
 
         // título e descrição
         const h2 = document.createElement('h2');
         h2.textContent = data.nome || 'Sem título';
+        
         const pDesc = document.createElement('p');
-        pDesc.textContent = `Descrição: ${data.descricao || '–'}`;
+        pDesc.innerHTML = `<strong>Descrição:</strong> ${data.descricao || '–'}`;
+        
         const pTipo = document.createElement('p');
-        pTipo.textContent = `Tipo: ${data.tipo || '–'}`;
+        pTipo.innerHTML = `<strong>Tipo:</strong> ${data.tipo || '–'}`;
+        
+        const divider = document.createElement('div');
+        divider.className = 'material-divider';
+        
         const pData = document.createElement('p');
-        pData.textContent = `Criado em: ${data.criadoEm ? formatDate(data.criadoEm) : '–'}`;
+        pData.innerHTML = `<strong>Criado em:</strong> ${data.criadoEm ? formatDate(data.criadoEm) : '–'}`;
 
         // botões
         const actions = document.createElement('div');
@@ -142,12 +220,12 @@
         openBtn.target = '_blank';
         openBtn.rel = 'noopener';
         openBtn.className = 'btn-open';
-        openBtn.textContent = 'Abrir';
+        openBtn.textContent = 'Abrir Material';
 
         actions.appendChild(openBtn);
 
         // montagem final
-        box.append(h2, pDesc, pTipo, pData, actions);
+        box.append(h2, pDesc, pTipo, divider, pData, actions);
         container.appendChild(box);
       });
     })();

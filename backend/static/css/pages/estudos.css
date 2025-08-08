@@ -1,0 +1,274 @@
+/* =========================================================================== 
+   ESTUDOS PAGE STYLES - Study Materials Page
+   =========================================================================== */
+
+/* Reset básico para a página */
+.estudos-page {
+  background: var(--bg-primary, #0A0A0A);
+  color: var(--text-primary, #EAEAEA);
+  font-family: var(--font-primary, 'Poppins', sans-serif);
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.estudos-page h1 {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  text-align: center;
+  color: var(--text-primary, #EAEAEA);
+}
+
+#estudosContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Ensure maximum 3 columns */
+@media (min-width: 1200px) {
+  #estudosContainer {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1400px;
+  }
+}
+
+/* Material Box Styling */
+.material-box {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  height: 100%;
+}
+
+.material-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #39ff14, #2de00f);
+  opacity: 0.8;
+}
+
+.material-box:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(57, 255, 20, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(57, 255, 20, 0.2);
+}
+
+/* Material Box Content */
+.material-box h2 {
+  font-size: 1.35rem;
+  color: var(--text-primary, #FFF);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.material-box p {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #CCC);
+  line-height: 1.5;
+  margin: 0.25rem 0;
+}
+
+.material-box p strong {
+  color: #39ff14;
+  font-weight: 500;
+}
+
+/* Material Actions */
+.material-actions {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn-open {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #39ff14, #2de00f);
+  border: none;
+  border-radius: 10px;
+  color: #0A0A0A;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(57, 255, 20, 0.3);
+  cursor: pointer;
+}
+
+.btn-open::before {
+  content: '📄';
+  font-size: 1rem;
+}
+
+.btn-open:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(57, 255, 20, 0.5);
+  background: linear-gradient(135deg, #2de00f, #21c00b);
+  color: #0A0A0A;
+}
+
+.btn-open:active {
+  transform: translateY(0);
+}
+
+/* Different file type icons */
+.material-box[data-tipo="video"] .btn-open::before {
+  content: '🎥';
+}
+
+.material-box[data-tipo="pdf"] .btn-open::before {
+  content: '📄';
+}
+
+.material-box[data-tipo="document"] .btn-open::before {
+  content: '📋';
+}
+
+/* Company Badge */
+.empresa-badge {
+  display: inline-block;
+  background: rgba(57, 255, 20, 0.2);
+  color: #39ff14;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+/* Material Divider */
+.material-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  margin: 0.75rem 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  color: var(--text-muted, #CCC);
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  color: var(--text-secondary, #CCC);
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.loading-state::before {
+  content: '⏳';
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  #estudosContainer {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .estudos-page {
+    padding: 1rem;
+  }
+  
+  .estudos-page h1 {
+    font-size: 1.5rem;
+  }
+  
+  #estudosContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: none;
+    padding: 0 0.5rem;
+  }
+  
+  .material-box {
+    padding: 1rem;
+    min-height: 260px;
+  }
+  
+  .material-box h2 {
+    font-size: 1.2rem;
+  }
+  
+  .btn-open {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 600px) {
+  #estudosContainer {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .material-box {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .estudos-page {
+    padding: 0.75rem;
+  }
+  
+  .material-box {
+    padding: 1rem;
+    min-height: 220px;
+  }
+  
+  .material-box h2 {
+    font-size: 1.1rem;
+  }
+  
+  .material-box p {
+    font-size: 0.9rem;
+  }
+  
+  .btn-open {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+  }
+}
