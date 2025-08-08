@@ -1,4 +1,6 @@
 // router.js - Sistema de Roteamento SPA para Área do Candidato
+// ÚLTIMA ATUALIZAÇÃO: 2025-01-08 - REMOVIDO handleDesenvolvimentoClick
+console.log('🔄 Router.js carregado - versão atualizada 2025-01-08');
 class CandidateRouter {
     constructor() {
         this.routes = {
@@ -6,7 +8,9 @@ class CandidateRouter {
             '/candidato/': this.renderDashboard.bind(this),
             '/candidato/perfil': this.renderPerfil.bind(this),
             '/candidato/vagas': this.renderVagas.bind(this),
-            '/candidato/estudos': this.renderEstudos.bind(this)
+            '/candidato/estudos': this.renderEstudos.bind(this),
+            '/candidato/curriculo': this.renderCurriculo.bind(this),
+            '/candidato/desenvolvimento': this.renderDesenvolvimento.bind(this)
         };
         
         this.mainContent = null;
@@ -38,65 +42,93 @@ class CandidateRouter {
     }
 
     setupNavigation() {
-        // Intercepta cliques nos botões da navbar (exceto currículo e desenvolvimento)
+        // Remove todos os listeners existentes primeiro
+        this.removeAllListeners();
+        
+        // Intercepta cliques nos botões da navbar
         const navButtons = {
             'meuPerfilBtn': '/candidato/perfil',
             'minhasVagasBtn': '/candidato/vagas',
-            'meusEstudosBtn': '/candidato/estudos'
+            'meusEstudosBtn': '/candidato/estudos',
+            'curriculoBtn': '/candidato/curriculo',
+            'meuDesenvolvimentoBtn': '/candidato/desenvolvimento'
         };
 
         Object.entries(navButtons).forEach(([buttonId, route]) => {
             const button = document.getElementById(buttonId);
             if (button) {
-                button.addEventListener('click', (e) => {
+                // Log para debug
+                console.log(`Router: Configurando listener para ${buttonId} -> ${route}`);
+                
+                // Remove qualquer onclick e href que possa existir
+                button.removeAttribute('onclick');
+                button.removeAttribute('href');
+                
+                // Force override do comportamento
+                button.onclick = (e) => {
+                    console.log(`Router: onclick override para ${buttonId}`);
                     e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     this.navigateTo(route);
-                });
+                    return false;
+                };
+                
+                // Remove listeners existentes e adiciona o novo com captura
+                button.addEventListener('click', (e) => {
+                    console.log(`Router: Interceptando clique em ${buttonId}`);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    this.navigateTo(route);
+                    return false;
+                }, true);
+                
+                // Adiciona um segundo listener sem captura como fallback
+                button.addEventListener('click', (e) => {
+                    console.log(`Router: Interceptando clique (fallback) em ${buttonId}`);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    this.navigateTo(route);
+                    return false;
+                }, false);
             }
         });
-
-        // Botões que abrem em nova aba (não interceptados pelo router)
-        // Usar setTimeout para garantir que estes listeners sejam adicionados por último
-        setTimeout(() => {
-            const curriculoBtn = document.getElementById('curriculoBtn');
-            if (curriculoBtn) {
-                // Remove qualquer listener existente
-                curriculoBtn.removeEventListener('click', this.handleCurriculoClick);
-                
-                // Adiciona novo listener com alta prioridade
-                curriculoBtn.addEventListener('click', this.handleCurriculoClick, true);
-            }
-
-            const desenvolvimentoBtn = document.getElementById('meuDesenvolvimentoBtn');
-            if (desenvolvimentoBtn) {
-                // Remove qualquer listener existente
-                desenvolvimentoBtn.removeEventListener('click', this.handleDesenvolvimentoClick);
-                
-                // Adiciona novo listener com alta prioridade
-                desenvolvimentoBtn.addEventListener('click', this.handleDesenvolvimentoClick, true);
-            }
-        }, 100);
     }
 
-    handleCurriculoClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+    removeAllListeners() {
+        // Remove listeners antigos clonando e substituindo elementos
+        const navButtons = [
+            'meuPerfilBtn', 'minhasVagasBtn', 'meusEstudosBtn', 
+            'curriculoBtn', 'meuDesenvolvimentoBtn'
+        ];
         
-        console.log('Abrindo currículo em nova aba');
-        window.open('/candidato/curriculo-melhor.html', '_blank');
-        return false;
+        navButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                const newButton = button.cloneNode(true);
+                // Remove qualquer atributo que possa causar navegação
+                newButton.removeAttribute('onclick');
+                newButton.removeAttribute('href');
+                newButton.removeAttribute('target');
+                button.parentNode.replaceChild(newButton, button);
+            }
+        });
+        
+        // Especial para o botão de desenvolvimento - recriar completamente
+        const devBtn = document.getElementById('meuDesenvolvimentoBtn');
+        if (devBtn) {
+            console.log('Router: Recriando botão de desenvolvimento completamente');
+            const newDevBtn = document.createElement('button');
+            newDevBtn.id = 'meuDesenvolvimentoBtn';
+            newDevBtn.className = 'btn';
+            newDevBtn.type = 'button';
+            newDevBtn.textContent = 'Meu Desenvolvimento';
+            devBtn.parentNode.replaceChild(newDevBtn, devBtn);
+        }
     }
 
-    handleDesenvolvimentoClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        console.log('Abrindo entrevistas em nova aba');
-        window.open('/candidato/entrevistas.html', '_blank');
-        return false;
-    }
 
     navigateTo(route) {
         // Atualiza a URL sem recarregar a página
@@ -107,6 +139,9 @@ class CandidateRouter {
     handleRoute() {
         const path = window.location.pathname;
         const route = this.routes[path];
+        
+        // Limpa estados específicos de páginas
+        this.mainContent.classList.remove('curriculo-mode', 'entrevistas-mode');
         
         if (route) {
             route();
@@ -165,8 +200,8 @@ class CandidateRouter {
                                     <p>Materiais de aprendizado</p>
                                 </div>
                                 <div class="quick-access-card" onclick="candidateRouter.navigateTo('/candidato/desenvolvimento')">
-                                    <h3>🚀 Desenvolvimento</h3>
-                                    <p>Progresso e entrevistas</p>
+                                    <h3>🚀 Meu Desenvolvimento</h3>
+                                    <p>Entrevistas e progresso</p>
                                 </div>
                             </div>
                         </div>
@@ -266,6 +301,209 @@ class CandidateRouter {
         }
     }
 
+    // Rota: /candidato/curriculo
+    async renderCurriculo() {
+        try {
+            // Carrega o HTML completo da página de currículo
+            const response = await fetch('/candidato/curriculo-melhor.html');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Carrega os CSS necessários dinamicamente
+            await this.loadCurriculumStyles(doc);
+            
+            // Extrai apenas o conteúdo da div .page (sem header)
+            const pageDiv = doc.querySelector('.page');
+            const pageContent = pageDiv ? pageDiv.outerHTML : doc.body.innerHTML;
+            
+            // Adiciona classe para modificar estilos do container principal
+            this.mainContent.classList.add('curriculo-mode');
+            
+            // Usa o container padrão como outras seções
+            this.mainContent.innerHTML = this.createPageContainer(
+                'Comparativo de Currículo',
+                `<div class="curriculo-page">${pageContent}</div>`
+            );
+            
+            // Executa os scripts da página de currículo
+            this.executeScripts(doc);
+            
+        } catch (error) {
+            console.error('Erro ao carregar currículo:', error);
+            this.mainContent.innerHTML = this.createPageContainer(
+                'Erro',
+                `<p>Erro ao carregar página de currículo: ${error.message}</p>`
+            );
+        }
+    }
+
+    // Rota: /candidato/desenvolvimento
+    async renderDesenvolvimento() {
+        try {
+            // Carrega o HTML completo da página de entrevistas
+            const response = await fetch('/candidato/entrevistas.html');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Carrega os CSS necessários dinamicamente
+            await this.loadEntrevistasStyles(doc);
+            
+            // Extrai o conteúdo principal (sem header)
+            const containerDiv = doc.querySelector('.container');
+            const containerContent = containerDiv ? containerDiv.outerHTML : doc.body.innerHTML;
+            
+            // Adiciona classe para modificar estilos do container principal
+            this.mainContent.classList.add('entrevistas-mode');
+            
+            // Usa o container padrão como outras seções
+            this.mainContent.innerHTML = this.createPageContainer(
+                'Meu Desenvolvimento',
+                `<div class="entrevistas-page">${containerContent}</div>`
+            );
+            
+            // Executa os scripts da página de entrevistas
+            this.executeScripts(doc);
+            
+        } catch (error) {
+            console.error('Erro ao carregar desenvolvimento:', error);
+            this.mainContent.innerHTML = this.createPageContainer(
+                'Erro',
+                `<p>Erro ao carregar página de desenvolvimento: ${error.message}</p>`
+            );
+        }
+    }
+
+    // Carrega os estilos CSS necessários para o currículo
+    async loadCurriculumStyles(doc) {
+        // CSS específicos que o currículo precisa
+        const requiredCssFiles = [
+            '/css/base.css',
+            '/css/components/buttons.css', 
+            '/css/pages/curriculo.css'
+        ];
+        
+        const loadPromises = [];
+        
+        for (const cssPath of requiredCssFiles) {
+            const id = 'curriculum-' + cssPath.split('/').pop().replace('.css', '');
+            
+            // Verifica se o CSS já foi carregado
+            if (!document.getElementById(id)) {
+                console.log('Carregando CSS:', cssPath);
+                const promise = new Promise((resolve, reject) => {
+                    const linkElement = document.createElement('link');
+                    linkElement.id = id;
+                    linkElement.rel = 'stylesheet';
+                    linkElement.href = cssPath;
+                    linkElement.onload = () => {
+                        console.log('CSS carregado:', cssPath);
+                        resolve();
+                    };
+                    linkElement.onerror = (error) => {
+                        console.error('Erro ao carregar CSS:', cssPath, error);
+                        reject(error);
+                    };
+                    document.head.appendChild(linkElement);
+                });
+                loadPromises.push(promise);
+            }
+        }
+        
+        // Aguarda todos os CSS carregarem
+        if (loadPromises.length > 0) {
+            try {
+                await Promise.all(loadPromises);
+                console.log('Todos os CSS do currículo carregados com sucesso');
+                // Pequeno delay para garantir que os estilos sejam aplicados
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (error) {
+                console.warn('Erro ao carregar alguns CSS do currículo:', error);
+            }
+        }
+    }
+
+    // Carrega os estilos CSS necessários para as entrevistas
+    async loadEntrevistasStyles(doc) {
+        // CSS específicos que as entrevistas precisam
+        const requiredCssFiles = [
+            '/css/base.css',
+            '/css/components/buttons.css',
+            '/css/components/forms.css', 
+            '/css/pages/entrevistas.css'
+        ];
+        
+        const loadPromises = [];
+        
+        for (const cssPath of requiredCssFiles) {
+            const id = 'entrevistas-' + cssPath.split('/').pop().replace('.css', '');
+            
+            // Verifica se o CSS já foi carregado
+            if (!document.getElementById(id)) {
+                console.log('Carregando CSS:', cssPath);
+                const promise = new Promise((resolve, reject) => {
+                    const linkElement = document.createElement('link');
+                    linkElement.id = id;
+                    linkElement.rel = 'stylesheet';
+                    linkElement.href = cssPath;
+                    linkElement.onload = () => {
+                        console.log('CSS carregado:', cssPath);
+                        resolve();
+                    };
+                    linkElement.onerror = (error) => {
+                        console.error('Erro ao carregar CSS:', cssPath, error);
+                        reject(error);
+                    };
+                    document.head.appendChild(linkElement);
+                });
+                loadPromises.push(promise);
+            }
+        }
+        
+        // Aguarda todos os CSS carregarem
+        if (loadPromises.length > 0) {
+            try {
+                await Promise.all(loadPromises);
+                console.log('Todos os CSS de entrevistas carregados com sucesso');
+                // Pequeno delay para garantir que os estilos sejam aplicados
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (error) {
+                console.warn('Erro ao carregar alguns CSS de entrevistas:', error);
+            }
+        }
+    }
+
+    // Executa scripts de uma página carregada
+    executeScripts(doc) {
+        const scripts = doc.querySelectorAll('script');
+        scripts.forEach(script => {
+            if (script.src) {
+                // Script externo
+                const newScript = document.createElement('script');
+                newScript.src = script.src;
+                document.head.appendChild(newScript);
+            } else if (script.textContent) {
+                // Script inline
+                try {
+                    // Cria um contexto isolado para o script
+                    const scriptFunction = new Function(script.textContent);
+                    scriptFunction.call(window);
+                } catch (error) {
+                    console.warn('Erro ao executar script do currículo:', error);
+                }
+            }
+        });
+    }
+
     // Utility: Cria container padronizado para páginas
     createPageContainer(title, content) {
         return `
@@ -286,3 +524,22 @@ class CandidateRouter {
 
 // Instância global do router
 window.candidateRouter = null;
+
+// Inicialização com delay para garantir que todos os outros scripts executem primeiro
+document.addEventListener('DOMContentLoaded', () => {
+    // Delay para garantir que outros scripts sejam processados primeiro
+    setTimeout(() => {
+        if (!window.candidateRouter) {
+            window.candidateRouter = new CandidateRouter();
+        }
+    }, 200);
+});
+
+// Fallback caso o router não seja inicializado automaticamente
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (!window.candidateRouter) {
+            window.candidateRouter = new CandidateRouter();
+        }
+    }, 500);
+});

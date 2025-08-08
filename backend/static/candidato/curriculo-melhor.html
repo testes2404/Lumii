@@ -5,78 +5,14 @@
   <title>Comparativo de Currículo • Original vs Melhorado</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-main:#F2F4F8;
-      --sidebar-bg:#0F2D4A;
-      --accent:#1E90FF;
-      --text-dark:#1F2833;
-      --transition:.3s;
-    }
-    *{box-sizing:border-box; scrollbar-width:none; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
-    *::-webkit-scrollbar{width:0;height:0;}
-    body{margin:0;background: var(--bg-main);font-family: 'Inter',system-ui,-apple-system,sans-serif;color: var(--text-dark);padding:1rem 1.5rem;line-height:1.4;-webkit-font-smoothing:antialiased;}
-    h1{font-size:1.8rem;margin:0 0 .5rem;font-weight:700;}
-    .page{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
-    .resume{display:flex;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 40px 80px -20px rgba(0,0,0,0.1);min-height:700px;position:relative;}
-    .sidebar{background: var(--sidebar-bg);padding:2rem 1.75rem;color:#fff;display:flex;flex-direction:column;gap:1rem;flex:0 0 260px;position:relative;}
-    .main{padding:2rem 1.75rem;flex:1;display:flex;flex-direction:column;gap:1.25rem;}
-    .name{font-size:1.7rem;font-weight:700;margin:0;letter-spacing:0.5px;}
-    .title{font-size:1rem;font-weight:500;margin:4px 0 10px;opacity:.9;}
-    .summary{font-size:.9rem;margin:0;line-height:1.35;}
-    .section{display:flex;flex-direction:column;gap:6px;}
-    .section h3{margin:0;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:6px;}
-    .subtle{font-size:.8rem;color:#555;}
-    .item{margin-top:8px;}
-    .item-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px;}
-    .item-title{font-weight:600;font-size:.95rem;margin:0;}
-    .item-meta{font-size:.75rem;color:#777;}
-    .skill{display:flex;flex-direction:column;gap:4px;margin-bottom:6px;}
-    .skill-name{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;}
-    .bar-wrapper{background:#e6e9f0;border-radius:6px;overflow:hidden;height:8px;}
-    .bar{height:100%;background: var(--accent);transition:width .3s;}
-    .contact-item,.lang-item{display:flex;align-items:center;gap:8px;font-size:.8rem;margin-bottom:6px;}
-    .divider{height:1px;background:rgba(0,0,0,0.05);margin:12px 0;}
-    .badge{background: var(--accent);color:#fff;padding:4px 12px;border-radius:999px;font-size:.65rem;display:inline-block;margin-right:4px;}
-    .header-compare{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
-    .meta-small{font-size:.65rem;color:#888;}
-    .btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:600;background: var(--accent);color:#fff;display:inline-flex;gap:6px;transition:var(--transition);}
-    .btn-secondary{background:#444;color:#fff;}
-    .analysis-box{background:#f9f9fc;border:1px solid #dfe2ea;border-radius:10px;padding:14px;margin-top:12px;font-size:.85rem;}
-    .analysis-title{font-weight:700;margin-bottom:6px;color:#1f3d7a;}
-    .pill{display:inline-block;background:#e8f0ff;color:#1a4f9c;padding:4px 10px;border-radius:999px;font-size:0.65rem;margin-right:4px;margin-bottom:4px;}
-    .recommendation-item{margin-bottom:4px;display:flex;gap:8px;}
-    .quality-score{margin-top:6px;font-size:.85rem;font-weight:600;color:#1e4d8b;}
-    .toast {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      background: #1f8f3e;
-      color: white;
-      padding: 12px 18px;
-      border-radius: 8px;
-      box-shadow: 0 20px 40px -10px rgba(31,143,62,0.5);
-      font-weight:600;
-      z-index: 1000;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .toast.fallback { background: #d9821f; }
-
-    @media print {
-      body { background: none !important; padding:0; }
-      .page { grid-template-columns:1fr; }
-      .resume { box-shadow: none; }
-      .resume[aria-label="Currículo original"] { display: none !important; }
-      .analysis-box { display: none !important; }
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .btn { display:none; }
-      h1 { color: inherit; }
-    }
-  </style>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/buttons.css">
+  <link rel="stylesheet" href="../css/pages/curriculo.css">
+  
 </head>
-<body>
+<body class="curriculo-page">
 
   <header>
     <h1>Comparativo de Currículo</h1>
