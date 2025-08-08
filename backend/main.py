@@ -3,6 +3,14 @@
 import os
 from dotenv import load_dotenv
 
+# 1) Carrega variáveis de ambiente de um arquivo .env PRIMEIRO
+load_dotenv()
+
+# Verificação de ambiente para debug (apenas em desenvolvimento)
+if os.getenv('DEBUG') == 'true':
+    print(f"DEBUG - ENVIRONMENT: {os.getenv('ENVIRONMENT')}")
+    print(f"DEBUG - Firebase API Key carregada: {'OK' if os.getenv('FIREBASE_API_KEY') else 'ERRO'}")
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,9 +19,6 @@ from fastapi.exceptions import HTTPException as FastAPIHTTPException
 from pydantic import BaseModel
 
 from google.cloud import aiplatform
-
-# 1) Carrega variáveis de ambiente de um arquivo .env (GCP_PROJECT, GCP_REGION, etc.)
-load_dotenv()
 
 # 2) Inicializa o Vertex AI (AI Platform) com seu projeto e região
 aiplatform.init(
@@ -55,17 +60,23 @@ def get_config():
         "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
     }
     
+    # Debug apenas em desenvolvimento
+    if os.getenv('DEBUG') == 'true':
+        print("DEBUG - Verificando variaveis de ambiente na rota /api/config")
+        print(f"FIREBASE_PROJECT_ID: {os.getenv('FIREBASE_PROJECT_ID')}")
+        print(f"Variaveis carregadas: {len([v for v in firebase_config.values() if v])}/{len(firebase_config)}")
+    
     # Verifica se todas as variáveis estão configuradas
     missing_vars = [key for key, value in firebase_config.items() if not value]
     if missing_vars:
-        print(f"⚠️ Variáveis de ambiente não configuradas: {missing_vars}")
+        print(f"AVISO - Variaveis de ambiente nao configuradas: {missing_vars}")
         raise HTTPException(
             status_code=500, 
-            detail=f"Variáveis de ambiente Firebase não configuradas: {missing_vars}"
+            detail=f"Variaveis de ambiente Firebase nao configuradas: {missing_vars}"
         )
     
     # Log apenas para indicar sucesso (sem expor credenciais)
-    print("✅ Todas as variáveis Firebase carregadas do ambiente")
+    print("SUCESSO - Todas as variaveis Firebase carregadas do ambiente")
     
     return {
         "firebase": firebase_config,
@@ -106,16 +117,6 @@ async def serve_candidato_vagas():
 async def serve_candidato_estudos():
     """Serve redirecionamento para /candidato/estudos"""
     return FileResponse("static/candidato/estudos/index.html")
-
-@app.get("/candidato/desenvolvimento")
-async def serve_candidato_desenvolvimento():
-    """Serve redirecionamento para /candidato/desenvolvimento"""
-    return FileResponse("static/candidato/desenvolvimento/index.html")
-
-@app.get("/candidato/curriculo")
-async def serve_candidato_curriculo():
-    """Serve redirecionamento para /candidato/curriculo"""
-    return FileResponse("static/candidato/curriculo/index.html")
 
 # 9) Monta arquivos estáticos normalmente
 app.mount(

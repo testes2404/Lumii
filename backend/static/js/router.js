@@ -6,9 +6,7 @@ class CandidateRouter {
             '/candidato/': this.renderDashboard.bind(this),
             '/candidato/perfil': this.renderPerfil.bind(this),
             '/candidato/vagas': this.renderVagas.bind(this),
-            '/candidato/estudos': this.renderEstudos.bind(this),
-            '/candidato/desenvolvimento': this.renderDesenvolvimento.bind(this),
-            '/candidato/curriculo': this.renderCurriculo.bind(this)
+            '/candidato/estudos': this.renderEstudos.bind(this)
         };
         
         this.mainContent = null;
@@ -40,13 +38,11 @@ class CandidateRouter {
     }
 
     setupNavigation() {
-        // Intercepta cliques nos botões da navbar
+        // Intercepta cliques nos botões da navbar (exceto currículo e desenvolvimento)
         const navButtons = {
             'meuPerfilBtn': '/candidato/perfil',
             'minhasVagasBtn': '/candidato/vagas',
-            'meusEstudosBtn': '/candidato/estudos',
-            'meuDesenvolvimentoBtn': '/candidato/desenvolvimento',
-            'curriculoBtn': '/candidato/curriculo'
+            'meusEstudosBtn': '/candidato/estudos'
         };
 
         Object.entries(navButtons).forEach(([buttonId, route]) => {
@@ -58,6 +54,48 @@ class CandidateRouter {
                 });
             }
         });
+
+        // Botões que abrem em nova aba (não interceptados pelo router)
+        // Usar setTimeout para garantir que estes listeners sejam adicionados por último
+        setTimeout(() => {
+            const curriculoBtn = document.getElementById('curriculoBtn');
+            if (curriculoBtn) {
+                // Remove qualquer listener existente
+                curriculoBtn.removeEventListener('click', this.handleCurriculoClick);
+                
+                // Adiciona novo listener com alta prioridade
+                curriculoBtn.addEventListener('click', this.handleCurriculoClick, true);
+            }
+
+            const desenvolvimentoBtn = document.getElementById('meuDesenvolvimentoBtn');
+            if (desenvolvimentoBtn) {
+                // Remove qualquer listener existente
+                desenvolvimentoBtn.removeEventListener('click', this.handleDesenvolvimentoClick);
+                
+                // Adiciona novo listener com alta prioridade
+                desenvolvimentoBtn.addEventListener('click', this.handleDesenvolvimentoClick, true);
+            }
+        }, 100);
+    }
+
+    handleCurriculoClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        console.log('Abrindo currículo em nova aba');
+        window.open('/candidato/curriculo-melhor.html', '_blank');
+        return false;
+    }
+
+    handleDesenvolvimentoClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        console.log('Abrindo entrevistas em nova aba');
+        window.open('/candidato/entrevistas.html', '_blank');
+        return false;
     }
 
     navigateTo(route) {
@@ -228,30 +266,6 @@ class CandidateRouter {
         }
     }
 
-    // Rota: /candidato/desenvolvimento
-    async renderDesenvolvimento() {
-        if (window.loadPageContent) {
-            await window.loadPageContent('entrevistas.html', 'Meu Desenvolvimento');
-        } else {
-            this.mainContent.innerHTML = this.createPageContainer(
-                'Erro',
-                '<p>Função de carregamento não encontrada.</p>'
-            );
-        }
-    }
-
-    // Rota: /candidato/curriculo
-    async renderCurriculo() {
-        if (window.loadPageContent) {
-            await window.loadPageContent('curriculo-melhor.html', 'Meu Currículo');
-        } else {
-            this.mainContent.innerHTML = this.createPageContainer(
-                'Erro',
-                '<p>Função de carregamento não encontrada.</p>'
-            );
-        }
-    }
-
     // Utility: Cria container padronizado para páginas
     createPageContainer(title, content) {
         return `
@@ -267,7 +281,7 @@ class CandidateRouter {
         `;
     }
 
-    // Método executeScripts removido - agora usa window.loadPageContent
+    // Método executeScripts removido - não necessário para nova aba
 }
 
 // Instância global do router
