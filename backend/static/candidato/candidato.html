@@ -298,22 +298,19 @@
       
       vagas.forEach(v => {
         const isApp = appliedVagaIds.has(v.id);
-        const cls = isApp ? 'btn-candidate btn-applied' : 'btn-candidate';
-        const txt = isApp ? 'Candidatura Aplicada' : 'Candidatar-se';
-        const href = isApp ? '#' : `candidatura.html?vagaId=${encodeURIComponent(v.id)}`;
         
         const div = document.createElement('div');
         div.className = 'vaga-item';
+        div.dataset.vagaId = v.id;
         div.style.cssText = `
           background: rgba(255,255,255,0.05);
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255,255,255,0.2);
           border-radius: 12px;
           padding: 1rem;
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 1rem;
           margin-bottom: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
         `;
         
         div.innerHTML = `
@@ -324,34 +321,539 @@
               ? v.salary.toLocaleString('pt-BR',{minimumFractionDigits:2})
               : '-'
             }</p>
-            <p style="margin: 0.25rem 0; color: #CCC; font-size: 0.9rem;">${v.description}</p>
-          </div>
-          <div class="vaga-actions">
-            <a href="${href}" class="${cls}" style="padding: 0.5rem 1rem; border: none; border-radius: 6px; background: ${isApp ? '#444' : '#39ff14'}; color: ${isApp ? '#888' : '#0A0A0A'}; font-weight: 600; cursor: ${isApp ? 'not-allowed' : 'pointer'}; text-decoration: none; transition: opacity .3s; display: inline-block;">${txt}</a>
+            <p style="margin: 0.25rem 0; color: #CCC; font-size: 0.9rem; line-height: 1.4;">${v.description}</p>
+            ${isApp ? '<div style="margin-top: 0.5rem; color: #39ff14; font-size: 0.8rem; font-weight: 600;">✅ Candidatura Aplicada</div>' : ''}
           </div>
         `;
         
-        listaVagasEl.appendChild(div);
-        
-        if (!isApp) {
-          div.querySelector('a').addEventListener('click', () => {
-            localStorage.setItem('vagaId', v.id);
-            localStorage.setItem('companyEmail', v.companyEmail);
-            const candidateEmail = localStorage.getItem('candidateEmail') || 'desconhecido';
-            localStorage.setItem('userEmail', candidateEmail);
-            
-            // Adiciona listener para quando a página retornar
-            window.addEventListener('focus', () => {
-              // Recarrega as candidaturas quando a página ganha foco novamente
-              setTimeout(() => {
-                loadVagasInterna();
-              }, 1000);
-            }, { once: true });
+        // Adiciona evento de clique para mostrar detalhes
+        div.addEventListener('click', () => {
+          // Remove seleção anterior
+          document.querySelectorAll('.vaga-item').forEach(item => {
+            item.style.border = '1px solid rgba(255,255,255,0.2)';
           });
-        }
+          
+          // Marca como selecionada
+          div.style.border = '2px solid #39ff14';
+          
+          // Carrega detalhes no painel direito
+          showVagaDetails(v, isApp);
+        });
+        
+        listaVagasEl.appendChild(div);
       });
     }
     
+    // Função para mostrar detalhes da vaga no painel direito
+    window.showVagaDetails = function(vaga, isApplied) {
+      const detailsPanel = document.getElementById('vagaDetailsPanel');
+      
+      detailsPanel.innerHTML = `
+        <div class="vaga-header" style="margin-bottom: 1.5rem;">
+          <h2 style="color: #FFF; margin-bottom: 0.5rem; font-size: 1.4rem;">${vaga.title}</h2>
+          <p style="color: #CCC; margin-bottom: 0.25rem;"><strong>Empresa:</strong> ${vaga.companyName}</p>
+          <p style="color: #CCC; margin-bottom: 1rem;"><strong>Salário:</strong> R$ ${typeof vaga.salary==='number'
+            ? vaga.salary.toLocaleString('pt-BR',{minimumFractionDigits:2})
+            : '-'
+          }</p>
+        </div>
+        
+        
+        <div class="candidatura-actions">
+          ${isApplied ? 
+            '<div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; border: 1px solid rgba(57, 255, 20, 0.3);"><p style="color: #39ff14; font-weight: 600;">✅ Você já se candidatou para esta vaga</p></div>' 
+            : 
+            `<div class="candidatura-buttons">
+              <div id="candidaturaButtons" style="margin-bottom: 1rem;">
+                <!-- Botões serão inseridos dinamicamente -->
+              </div>
+              <div id="candidaturaContent" style="margin-top: 1rem;"></div>
+            </div>`
+          }
+        </div>
+      `;
+      
+      if (!isApplied) {
+        // Configura eventos dos botões de candidatura dinamicamente
+        setTimeout(() => setupCandidaturaButtonsAsync(vaga), 300);
+      }
+    }
+    
+    // Função assíncrona para configurar botões de candidatura dinamicamente
+    window.setupCandidaturaButtonsAsync = async function(vaga) {
+      // Armazena dados da vaga no localStorage
+      localStorage.setItem('vagaId', vaga.id);
+      localStorage.setItem('companyEmail', vaga.companyEmail);
+      const candidateEmail = localStorage.getItem('candidateEmail') || 'desconhecido';
+      localStorage.setItem('userEmail', candidateEmail);
+      
+      const candidaturaButtons = document.getElementById('candidaturaButtons');
+      const candidaturaContent = document.getElementById('candidaturaContent');
+      
+      if (!candidaturaButtons || !candidateEmail) return;
+      
+      try {
+        // Verifica respostas já salvas
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const respostasRef = doc(window.db, 'respostas-valores-dinamicas-trilhas', candidateEmail);
+        const respostasSnap = await getDoc(respostasRef);
+        const savedData = respostasSnap.exists() ? respostasSnap.data() : {};
+        
+        let buttonsHTML = '';
+        let firstAvailableStep = null;
+        
+        // Verifica Valores
+        if (!savedData.respostasValores?.length) {
+          const valoresExistem = await checkValoresExistem(vaga.companyEmail);
+          if (valoresExistem) {
+            buttonsHTML += '<button id="btnValoresCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Valores</button>';
+            if (!firstAvailableStep) firstAvailableStep = 'valores';
+          }
+        }
+        
+        // Verifica Dinâmicas
+        if (!savedData.respostasDinamicas?.length) {
+          const dinamicasExistem = await checkDinamicasExistem(vaga.companyEmail);
+          if (dinamicasExistem) {
+            buttonsHTML += '<button id="btnDinamicasCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Dinâmicas</button>';
+            if (!firstAvailableStep) firstAvailableStep = 'dinamicas';
+          }
+        }
+        
+        // Verifica Trilhas
+        if (!savedData.respostasTrilhas || !Object.keys(savedData.respostasTrilhas).length) {
+          const trilhasExistem = await checkTrilhasExistem();
+          if (trilhasExistem) {
+            buttonsHTML += '<button id="btnTrilhasCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Trilhas</button>';
+            if (!firstAvailableStep) firstAvailableStep = 'trilhas';
+          }
+        }
+        
+        // Insere os botões ou mensagem de conclusão
+        if (buttonsHTML) {
+          candidaturaButtons.innerHTML = buttonsHTML;
+          
+          // Configura event listeners
+          const btnValores = document.getElementById('btnValoresCandidatura');
+          const btnDinamicas = document.getElementById('btnDinamicasCandidatura');
+          const btnTrilhas = document.getElementById('btnTrilhasCandidatura');
+          
+          if (btnValores) {
+            btnValores.addEventListener('click', () => loadCandidaturaStep('valores', candidaturaContent));
+          }
+          if (btnDinamicas) {
+            btnDinamicas.addEventListener('click', () => loadCandidaturaStep('dinamicas', candidaturaContent));
+          }
+          if (btnTrilhas) {
+            btnTrilhas.addEventListener('click', () => loadCandidaturaStep('trilhas', candidaturaContent));
+          }
+          
+          // Auto-carrega a primeira etapa disponível
+          if (firstAvailableStep) {
+            setTimeout(() => {
+              loadCandidaturaStep(firstAvailableStep, candidaturaContent);
+              const btnId = `btn${firstAvailableStep.charAt(0).toUpperCase() + firstAvailableStep.slice(1)}Candidatura`;
+              const btn = document.getElementById(btnId);
+              if (btn) {
+                btn.style.background = 'rgba(57, 255, 20, 1)';
+                btn.style.transform = 'scale(1.05)';
+              }
+            }, 200);
+          }
+        } else {
+          // Todas as etapas foram respondidas ou não há etapas disponíveis
+          candidaturaButtons.innerHTML = `
+            <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; border: 1px solid rgba(57, 255, 20, 0.3);">
+              <p style="color: #39ff14; font-weight: 600;">✅ Todas as etapas de candidatura foram concluídas</p>
+            </div>
+          `;
+        }
+        
+      } catch (error) {
+        candidaturaButtons.innerHTML = '<p style="color: #ff6b6b; text-align: center;">Erro ao carregar etapas de candidatura</p>';
+      }
+    }
+    
+    // Função para verificar se valores existem para a empresa
+    window.checkValoresExistem = async function(companyEmail) {
+      try {
+        const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const docId = companyEmail.replace(/[@.]/g,'_');
+        const snap = await getDocs(query(collection(window.db,'valores_unicos'), where('__name__','==',docId)));
+        return !snap.empty && snap.docs[0].data().valores?.length > 0;
+      } catch (error) {
+        return false;
+      }
+    }
+    
+    // Função para verificar se dinâmicas existem para a empresa
+    window.checkDinamicasExistem = async function(companyEmail) {
+      try {
+        const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const docId = companyEmail.replace(/[@.]/g,'_');
+        const snap = await getDocs(query(collection(window.db,'dinamicas_unicas'), where('__name__','==',docId)));
+        return !snap.empty && snap.docs[0].data().dinamicas?.length > 0;
+      } catch (error) {
+        return false;
+      }
+    }
+    
+    // Função para verificar se trilhas existem
+    window.checkTrilhasExistem = async function() {
+      try {
+        const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const snap = await getDocs(collection(window.db,'trilhas'));
+        return !snap.empty;
+      } catch (error) {
+        return false;
+      }
+    }
+    
+    // Função para carregar etapa de candidatura
+    window.loadCandidaturaStep = async function(step, container) {
+      const vagaId = localStorage.getItem('vagaId');
+      const companyEmail = localStorage.getItem('companyEmail');
+      const userEmail = localStorage.getItem('candidateEmail');
+      
+      if (!userEmail) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(255,0,0,0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,0,0,0.3);">
+            <p style="color: #ff6b6b;">Erro: e-mail do usuário não encontrado.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; margin-top: 1rem;">
+          <p style="color: #CCC;">Carregando ${step}...</p>
+        </div>
+      `;
+
+      try {
+        // Verifica se já respondeu esta etapa
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const respostasRef = doc(window.db, 'respostas-valores-dinamicas-trilhas', userEmail);
+        const respostasSnap = await getDoc(respostasRef);
+        const savedData = respostasSnap.exists() ? respostasSnap.data() : {};
+
+        if (step === 'valores') {
+          await loadValoresStep(container, companyEmail, savedData);
+        } else if (step === 'dinamicas') {
+          await loadDinamicasStep(container, companyEmail, savedData);
+        } else if (step === 'trilhas') {
+          await loadTrilhasStep(container, savedData);
+        }
+      } catch (error) {
+        console.error(`Erro ao carregar ${step}:`, error);
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(255,0,0,0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,0,0,0.3);">
+            <p style="color: #ff6b6b;">Erro ao carregar ${step}. Tente novamente.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Função para carregar etapa de valores
+    window.loadValoresStep = async function(container, companyEmail, savedData) {
+      if (savedData.respostasValores?.length) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+      const docId = companyEmail.replace(/[@.]/g,'_');
+      const snap = await getDocs(query(collection(window.db,'valores_unicos'), where('__name__','==',docId)));
+      
+      if (snap.empty) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(255,255,0,0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,0,0.3);">
+            <p style="color: #ffeb3b;">Nenhum valor encontrado para esta empresa.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const valores = snap.docs[0].data().valores || [];
+      
+      let html = '<div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-top: 1rem;"><h4 style="color: #FFF; margin-bottom: 1rem;">Valores da Empresa</h4>';
+      
+      valores.forEach((v, i) => {
+        html += `
+          <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            <strong style="color: #39ff14;">${v.nomeValor}:</strong>
+            <p style="color: #DDD; margin: 0.5rem 0; font-size: 0.9rem;">${v.explicacao}</p>
+            <textarea id="val_${i}" placeholder="Sua resposta..." style="width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: #FFF; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+        `;
+      });
+      
+      html += '<button id="btnSalvarValoresInline" style="width: 100%; padding: 0.8rem; margin-top: 1rem; background: #39ff14; color: #0A0A0A; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Salvar Respostas dos Valores</button></div>';
+      
+      container.innerHTML = html;
+      
+      // Configura evento do botão salvar
+      document.getElementById('btnSalvarValoresInline').addEventListener('click', () => saveValoresInline(valores, container));
+    }
+
+    // Função para salvar valores inline
+    window.saveValoresInline = async function(valores, container) {
+      const respostas = [];
+      valores.forEach((v, i) => {
+        const textarea = document.getElementById(`val_${i}`);
+        const texto = textarea.value.trim();
+        if (texto) {
+          respostas.push({ nomeValor: v.nomeValor, resposta: texto });
+        }
+      });
+
+      if (!respostas.length) {
+        alert('Preencha ao menos uma resposta.');
+        return;
+      }
+
+      try {
+        const { doc, setDoc, addDoc, collection, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        
+        const vagaId = localStorage.getItem('vagaId');
+        const companyEmail = localStorage.getItem('companyEmail');
+        const userEmail = localStorage.getItem('candidateEmail');
+        
+        const respostasRef = doc(window.db, 'respostas-valores-dinamicas-trilhas', userEmail);
+        
+        await setDoc(respostasRef, {
+          companyEmail, vagaId, userEmail,
+          respostasValores: respostas, 
+          timestamp: serverTimestamp()
+        }, { merge: true });
+        
+        // Registra candidatura realizada
+        await addDoc(collection(window.db, 'candidaturas-realizadas'), {
+          vagaId: vagaId,
+          userEmail: userEmail,
+          companyEmail: companyEmail,
+          status: 'candidatura_feita',
+          timestamp: serverTimestamp()
+        });
+
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Respostas dos valores salvas com sucesso!</p>
+          </div>
+        `;
+        
+        // Recarrega a lista de vagas para atualizar status
+        if (window.loadVagasInterna) {
+          window.loadVagasInterna();
+        }
+      } catch (error) {
+        console.error('Erro ao salvar valores:', error);
+        alert('Erro ao salvar respostas. Tente novamente.');
+      }
+    }
+
+    // Função para carregar etapa de dinâmicas
+    window.loadDinamicasStep = async function(container, companyEmail, savedData) {
+      if (savedData.respostasDinamicas?.length) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+      const docId = companyEmail.replace(/[@.]/g,'_');
+      const snap = await getDocs(query(collection(window.db,'dinamicas_unicas'), where('__name__','==',docId)));
+      
+      if (snap.empty) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(255,255,0,0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,0,0.3);">
+            <p style="color: #ffeb3b;">Nenhuma dinâmica encontrada para esta empresa.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const dinamicas = snap.docs[0].data().dinamicas || [];
+      
+      let html = '<div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-top: 1rem;"><h4 style="color: #FFF; margin-bottom: 1rem;">Dinâmicas Propostas</h4>';
+      
+      dinamicas.forEach((d, i) => {
+        html += `
+          <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            <strong style="color: #39ff14;">${d.nomeDinamica}:</strong>
+            <p style="color: #DDD; margin: 0.5rem 0; font-size: 0.9rem;">${d.explicacao}</p>
+            <textarea id="din_${i}" placeholder="Sua resposta..." style="width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: #FFF; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+        `;
+      });
+      
+      html += '<button id="btnSalvarDinamicasInline" style="width: 100%; padding: 0.8rem; margin-top: 1rem; background: #39ff14; color: #0A0A0A; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Salvar Respostas das Dinâmicas</button></div>';
+      
+      container.innerHTML = html;
+      
+      // Configura evento do botão salvar
+      document.getElementById('btnSalvarDinamicasInline').addEventListener('click', () => saveDinamicasInline(dinamicas, container));
+    }
+
+    // Função para salvar dinâmicas inline
+    window.saveDinamicasInline = async function(dinamicas, container) {
+      const respostas = [];
+      dinamicas.forEach((d, i) => {
+        const textarea = document.getElementById(`din_${i}`);
+        const texto = textarea.value.trim();
+        if (texto) {
+          respostas.push({ nomeDinamica: d.nomeDinamica, resposta: texto });
+        }
+      });
+
+      if (!respostas.length) {
+        alert('Preencha ao menos uma resposta.');
+        return;
+      }
+
+      try {
+        const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        
+        const vagaId = localStorage.getItem('vagaId');
+        const companyEmail = localStorage.getItem('companyEmail');
+        const userEmail = localStorage.getItem('candidateEmail');
+        
+        const respostasRef = doc(window.db, 'respostas-valores-dinamicas-trilhas', userEmail);
+        
+        await setDoc(respostasRef, {
+          companyEmail, vagaId, userEmail,
+          respostasDinamicas: respostas, 
+          timestamp: serverTimestamp()
+        }, { merge: true });
+
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Respostas das dinâmicas salvas com sucesso!</p>
+          </div>
+        `;
+        
+        // Recarrega a lista de vagas para atualizar status
+        if (window.loadVagasInterna) {
+          window.loadVagasInterna();
+        }
+      } catch (error) {
+        console.error('Erro ao salvar dinâmicas:', error);
+        alert('Erro ao salvar respostas. Tente novamente.');
+      }
+    }
+
+    // Função para carregar etapa de trilhas
+    window.loadTrilhasStep = async function(container, savedData) {
+      if (savedData.respostasTrilhas && Object.keys(savedData.respostasTrilhas).length) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+      const snap = await getDocs(collection(window.db,'trilhas'));
+      
+      if (snap.empty) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(255,255,0,0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,0,0.3);">
+            <p style="color: #ffeb3b;">Nenhuma trilha encontrada.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 1rem; margin-top: 1rem;"><h4 style="color: #FFF; margin-bottom: 1rem;">Trilha de Desafios</h4>';
+      let idx = 0;
+      
+      snap.docs.forEach(doc => {
+        const data = doc.data();
+        Object.entries(data).forEach(([categoria, questoes]) => {
+          html += `<h5 style="color: #39ff14; margin: 1.5rem 0 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(57, 255, 20, 0.3); padding-bottom: 0.5rem;">${categoria}</h5>`;
+          
+          questoes.forEach(questao => {
+            html += `
+              <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 6px;" data-cat="${categoria}" data-questao="${encodeURIComponent(questao)}">
+                <p style="color: #DDD; margin-bottom: 0.5rem; font-style: italic;">${questao}</p>
+                <textarea id="tri_${idx}" placeholder="Sua resposta..." style="width: 100%; min-height: 80px; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: #FFF; font-family: inherit; resize: vertical;"></textarea>
+              </div>
+            `;
+            idx++;
+          });
+        });
+      });
+      
+      html += '<button id="btnSalvarTrilhasInline" style="width: 100%; padding: 0.8rem; margin-top: 1rem; background: #39ff14; color: #0A0A0A; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Salvar Respostas da Trilha</button></div>';
+      
+      container.innerHTML = html;
+      
+      // Configura evento do botão salvar
+      document.getElementById('btnSalvarTrilhasInline').addEventListener('click', () => saveTrilhasInline(container));
+    }
+
+    // Função para salvar trilhas inline
+    window.saveTrilhasInline = async function(container) {
+      const agrupadas = {};
+      let temResposta = false;
+      
+      container.querySelectorAll('[data-cat]').forEach((div, i) => {
+        const categoria = div.dataset.cat;
+        const questao = decodeURIComponent(div.dataset.questao);
+        const textarea = document.getElementById(`tri_${i}`);
+        const texto = textarea.value.trim();
+        
+        if (texto) {
+          temResposta = true;
+          if (!agrupadas[categoria]) agrupadas[categoria] = [];
+          agrupadas[categoria].push({ questao, resposta: texto });
+        }
+      });
+
+      if (!temResposta) {
+        alert('Preencha ao menos uma resposta.');
+        return;
+      }
+
+      try {
+        const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        
+        const vagaId = localStorage.getItem('vagaId');
+        const companyEmail = localStorage.getItem('companyEmail');
+        const userEmail = localStorage.getItem('candidateEmail');
+        
+        const respostasRef = doc(window.db, 'respostas-valores-dinamicas-trilhas', userEmail);
+        
+        await setDoc(respostasRef, {
+          companyEmail, vagaId, userEmail,
+          respostasTrilhas: agrupadas, 
+          timestamp: serverTimestamp()
+        }, { merge: true });
+
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <p style="color: #39ff14; font-weight: 600;">✅ Respostas da trilha salvas com sucesso!</p>
+          </div>
+        `;
+        
+        // Recarrega a lista de vagas para atualizar status
+        if (window.loadVagasInterna) {
+          window.loadVagasInterna();
+        }
+      } catch (error) {
+        console.error('Erro ao salvar trilhas:', error);
+        alert('Erro ao salvar respostas. Tente novamente.');
+      }
+    }
+
     // Função global para marcar candidatura realizada
     window.markAsApplied = function(vagaId) {
       if (vagaId) {
@@ -391,13 +893,102 @@
 
     // As funções de navegação foram movidas para o router.js
     
+    // Função para carregar dados existentes do currículo
+    window.loadExistingCurriculo = async function() {
+      const userEmail = localStorage.getItem('candidateEmail');
+      if (!userEmail) return;
+      
+      try {
+        // Importa as funções do Firebase v9 moderno
+        const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        
+        // Busca currículos do usuário (sem ordenação para evitar índice)
+        const curriculoQuery = query(
+          collection(window.db, 'curriculo'), 
+          where('email', '==', userEmail)
+        );
+        
+        const snapshot = await getDocs(curriculoQuery);
+        
+        if (!snapshot.empty) {
+          // Ordena manualmente pelo timestamp mais recente
+          const curriculos = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          // Ordena por data de criação (mais recente primeiro)
+          curriculos.sort((a, b) => {
+            const dateA = a.criadoEm?.toDate?.() || a.criadoEm || new Date(0);
+            const dateB = b.criadoEm?.toDate?.() || b.criadoEm || new Date(0);
+            return dateB - dateA;
+          });
+          
+          const curriculo = curriculos[0];
+          
+          // Preenche os campos básicos
+          const form = document.getElementById('form-curriculo');
+          if (form) {
+            form.querySelector('input[name="nome"]').value = curriculo.nome || '';
+            // Sempre usa o email do usuário logado, não o que está salvo no currículo
+            form.querySelector('input[name="email"]').value = userEmail;
+            form.querySelector('input[name="telefone"]').value = curriculo.telefone || '';
+            form.querySelector('input[name="linkedin"]').value = curriculo.linkedin || '';
+            form.querySelector('input[name="portfolio"]').value = curriculo.portfolio || '';
+            form.querySelector('textarea[name="resumo"]').value = curriculo.resumo || '';
+            form.querySelector('textarea[name="habilidades"]').value = (curriculo.habilidades || []).join(', ');
+          }
+          
+          // Preenche experiências
+          const expContainer = document.getElementById('experiencias-container');
+          if (expContainer && curriculo.experiencias) {
+            expContainer.innerHTML = '';
+            curriculo.experiencias.forEach(exp => {
+              const div = document.createElement('div');
+              div.className = 'campo-grupo';
+              div.innerHTML = `
+                <input type="text" name="cargo" placeholder="Cargo" required value="${exp.cargo || ''}">
+                <input type="text" name="empresa" placeholder="Empresa" required value="${exp.empresa || ''}">
+                <label>Data de Início:</label><input type="month" name="data_inicio_exp" required value="${exp.inicio || ''}">
+                <label>Data de Fim:</label><input type="month" name="data_fim_exp" value="${exp.fim !== 'Atual' ? exp.fim || '' : ''}">
+                <textarea name="descricao_exp" placeholder="Descrição">${exp.descricao || ''}</textarea>
+              `;
+              expContainer.appendChild(div);
+            });
+          }
+          
+          // Preenche formações
+          const formContainer = document.getElementById('formacao-container');
+          if (formContainer && curriculo.formacoes) {
+            formContainer.innerHTML = '';
+            curriculo.formacoes.forEach(form => {
+              const div = document.createElement('div');
+              div.className = 'campo-grupo';
+              div.innerHTML = `
+                <input type="text" name="curso" placeholder="Curso" required value="${form.curso || ''}">
+                <input type="text" name="instituicao" placeholder="Instituição" required value="${form.instituicao || ''}">
+                <input type="number" name="ano_conclusao" placeholder="Ano" min="1950" max="2050" required value="${form.ano_conclusao || ''}">
+              `;
+              formContainer.appendChild(div);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar currículo existente:', error);
+      }
+    };
+
     // Função para configurar os event listeners do formulário de perfil
     window.setupProfileFormListeners = function() {
       // Desativa colar/desfazer na bio
       const bioArea = document.getElementById('bio-textarea');
       if (bioArea) {
-        bioArea.addEventListener('paste', e => { e.preventDefault(); alert('Colar não permitido.'); });
-        bioArea.addEventListener('keydown', e => {
+        // Remove listeners existentes clonando elemento
+        const newBioArea = bioArea.cloneNode(true);
+        bioArea.parentNode.replaceChild(newBioArea, bioArea);
+        
+        newBioArea.addEventListener('paste', e => { e.preventDefault(); alert('Colar não permitido.'); });
+        newBioArea.addEventListener('keydown', e => {
           if (e.ctrlKey && e.key.toLowerCase()==='z') {
             e.preventDefault();
             alert('Desfazer não permitido.');
@@ -405,11 +996,10 @@
         });
       }
       
-      // Campos dinâmicos
-      const addExperienciaBtn = document.getElementById('add-experiencia');
-      if (addExperienciaBtn) {
-        addExperienciaBtn.addEventListener('click', () => {
-          const container = document.getElementById('experiencias-container');
+      // Campos dinâmicos - definir handlers como funções nomeadas para poder remover
+      const addExperienciaHandler = () => {
+        const container = document.getElementById('experiencias-container');
+        if (container) {
           const div = document.createElement('div');
           div.className = 'campo-grupo';
           div.innerHTML = `
@@ -420,13 +1010,12 @@
             <textarea name="descricao_exp" placeholder="Descrição"></textarea>
           `;
           container.appendChild(div);
-        });
-      }
+        }
+      };
       
-      const addFormacaoBtn = document.getElementById('add-formacao');
-      if (addFormacaoBtn) {
-        addFormacaoBtn.addEventListener('click', () => {
-          const container = document.getElementById('formacao-container');
+      const addFormacaoHandler = () => {
+        const container = document.getElementById('formacao-container');
+        if (container) {
           const div = document.createElement('div');
           div.className = 'campo-grupo';
           div.innerHTML = `
@@ -435,13 +1024,46 @@
             <input type="number" name="ano_conclusao" placeholder="Ano" min="1950" max="2050" required>
           `;
           container.appendChild(div);
-        });
+        }
+      };
+      
+      // Campos dinâmicos
+      const addExperienciaBtn = document.getElementById('add-experiencia');
+      if (addExperienciaBtn) {
+        // Remove listeners existentes clonando elemento
+        const newExpBtn = addExperienciaBtn.cloneNode(true);
+        addExperienciaBtn.parentNode.replaceChild(newExpBtn, addExperienciaBtn);
+        newExpBtn.addEventListener('click', addExperienciaHandler);
+      }
+      
+      const addFormacaoBtn = document.getElementById('add-formacao');
+      if (addFormacaoBtn) {
+        // Remove listeners existentes clonando elemento
+        const newFormBtn = addFormacaoBtn.cloneNode(true);
+        addFormacaoBtn.parentNode.replaceChild(newFormBtn, addFormacaoBtn);
+        newFormBtn.addEventListener('click', addFormacaoHandler);
       }
       
       // Formulário de currículo
       const formCurriculo = document.getElementById('form-curriculo');
       if (formCurriculo) {
-        formCurriculo.addEventListener('submit', async e => {
+        // Remove listener existente clonando elemento  
+        const newForm = formCurriculo.cloneNode(true);
+        formCurriculo.parentNode.replaceChild(newForm, formCurriculo);
+        
+        // Reconfigurar botões internos do novo form clonado
+        const newExpBtn = newForm.querySelector('#add-experiencia');
+        const newFormBtn = newForm.querySelector('#add-formacao');
+        
+        if (newExpBtn) {
+          newExpBtn.addEventListener('click', addExperienciaHandler);
+        }
+        
+        if (newFormBtn) {
+          newFormBtn.addEventListener('click', addFormacaoHandler);
+        }
+        
+        newForm.addEventListener('submit', async e => {
           e.preventDefault();
           const form = e.target;
           const btn = form.querySelector('button[type="submit"]');
@@ -459,7 +1081,7 @@
             habilidades: fd.get('habilidades').split(',').map(s=>s.trim()),
             experiencias: [],
             formacoes: [],
-            criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+            criadoEm: null // Será definido antes de salvar
           };
 
           const cargos = fd.getAll('cargo');
@@ -485,14 +1107,25 @@
           }));
 
           try {
-            if (!window.dbCompat) {
+            if (!window.db) {
               throw new Error('Firebase não inicializado');
             }
-            const docRef = await window.dbCompat.collection('curriculo').add(cv);
+            
+            // Importa as funções do Firebase v9 moderno
+            const { collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+            
+            // Atualiza o timestamp para usar a versão correta
+            cv.criadoEm = serverTimestamp();
+            
+            const docRef = await addDoc(collection(window.db, 'curriculo'), cv);
             alert(`Currículo salvo com sucesso! ID: ${docRef.id}`);
-            form.reset();
-            document.getElementById('experiencias-container').innerHTML = '';
-            document.getElementById('formacao-container').innerHTML = '';
+            
+            // Dados serão recarregados automaticamente quando usar "Melhorar com IA"
+            
+            // Não limpa o formulário - usuário pode querer fazer mais alterações
+            // form.reset();
+            // document.getElementById('experiencias-container').innerHTML = '';
+            // document.getElementById('formacao-container').innerHTML = '';
           } catch (error) {
             alert('Erro ao salvar currículo.');
             console.error(error);
@@ -569,21 +1202,14 @@
 
   </script>
 
-  <!-- Firebase compat para o form de currículo -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
   <script>
-    // Inicialização assíncrona do Firebase compat
-    loadFirebaseConfig().then(config => {
-      const firebaseConfigCompat = {
-        ...config,
-        storageBucket: "mini-genio-c204d.appspot.com" // Override para compat
-      };
-      firebase.initializeApp(firebaseConfigCompat);
-      window.dbCompat = firebase.firestore();
-    });
-
-    // Removido: form de currículo antigo (agora está na função setupProfileFormListeners)
+    // Usar o mesmo db que já foi inicializado na versão moderna
+    // Aguarda a inicialização do Firebase moderno e usa o mesmo
+    setTimeout(() => {
+      if (window.db) {
+        window.dbCompat = window.db;
+      }
+    }, 1000);
   </script>
 
 </body>
