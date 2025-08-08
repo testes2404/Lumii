@@ -11,6 +11,40 @@
   <link rel="stylesheet" href="../css/components/buttons.css">
   <link rel="stylesheet" href="../css/pages/curriculo.css">
   
+  <!-- Estilos específicos para impressão -->
+  <style>
+    @media print {
+      /* TESTE SIMPLES - Oculta tudo e mostra apenas um texto */
+      * {
+        display: none !important;
+      }
+      
+      body {
+        display: block !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        font-family: Arial, sans-serif !important;
+        font-size: 12pt !important;
+        color: black !important;
+      }
+      
+      body::before {
+        content: "TESTE PDF - Este é um teste simples de impressão. Se você está vendo isto, o botão PDF está funcionando!";
+        display: block !important;
+        font-size: 18pt !important;
+        font-weight: bold !important;
+        margin: 50px 0 !important;
+        text-align: center !important;
+      }
+      
+      @page {
+        size: A4;
+        margin: 2cm;
+      }
+    }
+  </style>
+  
 </head>
 <body class="curriculo-page">
 
@@ -112,22 +146,25 @@
     </div>
   </div>
 
-  <!-- Firebase compat + lógica -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
   <script>
     // === configuração Firebase ===
-    const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
-      authDomain: "mini-genio-c204d.firebaseapp.com",
-      projectId: "mini-genio-c204d",
-      storageBucket: "mini-genio-c204d.appspot.com",
-      messagingSenderId: "553494129644",
-      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
-    };
-    firebase.initializeApp(FIREBASE_CONFIG);
-    const db = firebase.firestore();
+    // Usar o Firebase moderno que já está inicializado
+    let db = window.db;
+    
+    // Verificação de segurança para garantir que o db está disponível
+    let dbAvailable = !!db;
+    if (!dbAvailable) {
+      console.warn('Firebase DB não está disponível ainda.');
+      // A inicialização será feita pela função inicializarPagina()
+    }
+    
+    // Executa inicialização IMEDIATAMENTE para evitar problemas de script
+    setTimeout(() => {
+      if (typeof inicializarPagina === 'function') {
+        inicializarPagina();
+      } else {
+      }
+    }, 100);
 
     // toast utilitário
     function showToast(message, { fallback=false } = {}) {
@@ -327,8 +364,13 @@
 
     // carga inicial de possível análise salva
     async function carregarAnaliseExistente(userEmail) {
-      const query = db.collection('curriculos-ia').where('userEmail', '==', userEmail).limit(1);
-      const snap = await query.get();
+      if (!db) {
+        console.warn('Firebase DB não disponível para carregar análise existente');
+        return false;
+      }
+      const { collection, query, where, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+      const q = query(collection(db, 'curriculos-ia'), where('userEmail', '==', userEmail), limit(1));
+      const snap = await getDocs(q);
       if (!snap.empty) {
         const doc = snap.docs[0];
         analiseDocId = doc.id;
@@ -386,6 +428,11 @@
 
     // salvar ou atualizar análise
     async function persistirAnalise(userEmail, resultado) {
+      if (!db) {
+        console.warn('Firebase DB não disponível para persistir análise');
+        return;
+      }
+      const { collection, doc, updateDoc, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
       const payload = {
         userEmail,
         resumo_melhorado: resultado.resumo_melhorado,
@@ -393,13 +440,13 @@
         experiencias_melhoradas: resultado.experiencias_melhoradas,
         analise: resultado.analise,
         quality_score: computeQualityScore(resultado.analise),
-        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        atualizadoEm: serverTimestamp()
       };
       try {
         if (analiseDocId) {
-          await db.collection('curriculos-ia').doc(analiseDocId).update(payload);
+          await updateDoc(doc(db, 'curriculos-ia', analiseDocId), payload);
         } else {
-          const docRef = await db.collection('curriculos-ia').add(payload);
+          const docRef = await addDoc(collection(db, 'curriculos-ia'), payload);
           analiseDocId = docRef.id;
         }
       } catch (e) {
@@ -409,12 +456,29 @@
 
     // melhoria principal
     async function melhorarCurriculoComIA() {
-      if (!curriculoOriginal) {
-        showToast("Currículo não carregado ainda", { fallback: true });
+      if (!db) {
+        showToast("Firebase não disponível", { fallback: true });
+        return;
+      }
+      
+      // SEMPRE recarrega os dados mais recentes antes de processar
+      try {
+        showToast("Recarregando dados mais recentes...");
+        await inicializarFluxo();
+        
+        if (!curriculoOriginal) {
+          showToast("Nenhum currículo encontrado. Crie um currículo primeiro em 'Meu Perfil'.", { fallback: true });
+          return;
+        }
+        
+        showToast("Dados recarregados! Processando com IA...");
+      } catch (e) {
+        showToast("Erro ao recarregar dados", { fallback: true });
         return;
       }
 
-      const userEmail = localStorage.getItem('userEmail') || localStorage.getItem('candidateEmail') || '';
+      // Prioriza candidateEmail que é o email do usuário logado
+      const userEmail = localStorage.getItem('candidateEmail') || localStorage.getItem('userEmail') || '';
       if (!userEmail) {
         showToast("Email do usuário ausente", { fallback: true });
         return;
@@ -479,7 +543,6 @@ Retorne JSON com:
           body: JSON.stringify(body)
         });
         const raw = await resp.text();
-        console.log("Resposta bruta Gemini:", raw);
         if (resp.ok) {
           let parsed = null;
           try {
@@ -590,22 +653,56 @@ Retorne JSON com:
 
     // carrega currículo real e possível análise existente
     async function inicializarFluxo() {
-      const userEmail = localStorage.getItem('userEmail') || localStorage.getItem('candidateEmail') || '';
+      // Prioriza candidateEmail que é o email do usuário logado
+      const userEmail = localStorage.getItem('candidateEmail') || localStorage.getItem('userEmail') || '';
       if (!userEmail) {
-        console.warn("userEmail ausente no localStorage.");
+        showToast("Email do usuário não encontrado. Faça login novamente.", { fallback: true });
         return;
       }
 
-      // carrega currículo
-      const snap = await db.collection('curriculo').where('email','==', userEmail).limit(1).get();
-      if (snap.empty) {
-        console.warn("Nenhum currículo encontrado para", userEmail);
+      if (!db) {
+        showToast('Conectando ao banco de dados...', { fallback: true });
         return;
       }
-      const data = snap.docs[0].data();
-      curriculoOriginal = data;
 
-      // original
+      try {
+        // carrega currículo
+        showToast("Carregando seu currículo...");
+        const { collection, query, where, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+        const curriculoQuery = query(collection(db, 'curriculo'), where('email', '==', userEmail), limit(1));
+        const snap = await getDocs(curriculoQuery);
+        
+        if (snap.empty) {
+          showToast("Nenhum currículo encontrado. Crie um currículo primeiro em 'Meu Perfil'.", { fallback: true });
+          // Mostra mensagem visual na interface
+          document.getElementById('quality-display').textContent = 'Nenhum currículo encontrado';
+          document.getElementById('missing-metrics').textContent = 'Crie um currículo primeiro';
+          document.getElementById('weak-verbs').textContent = 'Vá em Meu Perfil → Criador de Currículo';
+          const recList = document.getElementById('recommendations-list');
+          recList.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+              <p style="margin-bottom: 15px;">Para usar esta funcionalidade, você precisa primeiro criar um currículo:</p>
+              <ol style="text-align: left; margin: 15px 0;">
+                <li>Clique em "Meu Perfil" (ou no botão abaixo)</li>
+                <li>Preencha o "Criador de Currículo"</li>
+                <li>Clique em "Salvar Currículo"</li>
+                <li>Volte aqui e clique em "Melhorar com IA"</li>
+              </ol>
+              <button onclick="if(window.candidateRouter) window.candidateRouter.navigateTo('/candidato/perfil')" 
+                      style="background: #39ff14; color: #000; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px;">
+                Ir para Criador de Currículo
+              </button>
+            </div>
+          `;
+          return;
+        }
+        
+        const data = snap.docs[0].data();
+        curriculoOriginal = data;
+        
+        showToast("Currículo carregado com sucesso!");
+
+        // original
       document.getElementById('original-nome').textContent = data.nome || '';
       document.getElementById('original-cargo').textContent = data.experiencias && data.experiencias[0]?.cargo ? data.experiencias[0].cargo : '';
       document.getElementById('original-resumo').textContent = data.resumo || '';
@@ -664,15 +761,113 @@ Retorne JSON com:
         });
       }
 
-      // carrega análise anterior se houver
-      await carregarAnaliseExistente(userEmail);
+        // carrega análise anterior se houver
+        await carregarAnaliseExistente(userEmail);
+        
+      } catch (error) {
+        console.error('Erro ao carregar currículo:', error);
+        showToast('Erro ao carregar currículo. Tente novamente.', { fallback: true });
+        
+        // Mostra mensagem de erro na interface
+        document.getElementById('quality-display').textContent = 'Erro ao carregar dados';
+        document.getElementById('missing-metrics').textContent = 'Erro de conexão';
+        document.getElementById('weak-verbs').textContent = 'Tente recarregar a página';
+      }
     }
 
-    document.getElementById("btnGerarIA").addEventListener("click", melhorarCurriculoComIA);
-    document.getElementById("btnExportar").addEventListener("click", () => window.print());
+    // Função recarregarCurriculo removida - funcionalidade transferida para melhorarCurriculoComIA
+
+    // Função para configurar os event listeners dos botões (global)
+    window.setupCurriculoButtons = function setupCurriculoButtons() {
+      const btnGerarIA = document.getElementById("btnGerarIA");
+      const btnExportar = document.getElementById("btnExportar");
+      
+      if (btnGerarIA) {
+        // Remove listener existente se houver e adiciona novo
+        btnGerarIA.removeEventListener("click", melhorarCurriculoComIA);
+        btnGerarIA.addEventListener("click", melhorarCurriculoComIA);
+      }
+      
+      if (btnExportar) {
+        // Remove listener existente se houver e adiciona novo
+        const exportHandler = () => window.print();
+        btnExportar.removeEventListener("click", exportHandler);
+        btnExportar.addEventListener("click", exportHandler);
+      }
+    }
+
+    // Função para aguardar window.db estar disponível
+    async function aguardarDB(maxTentativas = 10) {
+      for (let i = 0; i < maxTentativas; i++) {
+        if (window.db) {
+          db = window.db;
+          dbAvailable = true;
+          return true;
+        }
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      return false;
+    }
 
     // inicialização
-    inicializarFluxo();
+    async function inicializarPagina() {
+      // Limpa userEmail para evitar conflitos e garantir uso do candidateEmail correto
+      if (localStorage.getItem('candidateEmail')) {
+        localStorage.removeItem('userEmail');
+      }
+      
+      // Mostra loading inicial
+      document.getElementById('quality-display').textContent = 'Conectando...';
+      document.getElementById('missing-metrics').textContent = 'Aguarde';
+      document.getElementById('weak-verbs').textContent = 'Carregando dados';
+      
+      // Sempre configura os botões primeiro
+      window.setupCurriculoButtons();
+      
+      if (dbAvailable || await aguardarDB()) {
+        try {
+          await inicializarFluxo();
+          // Configura os botões novamente após carregar dados
+          setTimeout(window.setupCurriculoButtons, 200);
+        } catch (error) {
+          console.error('Erro na inicialização:', error);
+          showToast('Erro ao carregar dados do currículo', { fallback: true });
+          
+          // Mostra erro na interface
+          document.getElementById('quality-display').textContent = 'Erro na conexão';
+          document.getElementById('missing-metrics').textContent = 'Erro ao carregar dados';
+          document.getElementById('weak-verbs').textContent = 'Tente recarregar';
+        }
+      } else {
+        console.warn('Database não disponível após múltiplas tentativas');
+        showToast('Erro de conexão com banco de dados', { fallback: true });
+        
+        // Mostra erro na interface  
+        document.getElementById('quality-display').textContent = 'Sem conexão';
+        document.getElementById('missing-metrics').textContent = 'Base de dados indisponível';
+        document.getElementById('weak-verbs').textContent = 'Verifique sua conexão';
+      }
+    }
+    
+    // Executa inicialização com tratamento de erro
+    try {
+      inicializarPagina();
+    } catch (error) {
+      console.error('Erro na inicialização da página:', error);
+      // Mesmo com erro, tenta configurar botões básicos
+      setTimeout(() => {
+        if (window.setupCurriculoButtons) {
+          window.setupCurriculoButtons();
+        }
+      }, 500);
+    }
+    
+    // Backup: força inicialização após delay caso não tenha funcionado
+    setTimeout(() => {
+      if (document.getElementById('quality-display').textContent === 'Qualidade estimada: —') {
+        inicializarPagina();
+      }
+    }, 2000);
   </script>
 </body>
 </html>

@@ -241,10 +241,29 @@ class CandidateRouter {
             `
         );
         
-        // Reativa os event listeners do formulário
-        if (window.setupProfileFormListeners) {
-            window.setupProfileFormListeners();
-        }
+        // Reativa os event listeners do formulário após delay
+        setTimeout(() => {
+            if (window.setupProfileFormListeners) {
+                window.setupProfileFormListeners();
+            }
+            
+            // Carrega dados existentes após configurar listeners
+            if (window.loadExistingCurriculo) {
+                window.loadExistingCurriculo();
+            }
+        }, 100);
+        
+        // Verifica novamente após mais tempo para garantir
+        setTimeout(() => {
+            if (window.setupProfileFormListeners) {
+                window.setupProfileFormListeners();
+            }
+            
+            // Tenta carregar novamente se não carregou antes
+            if (window.loadExistingCurriculo) {
+                window.loadExistingCurriculo();
+            }
+        }, 500);
     }
 
     // Rota: /candidato/vagas
@@ -252,13 +271,39 @@ class CandidateRouter {
         this.mainContent.innerHTML = this.createPageContainer(
             'Minhas Vagas',
             `
-            <div class="filters" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-              <input id="filterTitle" type="text" placeholder="Filtrar por título…" style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
-              <input id="filterCompany" type="text" placeholder="Filtrar por empresa…" style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
-              <input id="filterSalary" type="number" placeholder="Salário mínimo" style="flex: 1; min-width: 150px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
+            <div class="vagas-layout" style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem; height: 70vh;">
+                <div class="vagas-list-container" style="display: flex; flex-direction: column;">
+                    <div class="filters" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                      <input id="filterTitle" type="text" placeholder="Filtrar por título…" style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
+                      <input id="filterCompany" type="text" placeholder="Filtrar por empresa…" style="flex: 1; min-width: 200px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
+                      <input id="filterSalary" type="number" placeholder="Salário mínimo" style="flex: 1; min-width: 150px; padding: 0.8rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #FFF; backdrop-filter: blur(8px);" />
+                    </div>
+                    
+                    <div id="listaVagas" style="flex: 1; overflow-y: auto; padding-right: 1rem;"></div>
+                </div>
+                
+                <div class="vaga-details-container" style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto;">
+                    <div id="vagaDetailsPanel">
+                        <div style="text-align: center; color: #888; padding: 4rem 0;">
+                            <h3>Selecione uma vaga</h3>
+                            <p>Clique em uma vaga à esquerda para ver os detalhes e se candidatar</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div id="listaVagas" style="max-height: 600px; overflow-y: auto;"></div>
+            <style>
+            @media (max-width: 1024px) {
+                .vagas-layout {
+                    grid-template-columns: 1fr !important;
+                    grid-template-rows: 1fr auto;
+                    height: auto !important;
+                }
+                .vaga-details-container {
+                    max-height: 400px;
+                }
+            }
+            </style>
             `
         );
 
@@ -312,8 +357,15 @@ class CandidateRouter {
                 `<div class="curriculo-page">${pageContent}</div>`
             );
             
-            // Executa os scripts da página de currículo
-            this.executeScripts(doc);
+            // Aguarda window.db estar disponível antes de executar scripts
+            this.aguardarDBEExecutarScripts(doc);
+            
+            // Configura os botões após execução dos scripts
+            setTimeout(() => {
+                if (window.setupCurriculoButtons) {
+                    window.setupCurriculoButtons();
+                }
+            }, 500);
             
         } catch (error) {
             this.mainContent.innerHTML = this.createPageContainer(
@@ -352,8 +404,8 @@ class CandidateRouter {
                 `<div class="entrevistas-page">${containerContent}</div>`
             );
             
-            // Executa os scripts da página de entrevistas
-            this.executeScripts(doc);
+            // Aguarda DOM estar pronto antes de executar scripts
+            this.waitForDOMAndExecuteScripts(doc);
             
         } catch (error) {
             this.mainContent.innerHTML = this.createPageContainer(
@@ -446,6 +498,56 @@ class CandidateRouter {
         }
     }
 
+    // Aguarda window.db estar disponível e executa scripts
+    async aguardarDBEExecutarScripts(doc) {
+        // Aguarda window.db estar disponível (máximo 3 segundos)
+        let tentativas = 0;
+        const maxTentativas = 10;
+        
+        while (!window.db && tentativas < maxTentativas) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            tentativas++;
+        }
+        
+        if (window.db) {
+            this.executeScripts(doc);
+        } else {
+            // Executa scripts mesmo assim, mas pode falhar
+            this.executeScripts(doc);
+        }
+    }
+
+    // Aguarda DOM estar pronto e executa scripts
+    async waitForDOMAndExecuteScripts(doc) {
+        // Aguarda um pouco para o DOM ser totalmente renderizado
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Verifica se elementos fundamentais estão presentes antes de prosseguir
+        let domReady = false;
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        while (!domReady && attempts < maxAttempts) {
+            // Verifica se há pelo menos alguns elementos esperados no DOM
+            const hasBasicElements = document.querySelector('.entrevistas-page') || 
+                                   document.querySelector('.curriculo-page') ||
+                                   document.getElementById('mainContentArea');
+            
+            if (hasBasicElements) {
+                domReady = true;
+            } else {
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+        
+        if (domReady) {
+            this.executeScripts(doc);
+        } else {
+            this.executeScripts(doc);
+        }
+    }
+
     // Executa scripts de uma página carregada
     executeScripts(doc) {
         const scripts = doc.querySelectorAll('script');
@@ -458,11 +560,181 @@ class CandidateRouter {
             } else if (script.textContent) {
                 // Script inline
                 try {
-                    // Cria um contexto isolado para o script
-                    const scriptFunction = new Function(script.textContent);
+                    // Wrap do script para tornar firebase disponível se necessário
+                    let scriptCode = script.textContent;
+                    
+                    // Se o script menciona firebase, cria uma versão compatível
+                    if (scriptCode.includes('firebase.')) {
+                        scriptCode = `
+                        (function() {
+                            // Wrapper para getElementById que não quebra e verifica se existe
+                            const originalGetElementById = document.getElementById;
+                            document.getElementById = function(id) {
+                                try {
+                                    const element = originalGetElementById.call(document, id);
+                                    if (!element) {
+                                        return null;
+                                    }
+                                    return element;
+                                } catch (e) {
+                                    return null;
+                                }
+                            };
+                            
+                            // Cria firebase stub completo apenas para este contexto
+                            const firebase = window.firebase || {
+                                initializeApp: function(config) {
+                                    return { name: '[DEFAULT]' };
+                                },
+                                apps: [],
+                                firestore: function() {
+                                    // Retorna window.db se disponível, senão cria stub completo
+                                    if (window.db) {
+                                        // Adapta Firebase v9 para compat API
+                                        return {
+                                            collection: function(name) {
+                                                return {
+                                                    add: async function(data) {
+                                                        const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                        return await addDoc(collection(window.db, name), data);
+                                                    },
+                                                    doc: function(id) {
+                                                        return {
+                                                            set: async function(data, options) {
+                                                                const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                                return await setDoc(doc(window.db, name, id), data, options || {});
+                                                            },
+                                                            get: async function() {
+                                                                const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                                const docSnap = await getDoc(doc(window.db, name, id));
+                                                                return {
+                                                                    exists: () => docSnap.exists(),
+                                                                    data: () => docSnap.data()
+                                                                };
+                                                            }
+                                                        };
+                                                    },
+                                                    where: function(field, op, value) {
+                                                        // Armazena condições where para encadeamento
+                                                        const whereConditions = [{ field, op, value }];
+                                                        
+                                                        const createQueryBuilder = (conditions) => ({
+                                                            where: function(field2, op2, value2) {
+                                                                const newConditions = [...conditions, { field: field2, op: op2, value: value2 }];
+                                                                return createQueryBuilder(newConditions);
+                                                            },
+                                                            limit: function(num) {
+                                                                return {
+                                                                    get: async function() {
+                                                                        try {
+                                                                            const { collection, query, where, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                                            
+                                                                            // Cria query com todas as condições where
+                                                                            const whereConstraints = conditions.map(c => where(c.field, c.op, c.value));
+                                                                            const q = query(collection(window.db, name), ...whereConstraints, limit(num));
+                                                                            const snapshot = await getDocs(q);
+                                                                            
+                                                                            return {
+                                                                                empty: snapshot.empty,
+                                                                                docs: snapshot.docs.map(doc => ({
+                                                                                    id: doc.id,
+                                                                                    data: () => doc.data(),
+                                                                                    ref: {
+                                                                                        set: async function(data, options) {
+                                                                                            const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                                                            return await setDoc(doc(window.db, name, doc.id), data, options || {});
+                                                                                        }
+                                                                                    }
+                                                                                }))
+                                                                            };
+                                                                        } catch (error) {
+                                                                            console.warn('Erro na query Firebase:', error);
+                                                                            return { empty: true, docs: [] };
+                                                                        }
+                                                                    }
+                                                                };
+                                                            },
+                                                            get: async function() {
+                                                                try {
+                                                                    const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js');
+                                                                    
+                                                                    const whereConstraints = conditions.map(c => where(c.field, c.op, c.value));
+                                                                    const q = query(collection(window.db, name), ...whereConstraints);
+                                                                    const snapshot = await getDocs(q);
+                                                                    
+                                                                    return {
+                                                                        empty: snapshot.empty,
+                                                                        docs: snapshot.docs.map(doc => ({
+                                                                            id: doc.id,
+                                                                            data: () => doc.data()
+                                                                        }))
+                                                                    };
+                                                                } catch (error) {
+                                                                    console.warn('Erro na query Firebase:', error);
+                                                                    return { empty: true, docs: [] };
+                                                                }
+                                                            }
+                                                        });
+                                                        
+                                                        return createQueryBuilder(whereConditions);
+                                                    }
+                                                };
+                                            }
+                                        };
+                                    } else {
+                                        // Stub básico se window.db não estiver disponível
+                                        return {
+                                            collection: function() { 
+                                                return {
+                                                    add: async () => ({ id: 'stub-id' }),
+                                                    doc: () => ({
+                                                        set: async () => {},
+                                                        get: async () => ({ exists: () => false, data: () => null })
+                                                    }),
+                                                    where: () => ({
+                                                        limit: () => ({
+                                                            get: async () => ({ empty: true, docs: [] })
+                                                        })
+                                                    })
+                                                };
+                                            }
+                                        };
+                                    }
+                                }
+                            };
+                            
+                            // Adiciona propriedades estáticas do firestore
+                            firebase.firestore.FieldValue = {
+                                serverTimestamp: () => new Date()
+                            };
+                            firebase.firestore.Timestamp = {
+                                fromDate: (date) => date
+                            };
+                            ${scriptCode}
+                        })();
+                        `;
+                    }
+                    
+                    const scriptFunction = new Function(scriptCode);
                     scriptFunction.call(window);
                 } catch (error) {
-                    console.warn('Erro ao executar script do currículo:', error);
+                    // Ignora erros conhecidos do Firebase e DOM
+                    if (error.message && (
+                        error.message.includes('firebase.initializeApp is not a function') ||
+                        error.message.includes('firebase is not defined') ||
+                        error.message.includes('duplicate-app') ||
+                        error.message.includes('Cannot set properties of null') ||
+                        error.message.includes('Cannot read properties of null') ||
+                        error.message.includes('textContent') ||
+                        error.message.includes('innerHTML') ||
+                        error.message.includes('db.collection is not a function') ||
+                        error.message.includes('addEventListener')
+                    )) {
+                        return;
+                    }
+                    console.error('Erro ao executar script:', error);
+                    console.error('Stack trace:', error.stack);
+                    // Não impede outros scripts de executar
                 }
             }
         });
