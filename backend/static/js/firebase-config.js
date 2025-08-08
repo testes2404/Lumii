@@ -6,12 +6,12 @@ let firebaseConfig = null;
 // Função para carregar configurações do backend
 async function loadFirebaseConfig() {
     if (firebaseConfig) {
-        console.log('🔥 Usando config Firebase em cache');
+        // Using cached Firebase config
         return firebaseConfig;
     }
     
     try {
-        console.log('🔄 Carregando config Firebase do backend...');
+        // Loading Firebase config from backend
         const response = await fetch('/api/config');
         
         if (!response.ok) {
@@ -19,11 +19,7 @@ async function loadFirebaseConfig() {
         }
         
         const config = await response.json();
-        console.log('✅ Config Firebase carregada do backend:', {
-            environment: config.environment,
-            hasApiKey: !!config.firebase?.apiKey,
-            projectId: config.firebase?.projectId
-        });
+        // Firebase config loaded successfully
         
         firebaseConfig = config.firebase;
         
@@ -34,8 +30,7 @@ async function loadFirebaseConfig() {
         
         return firebaseConfig;
     } catch (error) {
-        console.error('❌ Erro ao carregar configurações do Firebase:', error);
-        console.error('🔒 Não é possível continuar sem as credenciais do Firebase configuradas no servidor');
+        // Error loading Firebase configuration
         
         // Não use fallback hardcoded em produção - é inseguro
         throw new Error('Firebase não configurado. Verifique as variáveis de ambiente no Render.');

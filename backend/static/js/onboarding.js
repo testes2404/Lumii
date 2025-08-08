@@ -271,25 +271,20 @@ class CandidateOnboarding {
         const visitKey = `lumii_tour_completed_${userEmail}`;
         const hasVisited = localStorage.getItem(visitKey);
         
-        console.log('🎯 Onboarding Debug:', {
-            userEmail,
-            visitKey,
-            hasVisited,
-            localStorage: Object.keys(localStorage).filter(key => key.includes('lumii'))
-        });
+        // Check onboarding status
         
         // Só mostra o tour se nunca foi visitado
         if (!hasVisited || hasVisited === 'null' || hasVisited === '') {
-            console.log('📝 Mostrando tour pela primeira vez para:', userEmail);
+            // Show tour for first time
             this.showWelcomeModal();
         } else {
-            console.log('✅ Tour já foi completado para:', userEmail);
+            // Tour already completed
             // Verifica se é um JSON válido
             try {
                 const data = JSON.parse(hasVisited);
-                console.log('📄 Dados do tour:', data);
+                // Tour data valid
             } catch (e) {
-                console.log('⚠️ Dados do tour inválidos, limpando cache');
+                // Invalid tour data, clearing cache
                 localStorage.removeItem(visitKey);
                 this.showWelcomeModal();
             }
@@ -299,14 +294,14 @@ class CandidateOnboarding {
     showWelcomeModal() {
         // Previne múltiplas chamadas
         if (this.hasShownModal) {
-            console.log('⚠️ Modal já foi mostrado, ignorando chamada duplicada');
+            // Modal already shown
             return;
         }
         
         this.hasShownModal = true;
         this.overlay.style.display = 'block';
         this.welcomeModal.style.display = 'block';
-        console.log('📋 Modal de boas-vindas exibido');
+        // Welcome modal displayed
     }
 
     startTour() {
@@ -324,7 +319,7 @@ class CandidateOnboarding {
             userEmail: userEmail
         };
         localStorage.setItem(visitKey, JSON.stringify(tourData));
-        console.log('💾 Tour iniciado e salvo:', { visitKey, tourData });
+        // Tour started and saved
     }
 
     skipTour() {
@@ -339,7 +334,7 @@ class CandidateOnboarding {
             userEmail: userEmail
         };
         localStorage.setItem(visitKey, JSON.stringify(tourData));
-        console.log('⏭️ Tour pulado e salvo:', { visitKey, tourData });
+        // Tour skipped and saved
     }
 
     showStep(stepIndex) {
@@ -534,8 +529,7 @@ window.clearTourCache = function() {
     const visitKey = `lumii_tour_completed_${userEmail}`;
     localStorage.removeItem(visitKey);
     localStorage.removeItem('lumii_candidate_visited'); // compatibilidade
-    console.log('🗑️ Cache do tour limpo para:', userEmail);
-    console.log('Recarregue a página para ver o tour novamente.');
+    // Tour cache cleared
 };
 
 // Função de debug global para verificar status do tour
@@ -543,10 +537,5 @@ window.checkTourStatus = function() {
     const userEmail = localStorage.getItem('candidateEmail') || 'guest';
     const visitKey = `lumii_tour_completed_${userEmail}`;
     const tourData = localStorage.getItem(visitKey);
-    console.log('📊 Status do tour:', {
-        userEmail,
-        visitKey,
-        tourData: tourData ? JSON.parse(tourData) : null,
-        hasCompleted: window.candidateOnboarding ? window.candidateOnboarding.hasCompletedTour() : 'Onboarding não inicializado'
-    });
+    // Check tour status (debug function)
 };

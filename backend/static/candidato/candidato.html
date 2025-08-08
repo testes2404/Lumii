@@ -92,18 +92,15 @@
   <script src="../js/router.js?v=20250108"></script>
   <script src="../js/onboarding.js?v=20250108"></script>
   
-  <!-- Força inicialização imediata do router -->
+  <!-- Router initialization -->
   <script>
     // Intercepta tentativas de abrir entrevistas.html em nova aba
     const originalWindowOpen = window.open;
     window.open = function(url, target, features) {
-      console.log('Tentativa de abrir janela:', url, target);
       if (url && url.includes('entrevistas.html')) {
-        console.log('Interceptando abertura de entrevistas.html - redirecionando para seção');
         if (window.candidateRouter) {
           window.candidateRouter.navigateTo('/candidato/desenvolvimento');
         } else {
-          // Fallback - aguarda o router estar pronto
           setTimeout(() => {
             if (window.candidateRouter) {
               window.candidateRouter.navigateTo('/candidato/desenvolvimento');
@@ -115,46 +112,9 @@
       return originalWindowOpen.call(this, url, target, features);
     };
     
-    // Intercepta tentativas de mudança de location
-    const originalLocationAssign = window.location.assign;
-    const originalLocationReplace = window.location.replace;
-    
-    Object.defineProperty(window.location, 'href', {
-      set: function(url) {
-        console.log('Tentativa de mudança de location.href:', url);
-        if (url && url.includes('entrevistas.html')) {
-          console.log('Interceptando navegação para entrevistas.html');
-          if (window.candidateRouter) {
-            window.candidateRouter.navigateTo('/candidato/desenvolvimento');
-          }
-          return;
-        }
-        // Permite mudanças normais de href
-        window.location.replace(url);
-      },
-      get: function() {
-        return window.location.toString();
-      }
-    });
-    
-    // Debug global para todos os cliques
-    document.addEventListener('click', function(e) {
-      if (e.target.id === 'meuDesenvolvimentoBtn') {
-        console.log('=== DEBUG CLIQUE NO BOTÃO DESENVOLVIMENTO ===');
-        console.log('Target:', e.target);
-        console.log('Event:', e);
-        console.log('Current target:', e.currentTarget);
-        console.log('Button HTML:', e.target.outerHTML);
-        console.log('Button parent:', e.target.parentNode);
-        console.log('Window.candidateRouter:', window.candidateRouter);
-        console.log('============================================');
-      }
-    }, true);
-    
     // Limpar qualquer método problemático que possa existir em cache
     if (window.candidateRouter && window.candidateRouter.handleDesenvolvimentoClick) {
       delete window.candidateRouter.handleDesenvolvimentoClick;
-      console.log('🗑️ Método handleDesenvolvimentoClick removido');
     }
     
     // Garantir que o router seja inicializado PRIMEIRO
@@ -166,10 +126,8 @@
     setTimeout(() => {
       const devBtn = document.getElementById('meuDesenvolvimentoBtn');
       if (devBtn && window.candidateRouter) {
-        // Remove qualquer listener antigo e força os novos
         window.candidateRouter.removeAllListeners();
         window.candidateRouter.setupNavigation();
-        console.log('🔧 Navigation setup forçado para botão desenvolvimento');
       }
     }, 500);
   </script>
@@ -195,10 +153,10 @@
     setTimeout(() => {
       const email = localStorage.getItem('candidateEmail');
       if (email && !window.candidateOnboarding) {
-        console.log('🚀 Inicializando onboarding para:', email);
+        // Initializing onboarding
         window.candidateOnboarding = new CandidateOnboarding();
       } else if (window.candidateOnboarding) {
-        console.log('⚠️ Onboarding já inicializado, ignorando');
+        // Onboarding already initialized
       }
     }, 1500);
 
@@ -277,7 +235,7 @@
           }
         });
         
-        console.log('💼 Candidaturas carregadas:', appliedVagaIds.size);
+        // Applied jobs loaded
       } catch (error) {
         console.error('❌ Erro ao carregar candidaturas aplicadas:', error);
       }
@@ -398,7 +356,7 @@
     window.markAsApplied = function(vagaId) {
       if (vagaId) {
         appliedVagaIds.add(vagaId);
-        console.log('✅ Vaga marcada como candidatada:', vagaId);
+        // Job marked as applied
         // Recarrega as vagas para atualizar a interface
         if (window.loadVagasInterna) {
           loadVagasInterna();
