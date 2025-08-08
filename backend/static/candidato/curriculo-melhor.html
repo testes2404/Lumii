@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
   
+  <!-- jsPDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <!-- CSS Files -->
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/components/buttons.css">
@@ -777,6 +780,200 @@ Retorne JSON com:
 
     // Função recarregarCurriculo removida - funcionalidade transferida para melhorarCurriculoComIA
 
+    // Função para gerar PDF do currículo
+    function gerarPDFCurriculo() {
+      try {
+        // Inicializa jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Configurações
+        const pageWidth = 210; // A4 width in mm
+        const pageHeight = 297; // A4 height in mm
+        const margin = 15;
+        const sidebarWidth = 70;
+        const mainWidth = pageWidth - sidebarWidth - margin * 2;
+        
+        // Coleta dados do currículo melhorado
+        const nome = document.getElementById('melhorado-nome').textContent || '';
+        const cargo = document.getElementById('melhorado-cargo').textContent || '';
+        const resumo = document.getElementById('melhorado-resumo').textContent || '';
+        const email = document.getElementById('melhorado-email').textContent || '';
+        const telefone = document.getElementById('melhorado-telefone').textContent || '';
+        const linkedin = document.getElementById('melhorado-linkedin').textContent || '';
+        
+        // SIDEBAR (cor de fundo)
+        doc.setFillColor(248, 249, 250); // #f8f9fa
+        doc.rect(0, 0, sidebarWidth + margin, pageHeight, 'F');
+        
+        // Linha vertical separadora
+        doc.setDrawColor(221, 221, 221); // #ddd
+        doc.line(sidebarWidth + margin, 0, sidebarWidth + margin, pageHeight);
+        
+        let yPos = 20;
+        
+        // SIDEBAR - Nome
+        doc.setTextColor(51, 51, 51); // #333
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text(nome, margin, yPos);
+        yPos += 8;
+        
+        // SIDEBAR - Cargo
+        doc.setTextColor(102, 102, 102); // #666
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text(cargo, margin, yPos);
+        yPos += 15;
+        
+        // SIDEBAR - Resumo
+        doc.setTextColor(85, 85, 85); // #555
+        doc.setFontSize(10);
+        const resumoLines = doc.splitTextToSize(resumo, sidebarWidth - 5);
+        doc.text(resumoLines, margin, yPos);
+        yPos += resumoLines.length * 4 + 15;
+        
+        // Divisor (linha)
+        doc.setDrawColor(221, 221, 221);
+        doc.line(margin, yPos, sidebarWidth, yPos);
+        yPos += 12;
+        
+        // SIDEBAR - Contatos
+        doc.setTextColor(85, 85, 85); // #555
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        
+        doc.setFont(undefined, 'bold');
+        doc.text('Email: ', margin, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(email, margin + 15, yPos);
+        yPos += 6;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text('Telefone: ', margin, yPos);
+        doc.setFont(undefined, 'normal');
+        doc.text(telefone, margin + 22, yPos);
+        yPos += 6;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text('LinkedIn: ', margin, yPos);
+        doc.setFont(undefined, 'normal');
+        const linkedinText = linkedin.length > 25 ? linkedin.substring(0, 22) + '...' : linkedin;
+        doc.text(linkedinText, margin + 20, yPos);
+        
+        // CONTEÚDO PRINCIPAL
+        const mainStartX = sidebarWidth + margin * 2;
+        yPos = 20;
+        
+        // Educação
+        doc.setTextColor(51, 51, 51); // #333
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Educação', mainStartX, yPos);
+        yPos += 3;
+        
+        // Linha sob título
+        doc.setDrawColor(221, 221, 221);
+        doc.line(mainStartX, yPos, mainStartX + mainWidth - 10, yPos);
+        yPos += 12;
+        
+        // Itens de educação
+        const educacaoItems = document.querySelectorAll('#melhorado-educacao .item');
+        educacaoItems.forEach(item => {
+          const titulo = item.querySelector('.item-title')?.textContent || '';
+          const instituicao = item.querySelector('.subtle')?.textContent || '';
+          
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'bold');
+          doc.text(titulo, mainStartX, yPos);
+          yPos += 4;
+          
+          doc.setTextColor(102, 102, 102);
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          doc.text(instituicao, mainStartX, yPos);
+          yPos += 15;
+        });
+        
+        // Experiência
+        doc.setTextColor(51, 51, 51);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Experiência', mainStartX, yPos);
+        yPos += 3;
+        
+        doc.setDrawColor(221, 221, 221);
+        doc.line(mainStartX, yPos, mainStartX + mainWidth - 10, yPos);
+        yPos += 12;
+        
+        // Itens de experiência
+        const experienciaItems = document.querySelectorAll('#melhorado-experiencia .item');
+        experienciaItems.forEach(item => {
+          const descricao = item.querySelector('.subtle')?.textContent || '';
+          
+          doc.setTextColor(102, 102, 102);
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          const descLines = doc.splitTextToSize(descricao, mainWidth - 10);
+          doc.text(descLines, mainStartX, yPos);
+          yPos += descLines.length * 4 + 10;
+        });
+        
+        // Habilidades
+        doc.setTextColor(51, 51, 51);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Habilidades', mainStartX, yPos);
+        yPos += 3;
+        
+        doc.setDrawColor(221, 221, 221);
+        doc.line(mainStartX, yPos, mainStartX + mainWidth - 10, yPos);
+        yPos += 12;
+        
+        // Itens de habilidades
+        const habilidadeItems = document.querySelectorAll('#melhorado-habilidades .skill');
+        habilidadeItems.forEach(skill => {
+          const nome = skill.querySelector('.skill-name span:first-child')?.textContent || '';
+          const porcentagem = skill.querySelector('.skill-percentage')?.textContent || '';
+          const porcentagemNum = parseInt(porcentagem.replace('%', '')) || 0;
+          
+          doc.setTextColor(51, 51, 51);
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          doc.text(nome, mainStartX, yPos);
+          
+          doc.setTextColor(40, 167, 69);
+          doc.setFont(undefined, 'bold');
+          doc.text(porcentagem, mainStartX + mainWidth - 20, yPos);
+          
+          // Barra de progresso
+          const barWidth = mainWidth - 30;
+          const progressWidth = (barWidth * porcentagemNum) / 100;
+          
+          // Fundo da barra
+          doc.setFillColor(233, 236, 239); // #e9ecef
+          doc.rect(mainStartX, yPos + 2, barWidth, 2, 'F');
+          
+          // Progresso da barra
+          doc.setFillColor(40, 167, 69); // #28a745
+          doc.rect(mainStartX, yPos + 2, progressWidth, 2, 'F');
+          
+          yPos += 10;
+        });
+        
+        // Nome do arquivo
+        const nomeArquivo = nome ? `curriculo-${nome.replace(/\s+/g, '-').toLowerCase()}.pdf` : 'curriculo-melhorado.pdf';
+        
+        // Salva o PDF
+        doc.save(nomeArquivo);
+        
+        showToast('PDF do currículo gerado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        showToast('Erro ao gerar PDF: ' + error.message, { fallback: true });
+      }
+    }
+
     // Função para configurar os event listeners dos botões (global)
     window.setupCurriculoButtons = function setupCurriculoButtons() {
       const btnGerarIA = document.getElementById("btnGerarIA");
@@ -790,9 +987,8 @@ Retorne JSON com:
       
       if (btnExportar) {
         // Remove listener existente se houver e adiciona novo
-        const exportHandler = () => window.print();
-        btnExportar.removeEventListener("click", exportHandler);
-        btnExportar.addEventListener("click", exportHandler);
+        btnExportar.removeEventListener("click", gerarPDFCurriculo);
+        btnExportar.addEventListener("click", gerarPDFCurriculo);
       }
     }
 
