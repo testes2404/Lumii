@@ -1,6 +1,4 @@
 // router.js - Sistema de Roteamento SPA para Área do Candidato
-// ÚLTIMA ATUALIZAÇÃO: 2025-01-08 - REMOVIDO handleDesenvolvimentoClick
-console.log('🔄 Router.js carregado - versão atualizada 2025-01-08');
 class CandidateRouter {
     constructor() {
         this.routes = {
@@ -57,16 +55,12 @@ class CandidateRouter {
         Object.entries(navButtons).forEach(([buttonId, route]) => {
             const button = document.getElementById(buttonId);
             if (button) {
-                // Log para debug
-                console.log(`Router: Configurando listener para ${buttonId} -> ${route}`);
-                
                 // Remove qualquer onclick e href que possa existir
                 button.removeAttribute('onclick');
                 button.removeAttribute('href');
                 
                 // Force override do comportamento
                 button.onclick = (e) => {
-                    console.log(`Router: onclick override para ${buttonId}`);
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
@@ -76,23 +70,12 @@ class CandidateRouter {
                 
                 // Remove listeners existentes e adiciona o novo com captura
                 button.addEventListener('click', (e) => {
-                    console.log(`Router: Interceptando clique em ${buttonId}`);
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                     this.navigateTo(route);
                     return false;
                 }, true);
-                
-                // Adiciona um segundo listener sem captura como fallback
-                button.addEventListener('click', (e) => {
-                    console.log(`Router: Interceptando clique (fallback) em ${buttonId}`);
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    this.navigateTo(route);
-                    return false;
-                }, false);
             }
         });
     }
@@ -119,7 +102,6 @@ class CandidateRouter {
         // Especial para o botão de desenvolvimento - recriar completamente
         const devBtn = document.getElementById('meuDesenvolvimentoBtn');
         if (devBtn) {
-            console.log('Router: Recriando botão de desenvolvimento completamente');
             const newDevBtn = document.createElement('button');
             newDevBtn.id = 'meuDesenvolvimentoBtn';
             newDevBtn.className = 'btn';
@@ -334,7 +316,6 @@ class CandidateRouter {
             this.executeScripts(doc);
             
         } catch (error) {
-            console.error('Erro ao carregar currículo:', error);
             this.mainContent.innerHTML = this.createPageContainer(
                 'Erro',
                 `<p>Erro ao carregar página de currículo: ${error.message}</p>`
@@ -375,7 +356,6 @@ class CandidateRouter {
             this.executeScripts(doc);
             
         } catch (error) {
-            console.error('Erro ao carregar desenvolvimento:', error);
             this.mainContent.innerHTML = this.createPageContainer(
                 'Erro',
                 `<p>Erro ao carregar página de desenvolvimento: ${error.message}</p>`
@@ -399,20 +379,13 @@ class CandidateRouter {
             
             // Verifica se o CSS já foi carregado
             if (!document.getElementById(id)) {
-                console.log('Carregando CSS:', cssPath);
                 const promise = new Promise((resolve, reject) => {
                     const linkElement = document.createElement('link');
                     linkElement.id = id;
                     linkElement.rel = 'stylesheet';
                     linkElement.href = cssPath;
-                    linkElement.onload = () => {
-                        console.log('CSS carregado:', cssPath);
-                        resolve();
-                    };
-                    linkElement.onerror = (error) => {
-                        console.error('Erro ao carregar CSS:', cssPath, error);
-                        reject(error);
-                    };
+                    linkElement.onload = () => resolve();
+                    linkElement.onerror = () => reject();
                     document.head.appendChild(linkElement);
                 });
                 loadPromises.push(promise);
@@ -423,11 +396,10 @@ class CandidateRouter {
         if (loadPromises.length > 0) {
             try {
                 await Promise.all(loadPromises);
-                console.log('Todos os CSS do currículo carregados com sucesso');
                 // Pequeno delay para garantir que os estilos sejam aplicados
                 await new Promise(resolve => setTimeout(resolve, 100));
             } catch (error) {
-                console.warn('Erro ao carregar alguns CSS do currículo:', error);
+                // Erro ao carregar alguns CSS
             }
         }
     }
@@ -449,20 +421,13 @@ class CandidateRouter {
             
             // Verifica se o CSS já foi carregado
             if (!document.getElementById(id)) {
-                console.log('Carregando CSS:', cssPath);
                 const promise = new Promise((resolve, reject) => {
                     const linkElement = document.createElement('link');
                     linkElement.id = id;
                     linkElement.rel = 'stylesheet';
                     linkElement.href = cssPath;
-                    linkElement.onload = () => {
-                        console.log('CSS carregado:', cssPath);
-                        resolve();
-                    };
-                    linkElement.onerror = (error) => {
-                        console.error('Erro ao carregar CSS:', cssPath, error);
-                        reject(error);
-                    };
+                    linkElement.onload = () => resolve();
+                    linkElement.onerror = () => reject();
                     document.head.appendChild(linkElement);
                 });
                 loadPromises.push(promise);
@@ -473,11 +438,10 @@ class CandidateRouter {
         if (loadPromises.length > 0) {
             try {
                 await Promise.all(loadPromises);
-                console.log('Todos os CSS de entrevistas carregados com sucesso');
                 // Pequeno delay para garantir que os estilos sejam aplicados
                 await new Promise(resolve => setTimeout(resolve, 100));
             } catch (error) {
-                console.warn('Erro ao carregar alguns CSS de entrevistas:', error);
+                // Erro ao carregar alguns CSS
             }
         }
     }
