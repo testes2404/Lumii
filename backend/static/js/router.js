@@ -193,8 +193,7 @@ class CandidateRouter {
             }
         } catch (error) {
             this.mainContent.innerHTML = this.createPageContainer(
-                'Dashboard',
-                '<h1>Erro ao carregar perfil.</h1>'
+                'Dashboard'
             );
         }
     }
