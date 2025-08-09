@@ -79,16 +79,9 @@
       const companyEmail = localStorage.getItem('companyEmail');
       const candidateEmail = localStorage.getItem('candidateEmail');
       
-      console.log('[ESTUDOS] Debug - companyEmail:', companyEmail);
-      console.log('[ESTUDOS] Debug - candidateEmail:', candidateEmail);
-      console.log('[ESTUDOS] Debug - db:', !!db);
-      
       if (!companyEmail) {
-        console.log('[ESTUDOS] Sem companyEmail, buscando empresas das candidaturas...');
-        
         // Se não tem companyEmail, vamos buscar todas as empresas das candidaturas do usuário
         if (!candidateEmail) {
-          console.log('[ESTUDOS] Erro: candidateEmail não encontrado');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Usuário não identificado.</p>';
           return;
         }
@@ -102,9 +95,6 @@
         const respostasQuery = query(respostasRef, where('userEmail', '==', candidateEmail));
         const respostasSnap = await getDocs(respostasQuery);
         
-        console.log('[ESTUDOS] Debug - candidaturasSnap.size:', candidaturasSnap.size);
-        console.log('[ESTUDOS] Debug - respostasSnap.size:', respostasSnap.size);
-        
         const empresasSet = new Set();
         candidaturasSnap.docs.forEach(doc => {
           const data = doc.data();
@@ -116,10 +106,8 @@
         });
         
         const empresas = Array.from(empresasSet);
-        console.log('[ESTUDOS] Debug - empresas encontradas:', empresas);
         
         if (empresas.length === 0) {
-          console.log('[ESTUDOS] Nenhuma empresa encontrada nas candidaturas');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhuma candidatura encontrada.</p>';
           return;
         }
@@ -127,20 +115,15 @@
         // Busca materiais de todas as empresas
         const allMateriais = [];
         for (const empresa of empresas) {
-          console.log('[ESTUDOS] Debug - buscando materiais para empresa:', empresa);
           const colRef = collection(db, 'materiais_aperfeicoamento');
           const q = query(colRef, where('empresaEmail', '==', empresa));
           const snap = await getDocs(q);
-          console.log('[ESTUDOS] Debug - materiais encontrados para', empresa, ':', snap.size);
           snap.docs.forEach(doc => {
             allMateriais.push({ ...doc.data(), empresa });
           });
         }
         
-        console.log('[ESTUDOS] Debug - total de materiais:', allMateriais.length);
-        
         if (allMateriais.length === 0) {
-          console.log('[ESTUDOS] Nenhum material encontrado para as empresas');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhum material encontrado para suas candidaturas.</p>';
           return;
         }
@@ -188,15 +171,11 @@
       }
 
       // consulta apenas os materiais desta empresa (lógica original)
-      console.log('[ESTUDOS] Debug - consultando materiais para companyEmail:', companyEmail);
       const colRef = collection(db, 'materiais_aperfeicoamento');
       const q      = query(colRef, where('empresaEmail','==',companyEmail));
       const snap   = await getDocs(q);
 
-      console.log('[ESTUDOS] Debug - materiais encontrados diretamente:', snap.size);
-
       if (snap.empty) {
-        console.log('[ESTUDOS] Nenhum material encontrado para companyEmail');
         container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhum material encontrado.</p>';
         return;
       }
@@ -242,8 +221,8 @@
         container.appendChild(box);
       });
     })().catch(error => {
-      console.error('[ESTUDOS] Erro ao carregar materiais:', error);
-      container.innerHTML = '<p style="text-align:center;color:#CCC;">Erro ao carregar materiais: ' + error.message + '</p>';
+      console.error('Erro ao carregar materiais:', error);
+      container.innerHTML = '<p style="text-align:center;color:#CCC;">Erro ao carregar materiais. Tente recarregar a página.</p>';
     });
   </script>
 

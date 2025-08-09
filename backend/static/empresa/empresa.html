@@ -161,20 +161,14 @@
     </div>
   </div>
 
+  <script src="../js/firebase-config.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
     import {
       getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
-      authDomain: "mini-genio-c204d.firebaseapp.com",
-      projectId: "mini-genio-c204d",
-      storageBucket: "mini-genio-c204d.firebasestorage.app",
-      messagingSenderId: "553494129644",
-      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9"
-    };
+    const firebaseConfig = await loadFirebaseConfig();
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
