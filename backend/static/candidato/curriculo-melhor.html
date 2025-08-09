@@ -528,7 +528,7 @@ Retorne JSON com:
       let usedFallback = false;
 
       try {
-        const GEMINI_API_KEY = "AIzaSyCuUt5tLclO6vhUSoe3-MSBnPF5ETcrQis"; // substitua
+        const GEMINI_API_KEY = await window.loadGeminiApiKey();
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
         const body = {
           contents: [{ parts: [{ text: prompt }] }],
