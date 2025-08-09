@@ -11,15 +11,15 @@
   <meta http-equiv="Expires" content="0" />
   
   <!-- Version for cache busting -->
-  <meta name="version" content="2025-01-08-v3" />
+  <meta name="version" content="2025-01-09-final" />
   
   <!-- External CSS Files -->
-  <link rel="stylesheet" href="../css/base.css?v=2025-01-08-v3">
-  <link rel="stylesheet" href="../css/pages/estudos.css?v=2025-01-08-v3">
+  <link rel="stylesheet" href="../css/base.css?v=2025-01-09-final">
+  <link rel="stylesheet" href="../css/pages/estudos.css?v=2025-01-09-final">
 </head>
 <body class="estudos-page">
 
-  <h1>Meus Materiais de Aperfeiçoamento</h1>
+  <h1 style="margin-bottom: 30px;">Meus Materiais de Aperfeiçoamento</h1>
   <div id="estudosContainer">
     <!-- Caixinhas serão inseridas aqui -->
   </div>
@@ -27,6 +27,7 @@
   <!-- Force style refresh -->
   <div style="display: none;" id="style-refresh-trigger"></div>
 
+  <script src="../js/firebase-config.js?v=20250109-final"></script>
   <script type="module">
     // Force style recomputation (silent)
     function forceStyleRefresh() {
@@ -59,16 +60,8 @@
     import { getFirestore, collection, query, where, getDocs }
       from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-    // 1. Inicializa Firebase (mesmas credenciais do projeto)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDjys-U4aBy5SMXTasOp_TsfqziuqnEc9o",
-      authDomain: "mini-genio-c204d.firebaseapp.com",
-      projectId: "mini-genio-c204d",
-      storageBucket: "mini-genio-c204d.firebasestorage.app",
-      messagingSenderId: "553494129644",
-      appId: "1:553494129644:web:cc6f0de9d013392fc4eec9",
-      measurementId: "G-9WH6Z7XKK"
-    };
+    // 1. Inicializa Firebase usando configuração do ambiente
+    const firebaseConfig = await loadFirebaseConfig();
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
@@ -86,10 +79,16 @@
       const companyEmail = localStorage.getItem('companyEmail');
       const candidateEmail = localStorage.getItem('candidateEmail');
       
+      console.log('[ESTUDOS] Debug - companyEmail:', companyEmail);
+      console.log('[ESTUDOS] Debug - candidateEmail:', candidateEmail);
+      console.log('[ESTUDOS] Debug - db:', !!db);
+      
       if (!companyEmail) {
+        console.log('[ESTUDOS] Sem companyEmail, buscando empresas das candidaturas...');
         
         // Se não tem companyEmail, vamos buscar todas as empresas das candidaturas do usuário
         if (!candidateEmail) {
+          console.log('[ESTUDOS] Erro: candidateEmail não encontrado');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Usuário não identificado.</p>';
           return;
         }
@@ -103,6 +102,9 @@
         const respostasQuery = query(respostasRef, where('userEmail', '==', candidateEmail));
         const respostasSnap = await getDocs(respostasQuery);
         
+        console.log('[ESTUDOS] Debug - candidaturasSnap.size:', candidaturasSnap.size);
+        console.log('[ESTUDOS] Debug - respostasSnap.size:', respostasSnap.size);
+        
         const empresasSet = new Set();
         candidaturasSnap.docs.forEach(doc => {
           const data = doc.data();
@@ -114,8 +116,10 @@
         });
         
         const empresas = Array.from(empresasSet);
+        console.log('[ESTUDOS] Debug - empresas encontradas:', empresas);
         
         if (empresas.length === 0) {
+          console.log('[ESTUDOS] Nenhuma empresa encontrada nas candidaturas');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhuma candidatura encontrada.</p>';
           return;
         }
@@ -123,15 +127,20 @@
         // Busca materiais de todas as empresas
         const allMateriais = [];
         for (const empresa of empresas) {
+          console.log('[ESTUDOS] Debug - buscando materiais para empresa:', empresa);
           const colRef = collection(db, 'materiais_aperfeicoamento');
           const q = query(colRef, where('empresaEmail', '==', empresa));
           const snap = await getDocs(q);
+          console.log('[ESTUDOS] Debug - materiais encontrados para', empresa, ':', snap.size);
           snap.docs.forEach(doc => {
             allMateriais.push({ ...doc.data(), empresa });
           });
         }
         
+        console.log('[ESTUDOS] Debug - total de materiais:', allMateriais.length);
+        
         if (allMateriais.length === 0) {
+          console.log('[ESTUDOS] Nenhum material encontrado para as empresas');
           container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhum material encontrado para suas candidaturas.</p>';
           return;
         }
@@ -179,11 +188,15 @@
       }
 
       // consulta apenas os materiais desta empresa (lógica original)
+      console.log('[ESTUDOS] Debug - consultando materiais para companyEmail:', companyEmail);
       const colRef = collection(db, 'materiais_aperfeicoamento');
       const q      = query(colRef, where('empresaEmail','==',companyEmail));
       const snap   = await getDocs(q);
 
+      console.log('[ESTUDOS] Debug - materiais encontrados diretamente:', snap.size);
+
       if (snap.empty) {
+        console.log('[ESTUDOS] Nenhum material encontrado para companyEmail');
         container.innerHTML = '<p style="text-align:center;color:#CCC;">Nenhum material encontrado.</p>';
         return;
       }
@@ -228,7 +241,10 @@
         box.append(h2, pDesc, pTipo, divider, pData, actions);
         container.appendChild(box);
       });
-    })();
+    })().catch(error => {
+      console.error('[ESTUDOS] Erro ao carregar materiais:', error);
+      container.innerHTML = '<p style="text-align:center;color:#CCC;">Erro ao carregar materiais: ' + error.message + '</p>';
+    });
   </script>
 
 </body>
