@@ -39,14 +39,14 @@
 
 /* Button Variants */
 .btn-primary {
-  background: var(--accent-primary);
+  background: #eedffed;
   color: var(--bg-primary);
-  border-color: var(--accent-primary);
+  border-color: #eedffed;
 }
 
 .btn-primary:hover {
-  background: #2dd610;
-  border-color: #2dd610;
+  background: #e0c9e0;
+  border-color: #e0c9e0;
 }
 
 .btn-secondary {
@@ -147,7 +147,7 @@
   width: 100%;
   padding: 0.8rem;
   margin-top: var(--spacing-md);
-  background: var(--accent-primary);
+  background: #eedffed;
   color: var(--bg-primary);
   border: none;
   border-radius: var(--radius-md);
@@ -157,7 +157,7 @@
 }
 
 .btn-save:hover {
-  background: #2dd610;
+  background: #e0c9e0;
 }
 
 .btn-save:disabled {

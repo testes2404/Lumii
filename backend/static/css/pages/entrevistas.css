@@ -218,12 +218,12 @@
 }
 
 .entrevistas-page .btn-confirmar {
-  background: #4CAF50;
+  background: #eedffed;
   color: #fff;
 }
 
 .entrevistas-page .btn-confirmar:hover {
-  background: #45a049;
+  background: #e0c9e0;
 }
 
 .entrevistas-page .btn-recusar {
@@ -236,12 +236,12 @@
 }
 
 .entrevistas-page .btn-primario {
-  background: linear-gradient(135deg, #6d8cff, #9b63ff);
+  background: #eedffed;
   color: #fff;
 }
 
 .entrevistas-page .btn-primario:hover {
-  background: linear-gradient(135deg, #5a7aff, #8850ff);
+  background: #e0c9e0;
 }
 
 /* Form Elements */

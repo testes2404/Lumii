@@ -135,7 +135,7 @@
 
 .botao-principal {
   width: 100%;
-  background: #28a745;
+  background: #eedffed;
   border: none;
   padding: var(--spacing-md);
   font-size: 1.1rem;
@@ -147,7 +147,7 @@
 }
 
 .botao-principal:hover {
-  background: #218838;
+  background: #e0c9e0;
   transform: translateY(-2px);
 }
 

@@ -69,22 +69,22 @@ class CandidateOnboarding {
                 background: transparent;
                 border: 3px solid #39ff14;
                 border-radius: 8px;
-                box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+                box-shadow: 0 0 20px rgba(238, 223, 237, 0.5);
                 pointer-events: none;
                 transition: all 0.3s ease;
                 animation: pulse 2s infinite;
             }
             
             @keyframes pulse {
-                0%, 100% { box-shadow: 0 0 20px rgba(57, 255, 20, 0.5); }
-                50% { box-shadow: 0 0 30px rgba(57, 255, 20, 0.8); }
+                0%, 100% { box-shadow: 0 0 20px rgba(238, 223, 237, 0.5); }
+                50% { box-shadow: 0 0 30px rgba(238, 223, 237, 0.8); }
             }
             
             .onboarding-tooltip {
                 position: absolute;
                 max-width: 300px;
                 background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-                border: 1px solid rgba(57, 255, 20, 0.3);
+                border: 1px solid rgba(238, 223, 237, 0.3);
                 border-radius: 12px;
                 padding: 20px;
                 color: #fff;
@@ -101,12 +101,12 @@ class CandidateOnboarding {
             
             .onboarding-tooltip.bottom::before {
                 top: -20px; left: 20px;
-                border-bottom-color: rgba(57, 255, 20, 0.3);
+                border-bottom-color: rgba(238, 223, 237, 0.3);
             }
             
             .onboarding-tooltip.top::before {
                 bottom: -20px; left: 20px;
-                border-top-color: rgba(57, 255, 20, 0.3);
+                border-top-color: rgba(238, 223, 237, 0.3);
             }
             
             .onboarding-tooltip h3 {
@@ -167,7 +167,7 @@ class CandidateOnboarding {
             }
             
             .onboarding-btn.secondary:hover {
-                background: rgba(57, 255, 20, 0.1);
+                background: rgba(238, 223, 237, 0.1);
             }
             
             .welcome-modal {
@@ -176,7 +176,7 @@ class CandidateOnboarding {
                 transform: translate(-50%, -50%);
                 max-width: 500px;
                 background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-                border: 1px solid rgba(57, 255, 20, 0.3);
+                border: 1px solid rgba(238, 223, 237, 0.3);
                 border-radius: 16px;
                 padding: 30px;
                 z-index: 10000;
@@ -490,7 +490,7 @@ class CandidateOnboarding {
             border-radius: 8px;
             font-weight: 500;
             z-index: 10000;
-            box-shadow: 0 4px 20px rgba(57, 255, 20, 0.3);
+            box-shadow: 0 4px 20px rgba(238, 223, 237, 0.3);
             animation: slideInRight 0.3s ease-out;
         `;
         message.textContent = 'Tour concluído! Bem-vindo à Lumii!';
