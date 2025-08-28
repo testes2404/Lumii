@@ -65,9 +65,9 @@
 
 .material-box:hover {
   background: rgba(255,255,255,0.12);
-  border-color: rgba(57, 255, 20, 0.4);
+  border-color: rgba(238, 223, 237, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(57, 255, 20, 0.2);
+  box-shadow: 0 8px 32px rgba(238, 223, 237, 0.2);
 }
 
 /* Material Box Content */
@@ -102,7 +102,7 @@
 
 .btn-open {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #39ff14, #2de00f);
+  background: #eedffed;
   border: none;
   border-radius: 10px;
   color: #0A0A0A;
@@ -115,7 +115,7 @@
   gap: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(57, 255, 20, 0.3);
+  box-shadow: 0 4px 15px rgba(238, 223, 254, 0.3);
   cursor: pointer;
 }
 
@@ -126,8 +126,8 @@
 
 .btn-open:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(57, 255, 20, 0.5);
-  background: linear-gradient(135deg, #2de00f, #21c00b);
+  box-shadow: 0 6px 20px rgba(238, 223, 254, 0.5);
+  background: #e0c9e0;
   color: #0A0A0A;
 }
 
@@ -151,13 +151,13 @@
 /* Company Badge */
 .empresa-badge {
   display: inline-block;
-  background: rgba(57, 255, 20, 0.2);
+  background: rgba(238, 223, 237, 0.2);
   color: #39ff14;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-  border: 1px solid rgba(57, 255, 20, 0.3);
+  border: 1px solid rgba(238, 223, 237, 0.3);
   margin-top: 0.5rem;
   align-self: flex-start;
 }

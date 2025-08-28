@@ -378,7 +378,7 @@
         
         <div class="candidatura-actions">
           ${isApplied ? 
-            '<div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; border: 1px solid rgba(57, 255, 20, 0.3);"><p style="color: #39ff14; font-weight: 600;">✅ Você já se candidatou para esta vaga</p></div>' 
+            '<div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; border: 1px solid rgba(238, 223, 237, 0.3);"><p style="color: #39ff14; font-weight: 600;">✅ Você já se candidatou para esta vaga</p></div>' 
             : 
             `<div class="candidatura-buttons">
               <div id="candidaturaButtons" style="margin-bottom: 1rem;">
@@ -423,7 +423,7 @@
         if (!savedData.respostasValores?.length) {
           const valoresExistem = await checkValoresExistem(vaga.companyEmail);
           if (valoresExistem) {
-            buttonsHTML += '<button id="btnValoresCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Valores</button>';
+            buttonsHTML += '<button id="btnValoresCandidatura" class="btn-candidatura" style="background: rgba(238, 223, 237, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Valores</button>';
             if (!firstAvailableStep) firstAvailableStep = 'valores';
           }
         }
@@ -432,7 +432,7 @@
         if (!savedData.respostasDinamicas?.length) {
           const dinamicasExistem = await checkDinamicasExistem(vaga.companyEmail);
           if (dinamicasExistem) {
-            buttonsHTML += '<button id="btnDinamicasCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Dinâmicas</button>';
+            buttonsHTML += '<button id="btnDinamicasCandidatura" class="btn-candidatura" style="background: rgba(238, 223, 237, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Dinâmicas</button>';
             if (!firstAvailableStep) firstAvailableStep = 'dinamicas';
           }
         }
@@ -441,7 +441,7 @@
         if (!savedData.respostasTrilhas || !Object.keys(savedData.respostasTrilhas).length) {
           const trilhasExistem = await checkTrilhasExistem();
           if (trilhasExistem) {
-            buttonsHTML += '<button id="btnTrilhasCandidatura" class="btn-candidatura" style="background: rgba(57, 255, 20, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Trilhas</button>';
+            buttonsHTML += '<button id="btnTrilhasCandidatura" class="btn-candidatura" style="background: rgba(238, 223, 237, 0.8); color: #0A0A0A; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 0.5rem 0.5rem 0.5rem 0; transition: all 0.3s;">Trilhas</button>';
             if (!firstAvailableStep) firstAvailableStep = 'trilhas';
           }
         }
@@ -472,7 +472,7 @@
               const btnId = `btn${firstAvailableStep.charAt(0).toUpperCase() + firstAvailableStep.slice(1)}Candidatura`;
               const btn = document.getElementById(btnId);
               if (btn) {
-                btn.style.background = 'rgba(57, 255, 20, 1)';
+                btn.style.background = 'rgba(238, 223, 237, 1)';
                 btn.style.transform = 'scale(1.05)';
               }
             }, 200);
@@ -480,7 +480,7 @@
         } else {
           // Todas as etapas foram respondidas ou não há etapas disponíveis
           candidaturaButtons.innerHTML = `
-            <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; border: 1px solid rgba(57, 255, 20, 0.3);">
+            <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; border: 1px solid rgba(238, 223, 237, 0.3);">
               <p style="color: #39ff14; font-weight: 600;">✅ Todas as etapas de candidatura foram concluídas</p>
             </div>
           `;
@@ -575,7 +575,7 @@
     window.loadValoresStep = async function(container, companyEmail, savedData) {
       if (savedData.respostasValores?.length) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
           </div>
         `;
@@ -658,7 +658,7 @@
         });
 
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Respostas dos valores salvas com sucesso!</p>
           </div>
         `;
@@ -677,7 +677,7 @@
     window.loadDinamicasStep = async function(container, companyEmail, savedData) {
       if (savedData.respostasDinamicas?.length) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
           </div>
         `;
@@ -751,7 +751,7 @@
         }, { merge: true });
 
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Respostas das dinâmicas salvas com sucesso!</p>
           </div>
         `;
@@ -770,7 +770,7 @@
     window.loadTrilhasStep = async function(container, savedData) {
       if (savedData.respostasTrilhas && Object.keys(savedData.respostasTrilhas).length) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Você já respondeu esta etapa.</p>
           </div>
         `;
@@ -795,7 +795,7 @@
       snap.docs.forEach(doc => {
         const data = doc.data();
         Object.entries(data).forEach(([categoria, questoes]) => {
-          html += `<h5 style="color: #39ff14; margin: 1.5rem 0 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(57, 255, 20, 0.3); padding-bottom: 0.5rem;">${categoria}</h5>`;
+          html += `<h5 style="color: #39ff14; margin: 1.5rem 0 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(238, 223, 237, 0.3); padding-bottom: 0.5rem;">${categoria}</h5>`;
           
           questoes.forEach(questao => {
             html += `
@@ -856,7 +856,7 @@
         }, { merge: true });
 
         container.innerHTML = `
-          <div style="text-align: center; padding: 1rem; background: rgba(57, 255, 20, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(57, 255, 20, 0.3);">
+          <div style="text-align: center; padding: 1rem; background: rgba(238, 223, 237, 0.1); border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(238, 223, 237, 0.3);">
             <p style="color: #39ff14; font-weight: 600;">✅ Respostas da trilha salvas com sucesso!</p>
           </div>
         `;
