@@ -1,4 +1,4 @@
-# Lumii - Portal de Candidatos
+# Lumii - Portal de Candidato
 
 Sistema completo de portal para candidatos com área administrativa para empresas, desenvolvido com FastAPI (backend) e JavaScript vanilla (frontend).
 
